@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Overwatch Match Logger</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Overwatch Match Logger</h1>
+            <div class="session-info">
+                <span id="sessionMatches">Session: 0 matches</span>
+                <span id="sessionWR">Win Rate: --</span>
+            </div>
+        </header>
+
+        <main>
+            <!-- Quick Log Section -->
+            <section class="quick-log">
+                <h2>Log Match</h2>
+
+                <div class="match-type-buttons">
+                    <button class="match-type-btn" data-type="competitive" data-key="1">
+                        <span class="key-hint">1</span>
+                        Competitive
+                    </button>
+                    <button class="match-type-btn" data-type="quickplay" data-key="2">
+                        <span class="key-hint">2</span>
+                        Quick Play
+                    </button>
+                    <button class="match-type-btn" data-type="arcade" data-key="3">
+                        <span class="key-hint">3</span>
+                        Arcade
+                    </button>
+                    <button class="match-type-btn" data-type="unranked" data-key="4">
+                        <span class="key-hint">4</span>
+                        Unranked
+                    </button>
+                    <button class="match-type-btn" data-type="custom" data-key="5">
+                        <span class="key-hint">5</span>
+                        Custom
+                    </button>
+                </div>
+
+                <div class="result-buttons">
+                    <button class="result-btn win" data-result="win" data-key="w">
+                        <span class="key-hint">W</span>
+                        Win
+                    </button>
+                    <button class="result-btn loss" data-result="loss" data-key="l">
+                        <span class="key-hint">L</span>
+                        Loss
+                    </button>
+                    <button class="result-btn draw" data-result="draw" data-key="d">
+                        <span class="key-hint">D</span>
+                        Draw
+                    </button>
+                </div>
+
+                <div class="current-selection">
+                    <span id="selectedType">Select match type...</span>
+                    <span id="selectedResult"></span>
+                </div>
+
+                <button id="saveBtn" class="save-btn" disabled>
+                    Save Match <span class="key-hint">Enter</span>
+                </button>
+
+                <button id="undoBtn" class="undo-btn" disabled>
+                    Undo Last <span class="key-hint">Ctrl+Z</span>
+                </button>
+            </section>
+
+            <!-- Stats Section -->
+            <section class="stats">
+                <h2>Quick Stats</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalMatches">0</div>
+                        <div class="stat-label">Total Matches</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalWins">0</div>
+                        <div class="stat-label">Wins</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalLosses">0</div>
+                        <div class="stat-label">Losses</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="overallWR">--%</div>
+                        <div class="stat-label">Win Rate</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recent Matches Section -->
+            <section class="recent-matches">
+                <h2>Recent Matches</h2>
+                <div id="matchList" class="match-list">
+                    <p class="empty-state">No matches logged yet. Start logging!</p>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <button id="exportBtn" class="export-btn">Export Data (CSV)</button>
+            <button id="clearBtn" class="clear-btn">Clear All Data</button>
+            <div class="keyboard-hints">
+                Keyboard shortcuts: 1-5 (match type), W/L/D (result), Enter (save), Ctrl+Z (undo)
+            </div>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
