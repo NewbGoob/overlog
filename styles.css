@@ -208,6 +208,50 @@ h2 {
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
+/* Recent Heroes */
+.recent-heroes-container {
+    margin-bottom: 15px;
+    padding: 12px;
+    background: rgba(243, 156, 18, 0.1);
+    border: 1px solid rgba(243, 156, 18, 0.3);
+    border-radius: 8px;
+}
+
+.recent-heroes-header {
+    color: #f39c12;
+    font-size: 0.9em;
+    font-weight: bold;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.recent-heroes-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 8px;
+}
+
+.recent-hero-btn {
+    font-size: 0.95em;
+    padding: 10px;
+    background: rgba(243, 156, 18, 0.2);
+    border-color: rgba(243, 156, 18, 0.5);
+    font-weight: 500;
+}
+
+.recent-hero-btn:hover {
+    background: rgba(243, 156, 18, 0.3);
+    border-color: #f39c12;
+}
+
+.recent-hero-btn.active {
+    background: #f39c12;
+    border-color: #f1c40f;
+    color: #1a1a2e;
+    box-shadow: 0 0 15px rgba(243, 156, 18, 0.4);
+}
+
 /* Hero Selection */
 .hero-section-wrapper {
     margin-bottom: 20px;

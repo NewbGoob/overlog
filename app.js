@@ -99,8 +99,9 @@ let state = {
     selectedHeroes: [],
     matches: [],
     sessionStartTime: null,
+    recentHeroes: [], // Track 4 most recently used heroes
     // Keyboard navigation focus
-    focusZone: 'parent', // 'parent', 'child', 'hero-toggle', 'heroes', 'clear-heroes', 'result', 'save'
+    focusZone: 'parent', // 'parent', 'child', 'hero-toggle', 'recent-heroes', 'heroes', 'clear-heroes', 'result', 'save'
     focusIndex: 0,
     lastHeroFocusIndex: 0 // Remember last focused hero when drawer was open
 };
@@ -128,6 +129,12 @@ function loadData() {
         state.sessionStartTime = new Date();
         localStorage.setItem('owSessionStart', state.sessionStartTime.toISOString());
     }
+
+    // Load recent heroes
+    const savedRecentHeroes = localStorage.getItem('owRecentHeroes');
+    if (savedRecentHeroes) {
+        state.recentHeroes = JSON.parse(savedRecentHeroes);
+    }
 }
 
 // Save data to localStorage
@@ -140,6 +147,7 @@ function init() {
     loadData();
     renderMatchTypeButtons();
     renderHeroButtons();
+    renderRecentHeroes();
     setupEventListeners();
     updateUI();
     updateStorageIndicator();
@@ -229,6 +237,47 @@ function renderHeroButtons() {
             </div>
         </div>
     `;
+}
+
+// Render recently used heroes
+function renderRecentHeroes() {
+    const container = document.getElementById('recentHeroesContainer');
+    if (!container) return;
+
+    if (state.recentHeroes.length === 0) {
+        container.style.display = 'none';
+        return;
+    }
+
+    container.style.display = 'block';
+    const recentHeroesButtons = document.getElementById('recentHeroesButtons');
+
+    recentHeroesButtons.innerHTML = state.recentHeroes.map(heroId => {
+        const hero = CONFIG.heroes.find(h => h.id === heroId);
+        if (!hero) return '';
+
+        const isSelected = state.selectedHeroes.includes(heroId);
+        return `<button class="hero-btn recent-hero-btn ${isSelected ? 'active' : ''}" data-hero="${heroId}">${hero.name}</button>`;
+    }).join('');
+
+    // Re-attach event listeners after rendering
+    setupRecentHeroListeners();
+}
+
+// Setup event listeners for recent hero buttons
+function setupRecentHeroListeners() {
+    const recentHeroesButtons = document.getElementById('recentHeroesButtons');
+    if (!recentHeroesButtons) return;
+
+    // Remove old listener if exists
+    const newButtons = recentHeroesButtons.cloneNode(true);
+    recentHeroesButtons.parentNode.replaceChild(newButtons, recentHeroesButtons);
+
+    // Add new listener
+    newButtons.addEventListener('click', (e) => {
+        const btn = e.target.closest('.hero-btn');
+        if (btn) toggleHero(btn.dataset.hero);
+    });
 }
 
 // Setup event listeners
@@ -354,6 +403,8 @@ function handleWASDNavigation(key) {
     const currentZone = state.focusZone;
     const heroSection = document.getElementById('heroSelection');
     const isHeroSectionVisible = heroSection && heroSection.style.display !== 'none';
+    const recentHeroesContainer = document.getElementById('recentHeroesContainer');
+    const hasRecentHeroes = recentHeroesContainer && recentHeroesContainer.style.display !== 'none';
 
     // Special handling for heroes zone - W/S moves vertically in grid
     if (currentZone === 'heroes' && (key === 'w' || key === 's')) {
@@ -364,7 +415,7 @@ function handleWASDNavigation(key) {
     if (key === 'w') {
         // Move up (previous zone)
         if (currentZone === 'result') {
-            // Move from result to clear-heroes if visible, otherwise heroes if visible, otherwise hero-toggle
+            // Move from result to clear-heroes if drawer visible, otherwise hero-toggle
             if (isHeroSectionVisible) {
                 state.focusZone = 'clear-heroes';
                 state.focusIndex = 0;
@@ -376,14 +427,29 @@ function handleWASDNavigation(key) {
             // Move from clear-heroes to heroes
             state.focusZone = 'heroes';
             // Start at the bottom of the hero list when coming from below
-            const heroButtons = document.querySelectorAll('.hero-btn');
+            const heroButtons = document.querySelectorAll('.hero-btn:not(.recent-hero-btn)');
             state.focusIndex = Math.max(0, heroButtons.length - 1);
         } else if (currentZone === 'heroes') {
             // Move from heroes to hero-toggle
             state.focusZone = 'hero-toggle';
             state.focusIndex = 0;
         } else if (currentZone === 'hero-toggle') {
-            // Move from hero-toggle to child types if visible, otherwise parent types
+            // Move from hero-toggle to recent-heroes if available, otherwise child types if visible, otherwise parent types
+            if (hasRecentHeroes) {
+                state.focusZone = 'recent-heroes';
+                state.focusIndex = 0;
+            } else {
+                const childTypes = document.getElementById('childTypes');
+                if (childTypes && childTypes.style.display !== 'none') {
+                    state.focusZone = 'child';
+                    state.focusIndex = 0;
+                } else {
+                    state.focusZone = 'parent';
+                    state.focusIndex = 0;
+                }
+            }
+        } else if (currentZone === 'recent-heroes') {
+            // Move from recent-heroes to child types if visible, otherwise parent types
             const childTypes = document.getElementById('childTypes');
             if (childTypes && childTypes.style.display !== 'none') {
                 state.focusZone = 'child';
@@ -407,11 +473,22 @@ function handleWASDNavigation(key) {
             if (childTypes && childTypes.style.display !== 'none') {
                 state.focusZone = 'child';
                 state.focusIndex = 0;
+            } else if (hasRecentHeroes) {
+                state.focusZone = 'recent-heroes';
+                state.focusIndex = 0;
             } else {
                 state.focusZone = 'hero-toggle';
                 state.focusIndex = 0;
             }
         } else if (currentZone === 'child') {
+            if (hasRecentHeroes) {
+                state.focusZone = 'recent-heroes';
+                state.focusIndex = 0;
+            } else {
+                state.focusZone = 'hero-toggle';
+                state.focusIndex = 0;
+            }
+        } else if (currentZone === 'recent-heroes') {
             state.focusZone = 'hero-toggle';
             state.focusIndex = 0;
         } else if (currentZone === 'hero-toggle') {
@@ -536,10 +613,13 @@ function getMaxIndexForZone(zone) {
     } else if (zone === 'child') {
         const childButtons = document.querySelectorAll('.child-type-btn');
         return Math.max(0, childButtons.length - 1);
+    } else if (zone === 'recent-heroes') {
+        const recentButtons = document.querySelectorAll('.recent-hero-btn');
+        return Math.max(0, recentButtons.length - 1);
     } else if (zone === 'hero-toggle') {
         return 0; // Only one button
     } else if (zone === 'heroes') {
-        const heroButtons = document.querySelectorAll('.hero-btn');
+        const heroButtons = document.querySelectorAll('.hero-btn:not(.recent-hero-btn)');
         return Math.max(0, heroButtons.length - 1);
     } else if (zone === 'clear-heroes') {
         return 0; // Only one button
@@ -580,6 +660,13 @@ function handleSpacebarSelection() {
             // Auto-advance to results
             state.focusZone = 'result';
             state.focusIndex = 0;
+        }
+    } else if (zone === 'recent-heroes') {
+        const recentButtons = document.querySelectorAll('.recent-hero-btn');
+        if (recentButtons[index]) {
+            const heroId = recentButtons[index].dataset.hero;
+            toggleHero(heroId);
+            // Don't auto-advance, stay in recent-heroes zone
         }
     } else if (zone === 'hero-toggle') {
         // Toggle hero section visibility
@@ -648,10 +735,13 @@ function updateFocusVisuals() {
     } else if (zone === 'child') {
         const childButtons = document.querySelectorAll('.child-type-btn');
         focusedElement = childButtons[index];
+    } else if (zone === 'recent-heroes') {
+        const recentButtons = document.querySelectorAll('.recent-hero-btn');
+        focusedElement = recentButtons[index];
     } else if (zone === 'hero-toggle') {
         focusedElement = document.getElementById('heroSectionToggle');
     } else if (zone === 'heroes') {
-        const heroButtons = document.querySelectorAll('.hero-btn');
+        const heroButtons = document.querySelectorAll('.hero-btn:not(.recent-hero-btn)');
         focusedElement = heroButtons[index];
     } else if (zone === 'clear-heroes') {
         focusedElement = document.getElementById('clearHeroesBtn');
@@ -693,6 +783,8 @@ function updateHeroButtons() {
     document.querySelectorAll('.hero-btn').forEach(btn => {
         btn.classList.toggle('active', state.selectedHeroes.includes(btn.dataset.hero));
     });
+    // Also update recent heroes if they exist
+    renderRecentHeroes();
 }
 
 // Toggle hero section visibility
@@ -913,6 +1005,26 @@ function saveMatch() {
 
     state.matches.unshift(match); // Add to beginning of array
     saveData();
+
+    // Update recently used heroes (if any were selected)
+    if (match.heroes.length > 0) {
+        // Add new heroes to recent list
+        match.heroes.forEach(heroId => {
+            // Remove if already in list
+            const existingIndex = state.recentHeroes.indexOf(heroId);
+            if (existingIndex > -1) {
+                state.recentHeroes.splice(existingIndex, 1);
+            }
+            // Add to beginning
+            state.recentHeroes.unshift(heroId);
+        });
+        // Keep only 4 most recent
+        state.recentHeroes = state.recentHeroes.slice(0, 4);
+        // Save to localStorage
+        localStorage.setItem('owRecentHeroes', JSON.stringify(state.recentHeroes));
+        // Re-render recent heroes
+        renderRecentHeroes();
+    }
 
     // Reset only result and heroes (keep match type selected for quick back-to-back logging)
     state.selectedResult = null;
