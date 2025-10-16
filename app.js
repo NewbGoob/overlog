@@ -155,6 +155,10 @@ function init() {
     updateStorageIndicator();
     checkExportReminder();
 
+    // Ensure save button starts in neutral state (no result color classes)
+    const saveBtn = document.getElementById('saveBtn');
+    saveBtn.classList.remove('win', 'loss', 'draw');
+
     // Don't set initial focus - start defocused
     // User can press WASD or spacebar to begin navigating
 }
