@@ -101,9 +101,11 @@ let state = {
     sessionStartTime: null,
     recentHeroes: [], // Track 4 most recently used heroes
     // Keyboard navigation focus
-    focusZone: 'parent', // 'parent', 'child', 'hero-toggle', 'recent-heroes', 'heroes', 'clear-heroes', 'result', 'save'
+    focusZone: null, // 'parent', 'child', 'hero-toggle', 'recent-heroes', 'heroes', 'clear-heroes', 'result', 'save', or null when defocused
     focusIndex: 0,
-    lastHeroFocusIndex: 0 // Remember last focused hero when drawer was open
+    lastHeroFocusIndex: 0, // Remember last focused hero when drawer was open
+    lastFocusZone: 'parent', // Remember last zone for refocusing
+    lastFocusIndex: 0 // Remember last index for refocusing
 };
 
 // Load data from localStorage on init
@@ -153,8 +155,8 @@ function init() {
     updateStorageIndicator();
     checkExportReminder();
 
-    // Set initial keyboard focus
-    updateFocusVisuals();
+    // Don't set initial focus - start defocused
+    // User can press WASD or spacebar to begin navigating
 }
 
 // Dynamically render match type buttons from config
@@ -357,6 +359,77 @@ function setupEventListeners() {
 
     // Keyboard shortcuts
     document.addEventListener('keydown', handleKeyboard);
+
+    // Click to focus - add listeners to all focusable elements
+    document.addEventListener('click', handleClickFocus);
+}
+
+// Handle click to focus
+function handleClickFocus(e) {
+    // Check if clicked element is a focusable button
+    const target = e.target.closest('button, .match-type-btn, .result-btn, .hero-btn, .save-btn, .undo-btn');
+
+    if (!target) {
+        // Clicked outside any focusable element - defocus
+        state.focusZone = null;
+        updateFocusVisuals();
+        return;
+    }
+
+    // Determine what was clicked and set focus accordingly
+    if (target.classList.contains('parent-type-btn')) {
+        const parentButtons = Array.from(document.querySelectorAll('.parent-type-btn'));
+        const index = parentButtons.indexOf(target);
+        if (index >= 0) {
+            state.focusZone = 'parent';
+            state.focusIndex = index;
+            updateFocusVisuals();
+        }
+    } else if (target.classList.contains('child-type-btn')) {
+        const childButtons = Array.from(document.querySelectorAll('.child-type-btn'));
+        const index = childButtons.indexOf(target);
+        if (index >= 0) {
+            state.focusZone = 'child';
+            state.focusIndex = index;
+            updateFocusVisuals();
+        }
+    } else if (target.classList.contains('recent-hero-btn')) {
+        const recentButtons = Array.from(document.querySelectorAll('.recent-hero-btn'));
+        const index = recentButtons.indexOf(target);
+        if (index >= 0) {
+            state.focusZone = 'recent-heroes';
+            state.focusIndex = index;
+            updateFocusVisuals();
+        }
+    } else if (target.id === 'heroSectionToggle') {
+        state.focusZone = 'hero-toggle';
+        state.focusIndex = 0;
+        updateFocusVisuals();
+    } else if (target.classList.contains('hero-btn') && !target.classList.contains('recent-hero-btn')) {
+        const heroButtons = Array.from(document.querySelectorAll('.hero-btn:not(.recent-hero-btn)'));
+        const index = heroButtons.indexOf(target);
+        if (index >= 0) {
+            state.focusZone = 'heroes';
+            state.focusIndex = index;
+            updateFocusVisuals();
+        }
+    } else if (target.id === 'clearHeroesBtn') {
+        state.focusZone = 'clear-heroes';
+        state.focusIndex = 0;
+        updateFocusVisuals();
+    } else if (target.classList.contains('result-btn')) {
+        const resultButtons = Array.from(document.querySelectorAll('.result-btn'));
+        const index = resultButtons.indexOf(target);
+        if (index >= 0) {
+            state.focusZone = 'result';
+            state.focusIndex = index;
+            updateFocusVisuals();
+        }
+    } else if (target.id === 'saveBtn') {
+        state.focusZone = 'save';
+        state.focusIndex = 0;
+        updateFocusVisuals();
+    }
 }
 
 // Handle keyboard shortcuts - WASD navigation
@@ -371,15 +444,29 @@ function handleKeyboard(e) {
     // WASD Navigation
     if (['w', 'a', 's', 'd'].includes(key)) {
         e.preventDefault();
-        handleWASDNavigation(key);
+        // If defocused, restore last focus
+        if (state.focusZone === null) {
+            state.focusZone = state.lastFocusZone;
+            state.focusIndex = state.lastFocusIndex;
+        } else {
+            handleWASDNavigation(key);
+        }
         updateFocusVisuals();
         return;
     }
 
-    // Spacebar - Select current focused item
+    // Spacebar - Select current focused item or restore focus if defocused
     if (e.key === ' ') {
         e.preventDefault();
-        handleSpacebarSelection();
+        if (state.focusZone === null) {
+            // Restore focus without triggering selection
+            state.focusZone = state.lastFocusZone;
+            state.focusIndex = state.lastFocusIndex;
+            updateFocusVisuals();
+        } else {
+            // Trigger selection
+            handleSpacebarSelection();
+        }
         return;
     }
 
@@ -726,6 +813,15 @@ function updateFocusVisuals() {
 
     const zone = state.focusZone;
     const index = state.focusIndex;
+
+    // If defocused, don't show any focus
+    if (zone === null) {
+        return;
+    }
+
+    // Remember last focus for restoration
+    state.lastFocusZone = zone;
+    state.lastFocusIndex = index;
 
     let focusedElement = null;
 
