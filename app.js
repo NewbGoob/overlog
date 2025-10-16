@@ -1,9 +1,106 @@
+// ============================================
+// CONFIGURATION - Edit these to customize
+// ============================================
+
+const CONFIG = {
+    matchTypes: [
+        {
+            id: 'unranked',
+            label: 'Unranked',
+            key: '1',
+            children: [
+                { id: 'quickplay', label: 'Quick Play', key: 'q' },
+                { id: '6v6-openqueue', label: '6V6 Open Queue', key: 'o' },
+                { id: 'mystery-heroes', label: 'Mystery Heroes', key: 'm' }
+            ]
+        },
+        {
+            id: 'competitive',
+            label: 'Competitive',
+            key: '2',
+            children: [
+                { id: 'role-queue', label: 'Role Queue', key: 'r' },
+                { id: 'open-queue', label: 'Open Queue', key: 'o' }
+            ]
+        },
+        {
+            id: 'stadium',
+            label: 'Stadium',
+            key: '3',
+            children: [
+                { id: 'quickplay', label: 'Quick Play', key: 'q' },
+                { id: 'competitive', label: 'Competitive', key: 'c' }
+            ]
+        },
+        {
+            id: 'arcade',
+            label: 'Arcade',
+            key: '4',
+            children: []
+        }
+    ],
+
+    heroes: [
+        // Tank
+        { id: 'dva', name: 'D.Va', role: 'tank' },
+        { id: 'doomfist', name: 'Doomfist', role: 'tank' },
+        { id: 'junkerqueen', name: 'Junker Queen', role: 'tank' },
+        { id: 'mauga', name: 'Mauga', role: 'tank' },
+        { id: 'orisa', name: 'Orisa', role: 'tank' },
+        { id: 'ramattra', name: 'Ramattra', role: 'tank' },
+        { id: 'reinhardt', name: 'Reinhardt', role: 'tank' },
+        { id: 'roadhog', name: 'Roadhog', role: 'tank' },
+        { id: 'sigma', name: 'Sigma', role: 'tank' },
+        { id: 'winston', name: 'Winston', role: 'tank' },
+        { id: 'wreckingball', name: 'Wrecking Ball', role: 'tank' },
+        { id: 'zarya', name: 'Zarya', role: 'tank' },
+
+        // Damage
+        { id: 'ashe', name: 'Ashe', role: 'damage' },
+        { id: 'bastion', name: 'Bastion', role: 'damage' },
+        { id: 'cassidy', name: 'Cassidy', role: 'damage' },
+        { id: 'echo', name: 'Echo', role: 'damage' },
+        { id: 'genji', name: 'Genji', role: 'damage' },
+        { id: 'hanzo', name: 'Hanzo', role: 'damage' },
+        { id: 'junkrat', name: 'Junkrat', role: 'damage' },
+        { id: 'mei', name: 'Mei', role: 'damage' },
+        { id: 'pharah', name: 'Pharah', role: 'damage' },
+        { id: 'reaper', name: 'Reaper', role: 'damage' },
+        { id: 'sojourn', name: 'Sojourn', role: 'damage' },
+        { id: 'soldier76', name: 'Soldier: 76', role: 'damage' },
+        { id: 'sombra', name: 'Sombra', role: 'damage' },
+        { id: 'symmetra', name: 'Symmetra', role: 'damage' },
+        { id: 'torbjorn', name: 'Torbjörn', role: 'damage' },
+        { id: 'tracer', name: 'Tracer', role: 'damage' },
+        { id: 'venture', name: 'Venture', role: 'damage' },
+        { id: 'widowmaker', name: 'Widowmaker', role: 'damage' },
+
+        // Support
+        { id: 'ana', name: 'Ana', role: 'support' },
+        { id: 'baptiste', name: 'Baptiste', role: 'support' },
+        { id: 'brigitte', name: 'Brigitte', role: 'support' },
+        { id: 'illari', name: 'Illari', role: 'support' },
+        { id: 'juno', name: 'Juno', role: 'support' },
+        { id: 'kiriko', name: 'Kiriko', role: 'support' },
+        { id: 'lifeweaver', name: 'Lifeweaver', role: 'support' },
+        { id: 'lucio', name: 'Lúcio', role: 'support' },
+        { id: 'mercy', name: 'Mercy', role: 'support' },
+        { id: 'moira', name: 'Moira', role: 'support' },
+        { id: 'zenyatta', name: 'Zenyatta', role: 'support' }
+    ]
+};
+
 // State management
 let state = {
-    selectedType: null,
+    selectedParentType: null,
+    selectedChildType: null,
     selectedResult: null,
+    selectedHeroes: [],
     matches: [],
-    sessionStartTime: null
+    sessionStartTime: null,
+    // Keyboard navigation focus
+    focusZone: 'parent', // 'parent', 'child', 'result', 'save'
+    focusIndex: 0
 };
 
 // Load data from localStorage on init
@@ -39,15 +136,111 @@ function saveData() {
 // Initialize the app
 function init() {
     loadData();
+    renderMatchTypeButtons();
+    renderHeroButtons();
     setupEventListeners();
     updateUI();
+    updateStorageIndicator();
+    checkExportReminder();
+
+    // Set initial keyboard focus
+    updateFocusVisuals();
+}
+
+// Dynamically render match type buttons from config
+function renderMatchTypeButtons() {
+    const container = document.querySelector('.match-type-buttons');
+
+    // Render parent type buttons
+    container.innerHTML = `
+        <div class="parent-types">
+            ${CONFIG.matchTypes.map(type => `
+                <button class="match-type-btn parent-type-btn" data-type="${type.id}" data-key="${type.key}">
+                    <span class="key-hint">${type.key}</span>
+                    ${type.label}
+                </button>
+            `).join('')}
+        </div>
+        <div class="child-types" id="childTypes" style="display: none;">
+            <!-- Child buttons will be rendered here when parent is selected -->
+        </div>
+    `;
+}
+
+// Render child type buttons when parent is selected
+function renderChildTypeButtons(parentId) {
+    const childContainer = document.getElementById('childTypes');
+    const parent = CONFIG.matchTypes.find(t => t.id === parentId);
+
+    if (!parent || parent.children.length === 0) {
+        childContainer.style.display = 'none';
+        return;
+    }
+
+    childContainer.style.display = 'block';
+    childContainer.innerHTML = `
+        <div class="child-types-header">Select type:</div>
+        <div class="child-type-buttons">
+            ${parent.children.map(child => `
+                <button class="match-type-btn child-type-btn" data-type="${child.id}" data-key="${child.key}">
+                    <span class="key-hint">${child.key}</span>
+                    ${child.label}
+                </button>
+            `).join('')}
+        </div>
+    `;
+}
+
+// Dynamically render hero buttons from config
+function renderHeroButtons() {
+    const container = document.getElementById('heroButtons');
+
+    const herosByRole = {
+        tank: CONFIG.heroes.filter(h => h.role === 'tank'),
+        damage: CONFIG.heroes.filter(h => h.role === 'damage'),
+        support: CONFIG.heroes.filter(h => h.role === 'support')
+    };
+
+    container.innerHTML = `
+        <div class="hero-role-section">
+            <h4>Tank</h4>
+            <div class="hero-buttons">
+                ${herosByRole.tank.map(hero => `
+                    <button class="hero-btn" data-hero="${hero.id}">${hero.name}</button>
+                `).join('')}
+            </div>
+        </div>
+        <div class="hero-role-section">
+            <h4>Damage</h4>
+            <div class="hero-buttons">
+                ${herosByRole.damage.map(hero => `
+                    <button class="hero-btn" data-hero="${hero.id}">${hero.name}</button>
+                `).join('')}
+            </div>
+        </div>
+        <div class="hero-role-section">
+            <h4>Support</h4>
+            <div class="hero-buttons">
+                ${herosByRole.support.map(hero => `
+                    <button class="hero-btn" data-hero="${hero.id}">${hero.name}</button>
+                `).join('')}
+            </div>
+        </div>
+    `;
 }
 
 // Setup event listeners
 function setupEventListeners() {
-    // Match type buttons
-    document.querySelectorAll('.match-type-btn').forEach(btn => {
-        btn.addEventListener('click', () => selectMatchType(btn.dataset.type));
+    // Match type buttons (delegated)
+    document.querySelector('.match-type-buttons').addEventListener('click', (e) => {
+        const btn = e.target.closest('.match-type-btn');
+        if (!btn) return;
+
+        if (btn.classList.contains('parent-type-btn')) {
+            selectParentType(btn.dataset.type);
+        } else if (btn.classList.contains('child-type-btn')) {
+            selectChildType(btn.dataset.type);
+        }
     });
 
     // Result buttons
@@ -55,78 +248,328 @@ function setupEventListeners() {
         btn.addEventListener('click', () => selectResult(btn.dataset.result));
     });
 
+    // Hero buttons (delegated)
+    document.getElementById('heroButtons').addEventListener('click', (e) => {
+        const btn = e.target.closest('.hero-btn');
+        if (btn) toggleHero(btn.dataset.hero);
+    });
+
+    // Hero section toggle
+    document.getElementById('heroSectionToggle').addEventListener('click', toggleHeroSection);
+
+    // Clear heroes button
+    document.getElementById('clearHeroesBtn').addEventListener('click', clearHeroes);
+
     // Save button
     document.getElementById('saveBtn').addEventListener('click', saveMatch);
 
     // Undo button
     document.getElementById('undoBtn').addEventListener('click', undoLastMatch);
 
-    // Export button
+    // Export CSV button
     document.getElementById('exportBtn').addEventListener('click', exportToCSV);
+
+    // Export JSON button
+    const exportJsonBtn = document.getElementById('exportJsonBtn');
+    if (exportJsonBtn) {
+        exportJsonBtn.addEventListener('click', exportToJSON);
+    }
+
+    // Import button
+    const importBtn = document.getElementById('importBtn');
+    if (importBtn) {
+        importBtn.addEventListener('click', handleImportFile);
+    }
 
     // Clear button
     document.getElementById('clearBtn').addEventListener('click', clearAllData);
+
+    // Banner close buttons
+    const closeStorageWarningBtn = document.getElementById('closeStorageWarning');
+    if (closeStorageWarningBtn) {
+        closeStorageWarningBtn.addEventListener('click', closeStorageWarning);
+    }
+
+    const closeExportReminderBtn = document.getElementById('closeExportReminder');
+    if (closeExportReminderBtn) {
+        closeExportReminderBtn.addEventListener('click', closeExportReminder);
+    }
+
+    // Quick export from reminder
+    const quickExportBtn = document.getElementById('quickExportBtn');
+    if (quickExportBtn) {
+        quickExportBtn.addEventListener('click', () => {
+            exportToJSON();
+            closeExportReminder();
+        });
+    }
 
     // Keyboard shortcuts
     document.addEventListener('keydown', handleKeyboard);
 }
 
-// Handle keyboard shortcuts
+// Handle keyboard shortcuts - WASD navigation
 function handleKeyboard(e) {
     // Prevent shortcuts if user is typing in an input field
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
         return;
     }
 
-    // Match type shortcuts (1-5)
-    const typeMap = {
-        '1': 'competitive',
-        '2': 'quickplay',
-        '3': 'arcade',
-        '4': 'unranked',
-        '5': 'custom'
-    };
+    const key = e.key.toLowerCase();
 
-    if (typeMap[e.key]) {
+    // WASD Navigation
+    if (['w', 'a', 's', 'd'].includes(key)) {
         e.preventDefault();
-        selectMatchType(typeMap[e.key]);
+        handleWASDNavigation(key);
+        updateFocusVisuals();
+        return;
     }
 
-    // Result shortcuts (W, L, D)
-    const resultMap = {
-        'w': 'win',
-        'W': 'win',
-        'l': 'loss',
-        'L': 'loss',
-        'd': 'draw',
-        'D': 'draw'
-    };
-
-    if (resultMap[e.key]) {
+    // Spacebar - Select current focused item
+    if (e.key === ' ') {
         e.preventDefault();
-        selectResult(resultMap[e.key]);
-    }
-
-    // Save shortcut (Enter)
-    if (e.key === 'Enter' && state.selectedType && state.selectedResult) {
-        e.preventDefault();
-        saveMatch();
+        handleSpacebarSelection();
+        return;
     }
 
     // Undo shortcut (Ctrl+Z)
     if (e.ctrlKey && e.key === 'z' && state.matches.length > 0) {
         e.preventDefault();
         undoLastMatch();
+        return;
     }
 }
 
-// Select match type
-function selectMatchType(type) {
-    state.selectedType = type;
+// Handle WASD navigation
+function handleWASDNavigation(key) {
+    const currentZone = state.focusZone;
 
-    // Update UI
-    document.querySelectorAll('.match-type-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.type === type);
+    if (key === 'w') {
+        // Move up (previous zone)
+        if (currentZone === 'result') {
+            // Move from result buttons to child types if visible, otherwise parent types
+            const childTypes = document.getElementById('childTypes');
+            if (childTypes && childTypes.style.display !== 'none') {
+                state.focusZone = 'child';
+                state.focusIndex = 0;
+            } else {
+                state.focusZone = 'parent';
+                state.focusIndex = 0;
+            }
+        } else if (currentZone === 'child') {
+            state.focusZone = 'parent';
+            state.focusIndex = 0;
+        } else if (currentZone === 'save') {
+            state.focusZone = 'result';
+            state.focusIndex = 0;
+        }
+    } else if (key === 's') {
+        // Move down (next zone)
+        if (currentZone === 'parent') {
+            // Check if child types are visible
+            const childTypes = document.getElementById('childTypes');
+            if (childTypes && childTypes.style.display !== 'none') {
+                state.focusZone = 'child';
+                state.focusIndex = 0;
+            } else {
+                state.focusZone = 'result';
+                state.focusIndex = 0;
+            }
+        } else if (currentZone === 'child') {
+            state.focusZone = 'result';
+            state.focusIndex = 0;
+        } else if (currentZone === 'result') {
+            // Check if save button is enabled
+            const saveBtn = document.getElementById('saveBtn');
+            if (saveBtn && !saveBtn.disabled) {
+                state.focusZone = 'save';
+                state.focusIndex = 0;
+            }
+        }
+    } else if (key === 'a') {
+        // Move left within current zone
+        if (state.focusIndex > 0) {
+            state.focusIndex--;
+        }
+    } else if (key === 'd') {
+        // Move right within current zone
+        const maxIndex = getMaxIndexForZone(currentZone);
+        if (state.focusIndex < maxIndex) {
+            state.focusIndex++;
+        }
+    }
+}
+
+// Get maximum index for current focus zone
+function getMaxIndexForZone(zone) {
+    if (zone === 'parent') {
+        return CONFIG.matchTypes.length - 1;
+    } else if (zone === 'child') {
+        const childButtons = document.querySelectorAll('.child-type-btn');
+        return Math.max(0, childButtons.length - 1);
+    } else if (zone === 'result') {
+        return 2; // Win, Loss, Draw
+    } else if (zone === 'save') {
+        return 0; // Only one button
+    }
+    return 0;
+}
+
+// Handle spacebar selection
+function handleSpacebarSelection() {
+    const zone = state.focusZone;
+    const index = state.focusIndex;
+
+    if (zone === 'parent') {
+        const parentButtons = document.querySelectorAll('.parent-type-btn');
+        if (parentButtons[index]) {
+            const typeId = parentButtons[index].dataset.type;
+            selectParentType(typeId);
+
+            // Auto-advance to child types if available, otherwise results
+            const parent = CONFIG.matchTypes.find(t => t.id === typeId);
+            if (parent && parent.children.length > 0) {
+                state.focusZone = 'child';
+                state.focusIndex = 0;
+            } else {
+                state.focusZone = 'result';
+                state.focusIndex = 0;
+            }
+        }
+    } else if (zone === 'child') {
+        const childButtons = document.querySelectorAll('.child-type-btn');
+        if (childButtons[index]) {
+            const typeId = childButtons[index].dataset.type;
+            selectChildType(typeId);
+            // Auto-advance to results
+            state.focusZone = 'result';
+            state.focusIndex = 0;
+        }
+    } else if (zone === 'result') {
+        const resultButtons = document.querySelectorAll('.result-btn');
+        if (resultButtons[index]) {
+            const result = resultButtons[index].dataset.result;
+            selectResult(result);
+            // Auto-advance to save if available
+            const saveBtn = document.getElementById('saveBtn');
+            if (saveBtn && !saveBtn.disabled) {
+                state.focusZone = 'save';
+                state.focusIndex = 0;
+            }
+        }
+    } else if (zone === 'save') {
+        const saveBtn = document.getElementById('saveBtn');
+        if (saveBtn && !saveBtn.disabled) {
+            saveMatch();
+            // Reset focus to result for next match
+            state.focusZone = 'result';
+            state.focusIndex = 0;
+        }
+    }
+
+    updateFocusVisuals();
+}
+
+// Update visual focus indicators
+function updateFocusVisuals() {
+    // Remove all existing focus classes
+    document.querySelectorAll('.keyboard-focused').forEach(el => {
+        el.classList.remove('keyboard-focused');
+    });
+
+    const zone = state.focusZone;
+    const index = state.focusIndex;
+
+    let focusedElement = null;
+
+    if (zone === 'parent') {
+        const parentButtons = document.querySelectorAll('.parent-type-btn');
+        focusedElement = parentButtons[index];
+    } else if (zone === 'child') {
+        const childButtons = document.querySelectorAll('.child-type-btn');
+        focusedElement = childButtons[index];
+    } else if (zone === 'result') {
+        const resultButtons = document.querySelectorAll('.result-btn');
+        focusedElement = resultButtons[index];
+    } else if (zone === 'save') {
+        focusedElement = document.getElementById('saveBtn');
+    }
+
+    if (focusedElement) {
+        focusedElement.classList.add('keyboard-focused');
+        // Scroll into view if needed
+        focusedElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+}
+
+// Toggle hero selection
+function toggleHero(heroId) {
+    const index = state.selectedHeroes.indexOf(heroId);
+    if (index > -1) {
+        state.selectedHeroes.splice(index, 1);
+    } else {
+        state.selectedHeroes.push(heroId);
+    }
+    updateHeroButtons();
+    updateSelectionDisplay();
+}
+
+// Clear all selected heroes
+function clearHeroes() {
+    state.selectedHeroes = [];
+    updateHeroButtons();
+    updateSelectionDisplay();
+}
+
+// Update hero button states
+function updateHeroButtons() {
+    document.querySelectorAll('.hero-btn').forEach(btn => {
+        btn.classList.toggle('active', state.selectedHeroes.includes(btn.dataset.hero));
+    });
+}
+
+// Toggle hero section visibility
+function toggleHeroSection() {
+    const section = document.getElementById('heroSelection');
+    const toggle = document.getElementById('heroSectionToggle');
+    const isHidden = section.style.display === 'none';
+
+    section.style.display = isHidden ? 'block' : 'none';
+    toggle.textContent = isHidden ? 'Hide Heroes ▲' : 'Add Heroes (Optional) ▼';
+}
+
+// Select parent match type
+function selectParentType(parentId) {
+    state.selectedParentType = parentId;
+    state.selectedChildType = null; // Reset child selection
+
+    // Update UI - highlight selected parent
+    document.querySelectorAll('.parent-type-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.type === parentId);
+    });
+
+    // Find parent and check if it has children
+    const parent = CONFIG.matchTypes.find(t => t.id === parentId);
+
+    if (parent && parent.children.length > 0) {
+        // Show child options
+        renderChildTypeButtons(parentId);
+    } else {
+        // No children, selection is complete
+        document.getElementById('childTypes').style.display = 'none';
+    }
+
+    updateSelectionDisplay();
+    updateSaveButton();
+}
+
+// Select child match type
+function selectChildType(childId) {
+    state.selectedChildType = childId;
+
+    // Update UI - highlight selected child
+    document.querySelectorAll('.child-type-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.type === childId);
     });
 
     updateSelectionDisplay();
@@ -150,10 +593,24 @@ function selectResult(result) {
 function updateSelectionDisplay() {
     const typeDisplay = document.getElementById('selectedType');
     const resultDisplay = document.getElementById('selectedResult');
+    const heroesDisplay = document.getElementById('selectedHeroes');
 
-    if (state.selectedType) {
-        typeDisplay.textContent = state.selectedType.replace(/([A-Z])/g, ' $1').trim();
-        typeDisplay.style.textTransform = 'capitalize';
+    // Build match type display
+    if (state.selectedParentType) {
+        const parent = CONFIG.matchTypes.find(t => t.id === state.selectedParentType);
+        let displayText = parent ? parent.label : state.selectedParentType;
+
+        // If parent has children and child is selected, add it
+        if (parent && parent.children.length > 0) {
+            if (state.selectedChildType) {
+                const child = parent.children.find(c => c.id === state.selectedChildType);
+                displayText += ` > ${child ? child.label : state.selectedChildType}`;
+            } else {
+                displayText += ' (select type...)';
+            }
+        }
+
+        typeDisplay.textContent = displayText;
     } else {
         typeDisplay.textContent = 'Select match type...';
     }
@@ -165,38 +622,76 @@ function updateSelectionDisplay() {
         resultDisplay.textContent = '';
         resultDisplay.className = '';
     }
+
+    // Update heroes display
+    if (state.selectedHeroes.length > 0) {
+        const heroNames = state.selectedHeroes.map(heroId => {
+            const hero = CONFIG.heroes.find(h => h.id === heroId);
+            return hero ? hero.name : heroId;
+        });
+        heroesDisplay.textContent = `Heroes: ${heroNames.join(', ')}`;
+        heroesDisplay.style.display = 'block';
+    } else {
+        heroesDisplay.style.display = 'none';
+    }
 }
 
 // Update save button state
 function updateSaveButton() {
     const saveBtn = document.getElementById('saveBtn');
-    saveBtn.disabled = !(state.selectedType && state.selectedResult);
+
+    // Check if match type selection is complete
+    let typeComplete = false;
+    if (state.selectedParentType) {
+        const parent = CONFIG.matchTypes.find(t => t.id === state.selectedParentType);
+        if (parent) {
+            // If parent has children, child must be selected
+            if (parent.children.length > 0) {
+                typeComplete = !!state.selectedChildType;
+            } else {
+                // No children, parent selection is enough
+                typeComplete = true;
+            }
+        }
+    }
+
+    saveBtn.disabled = !(typeComplete && state.selectedResult);
 }
 
 // Save match
 function saveMatch() {
-    if (!state.selectedType || !state.selectedResult) {
+    // Validate selection
+    const parent = CONFIG.matchTypes.find(t => t.id === state.selectedParentType);
+    if (!parent || !state.selectedResult) {
+        return;
+    }
+
+    // If parent has children, child must be selected
+    if (parent.children.length > 0 && !state.selectedChildType) {
         return;
     }
 
     const match = {
         id: Date.now(),
-        type: state.selectedType,
+        parentType: state.selectedParentType,
+        childType: state.selectedChildType || null,
         result: state.selectedResult,
+        heroes: [...state.selectedHeroes], // Copy the array
         timestamp: new Date().toISOString()
     };
 
     state.matches.unshift(match); // Add to beginning of array
     saveData();
 
-    // Reset selection
-    state.selectedType = null;
+    // Reset only result and heroes (keep match type selected for quick back-to-back logging)
     state.selectedResult = null;
+    state.selectedHeroes = [];
 
-    // Update UI
-    document.querySelectorAll('.match-type-btn, .result-btn').forEach(btn => {
+    // Update UI - clear only result and hero selections
+    document.querySelectorAll('.result-btn').forEach(btn => {
         btn.classList.remove('active');
     });
+    updateHeroButtons();
 
     updateSelectionDisplay();
     updateSaveButton();
@@ -206,7 +701,7 @@ function saveMatch() {
     const saveBtn = document.getElementById('saveBtn');
     saveBtn.textContent = 'Saved!';
     setTimeout(() => {
-        saveBtn.innerHTML = 'Save Match <span class="key-hint">Enter</span>';
+        saveBtn.innerHTML = 'Save Match <span class="key-hint">Space</span>';
     }, 1000);
 }
 
@@ -236,6 +731,8 @@ function updateUI() {
     updateSessionInfo();
     updateMatchList();
     updateUndoButton();
+    updateStorageIndicator();
+    checkExportReminder();
 }
 
 // Update stats
@@ -279,11 +776,39 @@ function updateMatchList() {
         const date = new Date(match.timestamp);
         const timeStr = formatTime(date);
 
+        // Get match type label (support both old and new format)
+        let typeLabel = '';
+        if (match.parentType) {
+            // New hierarchical format
+            const parent = CONFIG.matchTypes.find(t => t.id === match.parentType);
+            typeLabel = parent ? parent.label : match.parentType;
+
+            if (match.childType) {
+                const child = parent ? parent.children.find(c => c.id === match.childType) : null;
+                typeLabel += ` > ${child ? child.label : match.childType}`;
+            }
+        } else if (match.type) {
+            // Old flat format (backward compatibility)
+            const matchType = CONFIG.matchTypes.find(t => t.id === match.type);
+            typeLabel = matchType ? matchType.label : match.type;
+        }
+
+        // Get hero names
+        let heroesHtml = '';
+        if (match.heroes && match.heroes.length > 0) {
+            const heroNames = match.heroes.map(heroId => {
+                const hero = CONFIG.heroes.find(h => h.id === heroId);
+                return hero ? hero.name : heroId;
+            });
+            heroesHtml = `<span class="match-heroes">${heroNames.join(', ')}</span>`;
+        }
+
         return `
             <div class="match-item ${match.result}">
                 <div class="match-info">
                     <span class="match-result ${match.result}">${match.result.toUpperCase()}</span>
-                    <span class="match-type">${match.type}</span>
+                    <span class="match-type">${typeLabel}</span>
+                    ${heroesHtml}
                     <span class="match-time">${timeStr}</span>
                 </div>
                 <button class="match-delete" onclick="deleteMatch(${match.id})">Delete</button>
@@ -323,15 +848,53 @@ function exportToCSV() {
         return;
     }
 
-    const headers = ['Timestamp', 'Match Type', 'Result'];
-    const rows = state.matches.map(match => [
-        match.timestamp,
-        match.type,
-        match.result
-    ]);
+    const headers = ['Timestamp', 'Parent Type', 'Child Type', 'Result', 'Heroes'];
+    const rows = state.matches.map(match => {
+        // Get match types (support both old and new format)
+        let parentType = '';
+        let childType = '';
+
+        if (match.parentType) {
+            // New hierarchical format
+            const parent = CONFIG.matchTypes.find(t => t.id === match.parentType);
+            parentType = parent ? parent.label : match.parentType;
+
+            if (match.childType) {
+                const child = parent ? parent.children.find(c => c.id === match.childType) : null;
+                childType = child ? child.label : match.childType;
+            }
+        } else if (match.type) {
+            // Old flat format
+            const matchType = CONFIG.matchTypes.find(t => t.id === match.type);
+            parentType = matchType ? matchType.label : match.type;
+        }
+
+        // Get hero names
+        let heroNames = '';
+        if (match.heroes && match.heroes.length > 0) {
+            heroNames = match.heroes.map(heroId => {
+                const hero = CONFIG.heroes.find(h => h.id === heroId);
+                return hero ? hero.name : heroId;
+            }).join('; ');
+        }
+
+        return [
+            match.timestamp,
+            parentType,
+            childType,
+            match.result,
+            heroNames
+        ];
+    });
 
     let csv = headers.join(',') + '\n';
-    csv += rows.map(row => row.join(',')).join('\n');
+    csv += rows.map(row => row.map(cell => {
+        // Escape cells that contain commas
+        if (cell.includes(',') || cell.includes(';')) {
+            return `"${cell}"`;
+        }
+        return cell;
+    }).join(',')).join('\n');
 
     // Download
     const blob = new Blob([csv], { type: 'text/csv' });
@@ -352,6 +915,395 @@ function clearAllData() {
         saveData();
         updateUI();
     }
+}
+
+// ============================================
+// PHASE 1: Data Management Features
+// ============================================
+
+// Calculate localStorage usage
+function getStorageInfo() {
+    let totalSize = 0;
+    for (let key in localStorage) {
+        if (localStorage.hasOwnProperty(key)) {
+            totalSize += localStorage[key].length + key.length;
+        }
+    }
+
+    // Estimate in bytes (each char is ~2 bytes in UTF-16)
+    const sizeInBytes = totalSize * 2;
+    const sizeInKB = sizeInBytes / 1024;
+    const sizeInMB = sizeInKB / 1024;
+
+    // Most browsers have 5-10MB limit, we'll use 5MB as conservative estimate
+    const limitMB = 5;
+    const percentUsed = (sizeInMB / limitMB) * 100;
+
+    return {
+        sizeInBytes,
+        sizeInKB,
+        sizeInMB: sizeInMB.toFixed(2),
+        limitMB,
+        percentUsed: percentUsed.toFixed(1),
+        isNearLimit: percentUsed > 80
+    };
+}
+
+// Update storage indicator in UI
+function updateStorageIndicator() {
+    const indicator = document.getElementById('storageIndicator');
+    if (!indicator) return;
+
+    const info = getStorageInfo();
+
+    // Show KB if less than 1 MB, otherwise show MB
+    const sizeDisplay = info.sizeInMB < 1
+        ? `${info.sizeInKB.toFixed(1)}KB`
+        : `${info.sizeInMB}MB`;
+
+    indicator.textContent = `Storage: ${sizeDisplay} / ~${info.limitMB}MB (${info.percentUsed}%)`;
+
+    // Update warning if near limit
+    if (info.isNearLimit) {
+        indicator.classList.add('warning');
+        showStorageWarning();
+    } else {
+        indicator.classList.remove('warning');
+        hideStorageWarning();
+    }
+}
+
+// Show storage warning banner
+function showStorageWarning() {
+    const banner = document.getElementById('storageWarningBanner');
+    if (banner) {
+        banner.style.display = 'block';
+    }
+}
+
+// Hide storage warning banner
+function hideStorageWarning() {
+    const banner = document.getElementById('storageWarningBanner');
+    if (banner) {
+        banner.style.display = 'none';
+    }
+}
+
+// Close storage warning banner
+function closeStorageWarning() {
+    hideStorageWarning();
+}
+
+// Check and show export reminder
+function checkExportReminder() {
+    const lastExportReminder = localStorage.getItem('lastExportReminder');
+    const matchCount = state.matches.length;
+
+    // Show reminder every 100 matches
+    if (matchCount > 0 && matchCount % 100 === 0) {
+        if (!lastExportReminder || parseInt(lastExportReminder) !== matchCount) {
+            showExportReminder();
+            localStorage.setItem('lastExportReminder', matchCount.toString());
+        }
+    }
+}
+
+// Show export reminder banner
+function showExportReminder() {
+    const banner = document.getElementById('exportReminderBanner');
+    if (banner) {
+        banner.style.display = 'block';
+    }
+}
+
+// Hide export reminder banner
+function closeExportReminder() {
+    const banner = document.getElementById('exportReminderBanner');
+    if (banner) {
+        banner.style.display = 'none';
+    }
+}
+
+// Validate match data structure
+function validateMatch(match) {
+    const errors = [];
+
+    // Check required fields
+    if (!match.timestamp) {
+        errors.push('Missing timestamp');
+    }
+
+    if (!match.result || !['win', 'loss', 'draw'].includes(match.result)) {
+        errors.push('Invalid or missing result');
+    }
+
+    // Check match type (support both old and new format)
+    if (!match.parentType && !match.type) {
+        errors.push('Missing match type');
+    }
+
+    // Validate parent type if present
+    if (match.parentType) {
+        const validParent = CONFIG.matchTypes.find(t => t.id === match.parentType);
+        if (!validParent) {
+            errors.push(`Invalid parent type: ${match.parentType}`);
+        }
+
+        // Validate child type if parent has children
+        if (validParent && validParent.children.length > 0 && match.childType) {
+            const validChild = validParent.children.find(c => c.id === match.childType);
+            if (!validChild) {
+                errors.push(`Invalid child type: ${match.childType}`);
+            }
+        }
+    }
+
+    // Validate heroes if present
+    if (match.heroes && Array.isArray(match.heroes)) {
+        match.heroes.forEach(heroId => {
+            const validHero = CONFIG.heroes.find(h => h.id === heroId);
+            if (!validHero) {
+                errors.push(`Unknown hero: ${heroId}`);
+            }
+        });
+    }
+
+    return errors;
+}
+
+// Import data from JSON
+function importFromJSON(jsonString) {
+    try {
+        const data = JSON.parse(jsonString);
+
+        if (!Array.isArray(data)) {
+            throw new Error('Invalid format: expected array of matches');
+        }
+
+        let imported = 0;
+        let skipped = 0;
+        let errors = [];
+
+        data.forEach((match, index) => {
+            // Validate match
+            const validationErrors = validateMatch(match);
+            if (validationErrors.length > 0) {
+                errors.push(`Match ${index + 1}: ${validationErrors.join(', ')}`);
+                skipped++;
+                return;
+            }
+
+            // Check for duplicates (by ID or timestamp)
+            const isDuplicate = state.matches.some(m =>
+                m.id === match.id || m.timestamp === match.timestamp
+            );
+
+            if (isDuplicate) {
+                skipped++;
+                return;
+            }
+
+            // Ensure match has an ID
+            if (!match.id) {
+                match.id = Date.now() + Math.random();
+            }
+
+            state.matches.push(match);
+            imported++;
+        });
+
+        // Sort by timestamp (newest first)
+        state.matches.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+        saveData();
+
+        let message = `Import complete!\n${imported} matches imported, ${skipped} skipped.`;
+        if (errors.length > 0 && errors.length <= 10) {
+            message += '\n\nErrors:\n' + errors.join('\n');
+        } else if (errors.length > 10) {
+            message += `\n\n${errors.length} matches had errors.`;
+        }
+
+        alert(message);
+
+        // Force UI update after alert
+        updateUI();
+        updateStats();
+        updateSessionInfo();
+    } catch (error) {
+        alert('Import failed: ' + error.message);
+    }
+}
+
+// Import data from CSV
+function importFromCSV(csvString) {
+    try {
+        const lines = csvString.trim().split('\n');
+        if (lines.length < 2) {
+            throw new Error('CSV file is empty or has no data rows');
+        }
+
+        // Parse header
+        const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+
+        // Find column indices
+        const timestampIdx = headers.findIndex(h => h.toLowerCase().includes('timestamp'));
+        const resultIdx = headers.findIndex(h => h.toLowerCase().includes('result'));
+        const parentTypeIdx = headers.findIndex(h => h.toLowerCase().includes('parent'));
+        const childTypeIdx = headers.findIndex(h => h.toLowerCase().includes('child'));
+        const heroesIdx = headers.findIndex(h => h.toLowerCase().includes('hero'));
+
+        if (timestampIdx === -1 || resultIdx === -1) {
+            throw new Error('CSV must have Timestamp and Result columns');
+        }
+
+        let imported = 0;
+        let skipped = 0;
+        const matches = [];
+
+        for (let i = 1; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) continue;
+
+            // Simple CSV parser (handles quoted fields)
+            const fields = [];
+            let field = '';
+            let inQuotes = false;
+
+            for (let j = 0; j < line.length; j++) {
+                const char = line[j];
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    fields.push(field.trim());
+                    field = '';
+                } else {
+                    field += char;
+                }
+            }
+            fields.push(field.trim());
+
+            // Build match object
+            const match = {
+                id: Date.now() + Math.random(),
+                timestamp: fields[timestampIdx],
+                result: fields[resultIdx].toLowerCase(),
+                parentType: parentTypeIdx !== -1 ? fields[parentTypeIdx] : null,
+                childType: childTypeIdx !== -1 && fields[childTypeIdx] ? fields[childTypeIdx] : null,
+                heroes: heroesIdx !== -1 && fields[heroesIdx] ?
+                    fields[heroesIdx].split(';').map(h => h.trim()).filter(h => h) : []
+            };
+
+            // Map labels back to IDs
+            if (match.parentType) {
+                const parent = CONFIG.matchTypes.find(t =>
+                    t.label.toLowerCase() === match.parentType.toLowerCase() ||
+                    t.id === match.parentType
+                );
+                if (parent) {
+                    match.parentType = parent.id;
+
+                    if (match.childType) {
+                        const child = parent.children.find(c =>
+                            c.label.toLowerCase() === match.childType.toLowerCase() ||
+                            c.id === match.childType
+                        );
+                        if (child) {
+                            match.childType = child.id;
+                        }
+                    }
+                }
+            }
+
+            // Map hero names to IDs
+            if (match.heroes.length > 0) {
+                match.heroes = match.heroes.map(heroName => {
+                    const hero = CONFIG.heroes.find(h =>
+                        h.name.toLowerCase() === heroName.toLowerCase() ||
+                        h.id === heroName
+                    );
+                    return hero ? hero.id : heroName;
+                }).filter(h => h);
+            }
+
+            // Validate
+            const validationErrors = validateMatch(match);
+            if (validationErrors.length > 0) {
+                skipped++;
+                continue;
+            }
+
+            // Check for duplicates
+            const isDuplicate = state.matches.some(m => m.timestamp === match.timestamp);
+            if (isDuplicate) {
+                skipped++;
+                continue;
+            }
+
+            matches.push(match);
+            imported++;
+        }
+
+        state.matches.push(...matches);
+        state.matches.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+        saveData();
+
+        alert(`Import complete!\n${imported} matches imported, ${skipped} skipped.`);
+
+        // Force UI update after alert
+        updateUI();
+        updateStats();
+        updateSessionInfo();
+    } catch (error) {
+        alert('Import failed: ' + error.message);
+    }
+}
+
+// Handle file import
+function handleImportFile() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json,.csv';
+
+    input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const content = event.target.result;
+
+            if (file.name.endsWith('.json')) {
+                importFromJSON(content);
+            } else if (file.name.endsWith('.csv')) {
+                importFromCSV(content);
+            } else {
+                alert('Unsupported file type. Please use .json or .csv files.');
+            }
+        };
+
+        reader.readAsText(file);
+    };
+
+    input.click();
+}
+
+// Export to JSON
+function exportToJSON() {
+    if (state.matches.length === 0) {
+        alert('No matches to export!');
+        return;
+    }
+
+    const data = JSON.stringify(state.matches, null, 2);
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `overwatch-matches-${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    window.URL.revokeObjectURL(url);
 }
 
 // Initialize when DOM is ready
