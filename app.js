@@ -194,8 +194,7 @@ function renderChildTypeButtons(parentId) {
         <div class="child-types-header">Select type:</div>
         <div class="child-type-buttons">
             ${parent.children.map(child => `
-                <button class="match-type-btn child-type-btn" data-type="${child.id}" data-key="${child.key}">
-                    <span class="key-hint">${child.key}</span>
+                <button class="match-type-btn child-type-btn" data-type="${child.id}">
                     ${child.label}
                 </button>
             `).join('')}
@@ -315,9 +314,6 @@ function setupEventListeners() {
 
     // Save button
     document.getElementById('saveBtn').addEventListener('click', saveMatch);
-
-    // Undo button
-    document.getElementById('undoBtn').addEventListener('click', undoLastMatch);
 
     // Export CSV button
     document.getElementById('exportBtn').addEventListener('click', exportToCSV);
@@ -483,6 +479,25 @@ function handleKeyboard(e) {
         toggleHeroSectionWithFocus();
         return;
     }
+
+    // Parent type hotkeys (1, 2, 3, 4, etc.)
+    // Check if the pressed key matches any parent type key
+    const matchingParentType = CONFIG.matchTypes.find(type => type.key === key);
+    if (matchingParentType) {
+        e.preventDefault();
+        selectParentType(matchingParentType.id);
+
+        // Auto-advance focus to child types if available, otherwise results
+        if (matchingParentType.children.length > 0) {
+            state.focusZone = 'child';
+            state.focusIndex = 0;
+        } else {
+            state.focusZone = 'result';
+            state.focusIndex = 0;
+        }
+        updateFocusVisuals();
+        return;
+    }
 }
 
 // Handle WASD navigation
@@ -501,8 +516,8 @@ function handleWASDNavigation(key) {
 
     if (key === 'w') {
         // Move up (previous zone)
-        if (currentZone === 'result') {
-            // Move from result to clear-heroes if drawer visible, otherwise hero-toggle
+        if (currentZone === 'save') {
+            // Move from save to clear-heroes if drawer visible, otherwise hero-toggle
             if (isHeroSectionVisible) {
                 state.focusZone = 'clear-heroes';
                 state.focusIndex = 0;
@@ -521,22 +536,20 @@ function handleWASDNavigation(key) {
             state.focusZone = 'hero-toggle';
             state.focusIndex = 0;
         } else if (currentZone === 'hero-toggle') {
-            // Move from hero-toggle to recent-heroes if available, otherwise child types if visible, otherwise parent types
+            // Move from hero-toggle to recent-heroes if available, otherwise result buttons
             if (hasRecentHeroes) {
                 state.focusZone = 'recent-heroes';
                 state.focusIndex = 0;
             } else {
-                const childTypes = document.getElementById('childTypes');
-                if (childTypes && childTypes.style.display !== 'none') {
-                    state.focusZone = 'child';
-                    state.focusIndex = 0;
-                } else {
-                    state.focusZone = 'parent';
-                    state.focusIndex = 0;
-                }
+                state.focusZone = 'result';
+                state.focusIndex = 0;
             }
         } else if (currentZone === 'recent-heroes') {
-            // Move from recent-heroes to child types if visible, otherwise parent types
+            // Move from recent-heroes to result buttons
+            state.focusZone = 'result';
+            state.focusIndex = 0;
+        } else if (currentZone === 'result') {
+            // Move from result to child types if visible, otherwise parent types
             const childTypes = document.getElementById('childTypes');
             if (childTypes && childTypes.style.display !== 'none') {
                 state.focusZone = 'child';
@@ -548,9 +561,6 @@ function handleWASDNavigation(key) {
         } else if (currentZone === 'child') {
             state.focusZone = 'parent';
             state.focusIndex = 0;
-        } else if (currentZone === 'save') {
-            state.focusZone = 'result';
-            state.focusIndex = 0;
         }
     } else if (key === 's') {
         // Move down (next zone)
@@ -560,14 +570,15 @@ function handleWASDNavigation(key) {
             if (childTypes && childTypes.style.display !== 'none') {
                 state.focusZone = 'child';
                 state.focusIndex = 0;
-            } else if (hasRecentHeroes) {
-                state.focusZone = 'recent-heroes';
-                state.focusIndex = 0;
             } else {
-                state.focusZone = 'hero-toggle';
+                state.focusZone = 'result';
                 state.focusIndex = 0;
             }
         } else if (currentZone === 'child') {
+            state.focusZone = 'result';
+            state.focusIndex = 0;
+        } else if (currentZone === 'result') {
+            // Move to recent-heroes if available, otherwise hero-toggle
             if (hasRecentHeroes) {
                 state.focusZone = 'recent-heroes';
                 state.focusIndex = 0;
@@ -579,21 +590,22 @@ function handleWASDNavigation(key) {
             state.focusZone = 'hero-toggle';
             state.focusIndex = 0;
         } else if (currentZone === 'hero-toggle') {
-            // Move to heroes if visible, otherwise results
+            // Move to heroes if visible, otherwise save button
             if (isHeroSectionVisible) {
                 state.focusZone = 'heroes';
                 state.focusIndex = 0;
             } else {
-                state.focusZone = 'result';
-                state.focusIndex = 0;
+                // Check if save button is enabled
+                const saveBtn = document.getElementById('saveBtn');
+                if (saveBtn && !saveBtn.disabled) {
+                    state.focusZone = 'save';
+                    state.focusIndex = 0;
+                }
             }
         } else if (currentZone === 'heroes') {
             state.focusZone = 'clear-heroes';
             state.focusIndex = 0;
         } else if (currentZone === 'clear-heroes') {
-            state.focusZone = 'result';
-            state.focusIndex = 0;
-        } else if (currentZone === 'result') {
             // Check if save button is enabled
             const saveBtn = document.getElementById('saveBtn');
             if (saveBtn && !saveBtn.disabled) {
@@ -617,7 +629,7 @@ function handleWASDNavigation(key) {
 
 // Handle vertical navigation within hero grid
 function handleHeroGridNavigation(key) {
-    const heroButtons = document.querySelectorAll('.hero-btn');
+    const heroButtons = document.querySelectorAll('.hero-btn:not(.recent-hero-btn)');
     if (heroButtons.length === 0) return;
 
     const currentIndex = state.focusIndex;
@@ -758,15 +770,18 @@ function handleSpacebarSelection() {
     } else if (zone === 'hero-toggle') {
         // Toggle hero section visibility
         toggleHeroSection();
-        // Check if section is now visible and move to it, otherwise move to results
+        // Check if section is now visible and move to it, otherwise move to save button
         const heroSection = document.getElementById('heroSelection');
         const isHeroSectionVisible = heroSection && heroSection.style.display !== 'none';
         if (isHeroSectionVisible) {
             state.focusZone = 'heroes';
             state.focusIndex = 0;
         } else {
-            state.focusZone = 'result';
-            state.focusIndex = 0;
+            const saveBtn = document.getElementById('saveBtn');
+            if (saveBtn && !saveBtn.disabled) {
+                state.focusZone = 'save';
+                state.focusIndex = 0;
+            }
         }
     } else if (zone === 'heroes') {
         const heroButtons = document.querySelectorAll('.hero-btn');
@@ -894,18 +909,17 @@ function toggleHeroSection() {
         ? '<span class="key-hint">E</span> Hide Heroes ▲'
         : '<span class="key-hint">E</span> Add Heroes (Optional) ▼';
 
-    // When collapsing hero section, move focus to match types or win/loss
+    // When collapsing hero section, move focus to save button if enabled, otherwise hero-toggle
     if (!isHidden) {
         // Section was just collapsed
-        if (state.focusZone === 'heroes') {
-            // If we were in the heroes zone, decide where to move focus
-            if (state.selectedParentType) {
-                // If match type is selected, move to result
-                state.focusZone = 'result';
+        if (state.focusZone === 'heroes' || state.focusZone === 'clear-heroes') {
+            // Check if save button is enabled
+            const saveBtn = document.getElementById('saveBtn');
+            if (saveBtn && !saveBtn.disabled) {
+                state.focusZone = 'save';
                 state.focusIndex = 0;
             } else {
-                // Otherwise move to match types
-                state.focusZone = 'parent';
+                state.focusZone = 'hero-toggle';
                 state.focusIndex = 0;
             }
             updateFocusVisuals();
@@ -927,23 +941,22 @@ function toggleHeroSectionWithFocus() {
     if (isHidden) {
         // Opening the drawer - move to heroes zone with remembered position
         state.focusZone = 'heroes';
-        const heroButtons = document.querySelectorAll('.hero-btn');
+        const heroButtons = document.querySelectorAll('.hero-btn:not(.recent-hero-btn)');
         // Use last focused position if valid, otherwise start at 0
         state.focusIndex = Math.min(state.lastHeroFocusIndex, Math.max(0, heroButtons.length - 1));
         updateFocusVisuals();
     } else {
-        // Closing the drawer - save position and move focus appropriately
-        if (state.focusZone === 'heroes') {
+        // Closing the drawer - save position and move focus to save button if enabled
+        if (state.focusZone === 'heroes' || state.focusZone === 'clear-heroes') {
             state.lastHeroFocusIndex = state.focusIndex;
 
-            // Decide where to move focus
-            if (state.selectedParentType) {
-                // If match type is selected, move to result
-                state.focusZone = 'result';
+            // Check if save button is enabled
+            const saveBtn = document.getElementById('saveBtn');
+            if (saveBtn && !saveBtn.disabled) {
+                state.focusZone = 'save';
                 state.focusIndex = 0;
             } else {
-                // Otherwise move to match types
-                state.focusZone = 'parent';
+                state.focusZone = 'hero-toggle';
                 state.focusIndex = 0;
             }
             updateFocusVisuals();
@@ -1003,6 +1016,13 @@ function selectResult(result) {
     document.querySelectorAll('.result-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.result === result);
     });
+
+    // Update save button color to match result
+    const saveBtn = document.getElementById('saveBtn');
+    saveBtn.classList.remove('win', 'loss', 'draw');
+    if (result) {
+        saveBtn.classList.add(result);
+    }
 
     updateSelectionDisplay();
     updateSaveButton();
@@ -1130,6 +1150,11 @@ function saveMatch() {
     document.querySelectorAll('.result-btn').forEach(btn => {
         btn.classList.remove('active');
     });
+
+    // Remove result color class from save button
+    const saveBtn = document.getElementById('saveBtn');
+    saveBtn.classList.remove('win', 'loss', 'draw');
+
     updateHeroButtons();
 
     // Auto-collapse hero section after match submission
@@ -1150,7 +1175,6 @@ function saveMatch() {
     updateFocusVisuals();
 
     // Visual feedback
-    const saveBtn = document.getElementById('saveBtn');
     saveBtn.textContent = 'Saved!';
     setTimeout(() => {
         saveBtn.innerHTML = 'Save Match <span class="key-hint">Space</span>';
@@ -1272,7 +1296,9 @@ function updateMatchList() {
 // Update undo button state
 function updateUndoButton() {
     const undoBtn = document.getElementById('undoBtn');
-    undoBtn.disabled = state.matches.length === 0;
+    if (undoBtn) {
+        undoBtn.disabled = state.matches.length === 0;
+    }
 }
 
 // Format time

@@ -42,6 +42,24 @@
                     <!-- Match type buttons will be dynamically generated -->
                 </div>
 
+                <div class="result-buttons">
+                    <button class="result-btn win" data-result="win" data-key="w">
+                        Win
+                    </button>
+                    <button class="result-btn loss" data-result="loss" data-key="l">
+                        Loss
+                    </button>
+                    <button class="result-btn draw" data-result="draw" data-key="d">
+                        Draw
+                    </button>
+                </div>
+
+                <div class="current-selection">
+                    <span id="selectedType">Select match type...</span>
+                    <span id="selectedResult"></span>
+                    <span id="selectedHeroes" style="display: none;"></span>
+                </div>
+
                 <!-- Recent Heroes -->
                 <div id="recentHeroesContainer" class="recent-heroes-container" style="display: none;">
                     <div class="recent-heroes-header">Recently Used:</div>
@@ -65,30 +83,8 @@
                     </div>
                 </div>
 
-                <div class="result-buttons">
-                    <button class="result-btn win" data-result="win" data-key="w">
-                        Win
-                    </button>
-                    <button class="result-btn loss" data-result="loss" data-key="l">
-                        Loss
-                    </button>
-                    <button class="result-btn draw" data-result="draw" data-key="d">
-                        Draw
-                    </button>
-                </div>
-
-                <div class="current-selection">
-                    <span id="selectedType">Select match type...</span>
-                    <span id="selectedResult"></span>
-                    <span id="selectedHeroes" style="display: none;"></span>
-                </div>
-
                 <button id="saveBtn" class="save-btn" disabled>
                     Save Match <span class="key-hint">Space</span>
-                </button>
-
-                <button id="undoBtn" class="undo-btn" disabled>
-                    Undo Last <span class="key-hint">Ctrl+Z</span>
                 </button>
             </section>
 

@@ -551,6 +551,40 @@ h2::after {
     border-color: rgba(255, 255, 255, 0.1);
 }
 
+/* Save button result color variants */
+.save-btn.win {
+    background: linear-gradient(135deg, #2d8659 0%, #22664a 100%);
+    border-color: rgba(123, 237, 159, 0.3);
+}
+
+.save-btn.win:hover:not(:disabled) {
+    background: linear-gradient(135deg, #3ba76a 0%, #2d8659 100%);
+    box-shadow: 0 8px 30px rgba(123, 237, 159, 0.6), 0 0 40px rgba(123, 237, 159, 0.3);
+    border-color: rgba(123, 237, 159, 0.5);
+}
+
+.save-btn.loss {
+    background: linear-gradient(135deg, #a82828 0%, #8a2020 100%);
+    border-color: rgba(255, 107, 107, 0.3);
+}
+
+.save-btn.loss:hover:not(:disabled) {
+    background: linear-gradient(135deg, #c93030 0%, #a82828 100%);
+    box-shadow: 0 8px 30px rgba(255, 107, 107, 0.6), 0 0 40px rgba(255, 107, 107, 0.3);
+    border-color: rgba(255, 107, 107, 0.5);
+}
+
+.save-btn.draw {
+    background: linear-gradient(135deg, #8a6e2f 0%, #6e5726 100%);
+    border-color: rgba(241, 196, 15, 0.3);
+}
+
+.save-btn.draw:hover:not(:disabled) {
+    background: linear-gradient(135deg, #a78838 0%, #8a6e2f 100%);
+    box-shadow: 0 8px 30px rgba(241, 196, 15, 0.6), 0 0 40px rgba(241, 196, 15, 0.3);
+    border-color: rgba(241, 196, 15, 0.5);
+}
+
 .undo-btn {
     width: 100%;
     padding: 14px;
