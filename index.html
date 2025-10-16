@@ -38,6 +38,15 @@
             <section class="quick-log">
                 <h2>Log Match</h2>
 
+                <!-- Match Preview (styled like match history) -->
+                <div id="matchPreview" class="match-preview">
+                    <div class="match-info">
+                        <span id="previewResult" class="match-result">---</span>
+                        <span id="previewType" class="match-type">Select match type...</span>
+                        <span id="previewHeroes" class="match-heroes" style="display: none;"></span>
+                    </div>
+                </div>
+
                 <div class="match-type-buttons">
                     <!-- Match type buttons will be dynamically generated -->
                 </div>
@@ -52,12 +61,6 @@
                     <button class="result-btn draw" data-result="draw" data-key="d">
                         Draw
                     </button>
-                </div>
-
-                <div class="current-selection">
-                    <span id="selectedType">Select match type...</span>
-                    <span id="selectedResult"></span>
-                    <span id="selectedHeroes" style="display: none;"></span>
                 </div>
 
                 <!-- Recent Heroes -->

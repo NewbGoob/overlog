@@ -263,8 +263,6 @@ h2::after {
     gap: 15px;
     margin-bottom: 25px;
     margin-top: 25px;
-    padding-top: 20px;
-    border-top: 2px solid var(--border-color);
 }
 
 .result-btn {
@@ -353,62 +351,70 @@ h2::after {
 }
 
 /* ============================================
-   Current Selection Display
+   Match Preview (Status Window)
    ============================================ */
 
-.current-selection {
-    text-align: center;
-    padding: 20px 24px;
-    background: var(--bg-tertiary);
-    border-radius: 12px;
+.match-preview {
+    padding: 12px;
     margin-bottom: 25px;
-    font-size: 1.1em;
-    min-height: 70px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    border: 2px solid var(--border-color);
-}
-
-#selectedType {
-    color: var(--text-secondary);
-    font-size: 1.1em;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-}
-
-#selectedResult {
-    font-weight: bold;
-    font-size: 1.3em;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-}
-
-#selectedResult.win {
-    color: var(--color-win-light);
-    text-shadow: 0 0 15px rgba(123, 237, 159, 0.4);
-}
-
-#selectedResult.loss {
-    color: var(--color-loss-light);
-    text-shadow: 0 0 15px rgba(255, 107, 107, 0.4);
-}
-
-#selectedResult.draw {
-    color: var(--color-draw-light);
-    text-shadow: 0 0 15px rgba(250, 206, 89, 0.4);
-}
-
-#selectedHeroes {
-    font-size: 0.9em;
-    color: var(--accent-primary);
-    font-weight: 600;
-    padding: 8px 16px;
-    background: var(--bg-secondary);
+    background: var(--bg-tertiary);
     border-radius: 6px;
-    border: 1px solid var(--border-color);
+    border-left: 4px solid var(--border-color-strong);
+    transition: border-color 0.3s ease;
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+}
+
+/* Border colors that respond to selected result */
+.match-preview.win {
+    border-left-color: var(--color-win-light);
+}
+
+.match-preview.loss {
+    border-left-color: var(--color-loss-light);
+}
+
+.match-preview.draw {
+    border-left-color: var(--color-draw-light);
+}
+
+.match-preview .match-info {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.match-preview .match-result {
+    font-weight: bold;
+    font-size: 1.1em;
+    min-width: 60px;
+    text-transform: uppercase;
+}
+
+.match-preview .match-result.win {
+    color: var(--color-win-light);
+}
+
+.match-preview .match-result.loss {
+    color: var(--color-loss-light);
+}
+
+.match-preview .match-result.draw {
+    color: var(--color-draw-light);
+}
+
+.match-preview .match-type {
+    color: var(--text-secondary);
+    text-transform: capitalize;
+    font-weight: 500;
+}
+
+.match-preview .match-heroes {
+    color: var(--accent-primary);
+    font-size: 0.85em;
+    font-style: italic;
 }
 
 /* ============================================
@@ -419,7 +425,7 @@ h2::after {
     margin-bottom: 20px;
     padding: 16px;
     background: var(--bg-tertiary);
-    border: 2px solid var(--accent-primary);
+    border: 1px solid var(--border-color);
     border-radius: 10px;
 }
 
@@ -443,9 +449,12 @@ h2::after {
     font-size: 0.95em;
     padding: 10px;
     background: var(--button-bg);
-    border: 2px solid var(--accent-primary);
+    border: 2px solid var(--border-color-strong);
     font-weight: 600;
     color: var(--text-primary);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
 }
 
 .recent-hero-btn:hover {
@@ -467,8 +476,6 @@ h2::after {
 
 .hero-section-wrapper {
     margin-bottom: 20px;
-    padding-top: 20px;
-    border-top: 2px solid var(--border-color);
 }
 
 .hero-toggle-btn {

@@ -1032,11 +1032,23 @@ function selectResult(result) {
     updateSaveButton();
 }
 
-// Update selection display
+// Update selection display (match preview)
 function updateSelectionDisplay() {
-    const typeDisplay = document.getElementById('selectedType');
-    const resultDisplay = document.getElementById('selectedResult');
-    const heroesDisplay = document.getElementById('selectedHeroes');
+    const matchPreview = document.getElementById('matchPreview');
+    const previewResult = document.getElementById('previewResult');
+    const previewType = document.getElementById('previewType');
+    const previewHeroes = document.getElementById('previewHeroes');
+
+    // Update result
+    if (state.selectedResult) {
+        previewResult.textContent = state.selectedResult.toUpperCase();
+        previewResult.className = `match-result ${state.selectedResult}`;
+        matchPreview.className = `match-preview ${state.selectedResult}`;
+    } else {
+        previewResult.textContent = '---';
+        previewResult.className = 'match-result';
+        matchPreview.className = 'match-preview';
+    }
 
     // Build match type display
     if (state.selectedParentType) {
@@ -1053,17 +1065,9 @@ function updateSelectionDisplay() {
             }
         }
 
-        typeDisplay.textContent = displayText;
+        previewType.textContent = displayText;
     } else {
-        typeDisplay.textContent = 'Select match type...';
-    }
-
-    if (state.selectedResult) {
-        resultDisplay.textContent = state.selectedResult.toUpperCase();
-        resultDisplay.className = state.selectedResult;
-    } else {
-        resultDisplay.textContent = '';
-        resultDisplay.className = '';
+        previewType.textContent = 'Select match type...';
     }
 
     // Update heroes display
@@ -1072,10 +1076,10 @@ function updateSelectionDisplay() {
             const hero = CONFIG.heroes.find(h => h.id === heroId);
             return hero ? hero.name : heroId;
         });
-        heroesDisplay.textContent = `Heroes: ${heroNames.join(', ')}`;
-        heroesDisplay.style.display = 'block';
+        previewHeroes.textContent = heroNames.join(', ');
+        previewHeroes.style.display = 'inline';
     } else {
-        heroesDisplay.style.display = 'none';
+        previewHeroes.style.display = 'none';
     }
 }
 
