@@ -101,7 +101,7 @@ let state = {
     sessionStartTime: null,
     recentHeroes: [], // Track 4 most recently used heroes
     // Keyboard navigation focus
-    focusZone: null, // 'parent', 'child', 'hero-toggle', 'recent-heroes', 'heroes', 'clear-heroes', 'result', 'save', or null when defocused
+    focusZone: null, // 'match-type-toggle', 'parent', 'child', 'result', 'recent-heroes', 'hero-toggle', 'heroes', 'clear-heroes', 'save', or null when defocused
     focusIndex: 0,
     lastHeroFocusIndex: 0, // Remember last focused hero when drawer was open
     lastFocusZone: 'parent', // Remember last zone for refocusing
@@ -137,6 +137,24 @@ function loadData() {
     if (savedRecentHeroes) {
         state.recentHeroes = JSON.parse(savedRecentHeroes);
     }
+
+    // Load last selected match type
+    const savedMatchType = localStorage.getItem('owLastMatchType');
+    if (savedMatchType) {
+        try {
+            const { parentType, childType } = JSON.parse(savedMatchType);
+            // Validate that the saved types still exist in config
+            const parent = CONFIG.matchTypes.find(t => t.id === parentType);
+            if (parent) {
+                state.selectedParentType = parentType;
+                if (childType && parent.children.some(c => c.id === childType)) {
+                    state.selectedChildType = childType;
+                }
+            }
+        } catch (e) {
+            // Invalid saved data, ignore
+        }
+    }
 }
 
 // Save data to localStorage
@@ -151,6 +169,32 @@ function init() {
     renderHeroButtons();
     renderRecentHeroes();
     setupEventListeners();
+
+    // Apply loaded match type selection if any
+    if (state.selectedParentType) {
+        // Highlight the selected parent
+        document.querySelectorAll('.parent-type-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.type === state.selectedParentType);
+        });
+
+        // Render child types if parent has children
+        const parent = CONFIG.matchTypes.find(t => t.id === state.selectedParentType);
+        if (parent && parent.children.length > 0) {
+            renderChildTypeButtons(state.selectedParentType);
+
+            // Highlight the selected child if any
+            if (state.selectedChildType) {
+                document.querySelectorAll('.child-type-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.type === state.selectedChildType);
+                });
+            }
+        }
+
+        // Update the toggle button text and selection display
+        updateMatchTypeToggleText();
+        updateSelectionDisplay();
+    }
+
     updateUI();
     updateStorageIndicator();
     checkExportReminder();
@@ -310,6 +354,9 @@ function setupEventListeners() {
         if (btn) toggleHero(btn.dataset.hero);
     });
 
+    // Match type section toggle
+    document.getElementById('matchTypeToggle').addEventListener('click', toggleMatchTypeSection);
+
     // Hero section toggle
     document.getElementById('heroSectionToggle').addEventListener('click', toggleHeroSection);
 
@@ -377,7 +424,11 @@ function handleClickFocus(e) {
     }
 
     // Determine what was clicked and set focus accordingly
-    if (target.classList.contains('parent-type-btn')) {
+    if (target.id === 'matchTypeToggle') {
+        state.focusZone = 'match-type-toggle';
+        state.focusIndex = 0;
+        updateFocusVisuals();
+    } else if (target.classList.contains('parent-type-btn')) {
         const parentButtons = Array.from(document.querySelectorAll('.parent-type-btn'));
         const index = parentButtons.indexOf(target);
         if (index >= 0) {
@@ -477,6 +528,13 @@ function handleKeyboard(e) {
         return;
     }
 
+    // T key - Toggle match type drawer
+    if (key === 't') {
+        e.preventDefault();
+        toggleMatchTypeSectionWithFocus();
+        return;
+    }
+
     // E key - Toggle hero drawer
     if (key === 'e') {
         e.preventDefault();
@@ -520,7 +578,36 @@ function handleWASDNavigation(key) {
 
     if (key === 'w') {
         // Move up (previous zone)
-        if (currentZone === 'save') {
+        if (currentZone === 'match-type-toggle') {
+            // Can't go up from match-type-toggle (it's at the top)
+            return;
+        } else if (currentZone === 'parent') {
+            // Move from parent to match-type-toggle
+            state.focusZone = 'match-type-toggle';
+            state.focusIndex = 0;
+        } else if (currentZone === 'child') {
+            // Move from child to parent
+            state.focusZone = 'parent';
+            state.focusIndex = 0;
+        } else if (currentZone === 'result') {
+            // Check if match type section is visible
+            const matchTypeSection = document.getElementById('matchTypeSection');
+            if (matchTypeSection && matchTypeSection.style.display !== 'none') {
+                // Check if child types are visible
+                const childTypes = document.getElementById('childTypes');
+                if (childTypes && childTypes.style.display !== 'none') {
+                    state.focusZone = 'child';
+                    state.focusIndex = 0;
+                } else {
+                    state.focusZone = 'parent';
+                    state.focusIndex = 0;
+                }
+            } else {
+                // Match type section is collapsed, go to toggle
+                state.focusZone = 'match-type-toggle';
+                state.focusIndex = 0;
+            }
+        } else if (currentZone === 'save') {
             // Move from save to clear-heroes if drawer visible, otherwise hero-toggle
             if (isHeroSectionVisible) {
                 state.focusZone = 'clear-heroes';
@@ -552,23 +639,22 @@ function handleWASDNavigation(key) {
             // Move from recent-heroes to result buttons
             state.focusZone = 'result';
             state.focusIndex = 0;
-        } else if (currentZone === 'result') {
-            // Move from result to child types if visible, otherwise parent types
-            const childTypes = document.getElementById('childTypes');
-            if (childTypes && childTypes.style.display !== 'none') {
-                state.focusZone = 'child';
-                state.focusIndex = 0;
-            } else {
-                state.focusZone = 'parent';
-                state.focusIndex = 0;
-            }
-        } else if (currentZone === 'child') {
-            state.focusZone = 'parent';
-            state.focusIndex = 0;
         }
     } else if (key === 's') {
         // Move down (next zone)
-        if (currentZone === 'parent') {
+        if (currentZone === 'match-type-toggle') {
+            // Check if match type section is visible
+            const matchTypeSection = document.getElementById('matchTypeSection');
+            if (matchTypeSection && matchTypeSection.style.display !== 'none') {
+                // Go to parent types
+                state.focusZone = 'parent';
+                state.focusIndex = 0;
+            } else {
+                // Section collapsed, go to result
+                state.focusZone = 'result';
+                state.focusIndex = 0;
+            }
+        } else if (currentZone === 'parent') {
             // Check if child types are visible
             const childTypes = document.getElementById('childTypes');
             if (childTypes && childTypes.style.display !== 'none') {
@@ -711,7 +797,9 @@ function handleHeroGridNavigation(key) {
 
 // Get maximum index for current focus zone
 function getMaxIndexForZone(zone) {
-    if (zone === 'parent') {
+    if (zone === 'match-type-toggle') {
+        return 0; // Only one button
+    } else if (zone === 'parent') {
         return CONFIG.matchTypes.length - 1;
     } else if (zone === 'child') {
         const childButtons = document.querySelectorAll('.child-type-btn');
@@ -739,7 +827,33 @@ function handleSpacebarSelection() {
     const zone = state.focusZone;
     const index = state.focusIndex;
 
-    if (zone === 'parent') {
+    if (zone === 'match-type-toggle') {
+        // Toggle match type section visibility
+        toggleMatchTypeSection();
+        // Check if section is now visible and move to it
+        const matchTypeSection = document.getElementById('matchTypeSection');
+        const isVisible = matchTypeSection && matchTypeSection.style.display !== 'none';
+        if (isVisible) {
+            // Check if child types are visible
+            const childTypes = document.getElementById('childTypes');
+            if (childTypes && childTypes.style.display !== 'none') {
+                state.focusZone = 'child';
+                state.focusIndex = 0;
+            } else {
+                state.focusZone = 'parent';
+                state.focusIndex = 0;
+            }
+        } else {
+            // Section collapsed, move to result if match type is complete
+            const parent = CONFIG.matchTypes.find(t => t.id === state.selectedParentType);
+            const typeComplete = state.selectedParentType &&
+                (!parent || parent.children.length === 0 || state.selectedChildType);
+            if (typeComplete) {
+                state.focusZone = 'result';
+                state.focusIndex = 0;
+            }
+        }
+    } else if (zone === 'parent') {
         const parentButtons = document.querySelectorAll('.parent-type-btn');
         if (parentButtons[index]) {
             const typeId = parentButtons[index].dataset.type;
@@ -844,7 +958,9 @@ function updateFocusVisuals() {
 
     let focusedElement = null;
 
-    if (zone === 'parent') {
+    if (zone === 'match-type-toggle') {
+        focusedElement = document.getElementById('matchTypeToggle');
+    } else if (zone === 'parent') {
         const parentButtons = document.querySelectorAll('.parent-type-btn');
         focusedElement = parentButtons[index];
     } else if (zone === 'child') {
@@ -900,6 +1016,103 @@ function updateHeroButtons() {
     });
     // Also update recent heroes if they exist
     renderRecentHeroes();
+}
+
+// Toggle match type section visibility
+function toggleMatchTypeSection() {
+    const section = document.getElementById('matchTypeSection');
+    const toggle = document.getElementById('matchTypeToggle');
+    const toggleText = document.getElementById('matchTypeToggleText');
+    const isHidden = section.style.display === 'none';
+
+    section.style.display = isHidden ? 'block' : 'none';
+
+    // Update toggle text to show current selection or prompt
+    updateMatchTypeToggleText();
+
+    // When collapsing match type section, move focus to result if match type is selected
+    if (!isHidden) {
+        // Section was just collapsed
+        if (state.focusZone === 'parent' || state.focusZone === 'child') {
+            // Move to result buttons if match type is complete
+            const parent = CONFIG.matchTypes.find(t => t.id === state.selectedParentType);
+            const typeComplete = state.selectedParentType &&
+                (!parent || parent.children.length === 0 || state.selectedChildType);
+
+            if (typeComplete) {
+                state.focusZone = 'result';
+                state.focusIndex = 0;
+            } else {
+                state.focusZone = 'match-type-toggle';
+                state.focusIndex = 0;
+            }
+            updateFocusVisuals();
+        }
+    }
+}
+
+// Toggle match type section with focus memory (for T key)
+function toggleMatchTypeSectionWithFocus() {
+    const section = document.getElementById('matchTypeSection');
+    const toggle = document.getElementById('matchTypeToggle');
+    const isHidden = section.style.display === 'none';
+
+    section.style.display = isHidden ? 'block' : 'none';
+
+    // Update toggle text
+    updateMatchTypeToggleText();
+
+    if (isHidden) {
+        // Opening the drawer - move to parent types zone
+        state.focusZone = 'parent';
+        state.focusIndex = 0;
+
+        // If child types are visible, focus those instead
+        const childTypes = document.getElementById('childTypes');
+        if (childTypes && childTypes.style.display !== 'none') {
+            state.focusZone = 'child';
+        }
+
+        updateFocusVisuals();
+    } else {
+        // Closing the drawer - move focus to result or toggle
+        const parent = CONFIG.matchTypes.find(t => t.id === state.selectedParentType);
+        const typeComplete = state.selectedParentType &&
+            (!parent || parent.children.length === 0 || state.selectedChildType);
+
+        if (typeComplete) {
+            state.focusZone = 'result';
+            state.focusIndex = 0;
+        } else {
+            state.focusZone = 'match-type-toggle';
+            state.focusIndex = 0;
+        }
+        updateFocusVisuals();
+    }
+}
+
+// Update match type toggle button text
+function updateMatchTypeToggleText() {
+    const toggleText = document.getElementById('matchTypeToggleText');
+
+    if (state.selectedParentType) {
+        const parent = CONFIG.matchTypes.find(t => t.id === state.selectedParentType);
+        let displayText = parent ? parent.label : state.selectedParentType;
+
+        // If parent has children and child is selected, add it
+        if (parent && parent.children.length > 0) {
+            if (state.selectedChildType) {
+                const child = parent.children.find(c => c.id === state.selectedChildType);
+                displayText += ` > ${child ? child.label : state.selectedChildType}`;
+            } else {
+                displayText += ' (select type...)';
+            }
+        }
+
+        toggleText.textContent = displayText;
+    } else {
+        toggleText.textContent = 'Select Match Type';
+    }
 }
 
 // Toggle hero section visibility
@@ -990,12 +1203,23 @@ function selectParentType(parentId) {
     if (parent && parent.children.length > 0) {
         // Show child options
         renderChildTypeButtons(parentId);
+        // Save to localStorage without child (child will be saved when selected)
+        localStorage.setItem('owLastMatchType', JSON.stringify({
+            parentType: parentId,
+            childType: null
+        }));
     } else {
         // No children, selection is complete
         document.getElementById('childTypes').style.display = 'none';
+        // Save to localStorage
+        localStorage.setItem('owLastMatchType', JSON.stringify({
+            parentType: parentId,
+            childType: null
+        }));
     }
 
     updateSelectionDisplay();
+    updateMatchTypeToggleText();
     updateSaveButton();
 }
 
@@ -1008,7 +1232,14 @@ function selectChildType(childId) {
         btn.classList.toggle('active', btn.dataset.type === childId);
     });
 
+    // Save to localStorage
+    localStorage.setItem('owLastMatchType', JSON.stringify({
+        parentType: state.selectedParentType,
+        childType: childId
+    }));
+
     updateSelectionDisplay();
+    updateMatchTypeToggleText();
     updateSaveButton();
 }
 
@@ -1171,6 +1402,13 @@ function saveMatch() {
     if (heroSection && heroSection.style.display !== 'none') {
         heroSection.style.display = 'none';
         heroToggle.innerHTML = '<span class="key-hint">E</span> Add Heroes (Optional) ▼';
+    }
+
+    // Auto-collapse match type section after first match
+    const matchTypeSection = document.getElementById('matchTypeSection');
+    if (matchTypeSection && matchTypeSection.style.display !== 'none') {
+        matchTypeSection.style.display = 'none';
+        updateMatchTypeToggleText();
     }
 
     // Move focus to result for next match

@@ -47,8 +47,18 @@
                     </div>
                 </div>
 
-                <div class="match-type-buttons">
-                    <!-- Match type buttons will be dynamically generated -->
+                <!-- Match Type Selection (Collapsible) -->
+                <div class="match-type-wrapper">
+                    <button id="matchTypeToggle" class="match-type-toggle-btn">
+                        <span class="key-hint">T</span>
+                        <span id="matchTypeToggleText">Select Match Type</span> ▼
+                    </button>
+
+                    <div id="matchTypeSection" class="match-type-section" style="display: none;">
+                        <div class="match-type-buttons">
+                            <!-- Match type buttons will be dynamically generated -->
+                        </div>
+                    </div>
                 </div>
 
                 <div class="result-buttons">

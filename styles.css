@@ -159,11 +159,46 @@ h2::after {
 }
 
 /* ============================================
-   Match Type Buttons
+   Match Type Selection (Collapsible)
    ============================================ */
 
-.match-type-buttons {
+.match-type-wrapper {
     margin-bottom: 25px;
+}
+
+.match-type-toggle-btn {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 0.95em;
+    font-weight: 600;
+    background: var(--button-bg);
+    color: var(--text-primary);
+    border: 2px solid var(--border-color-strong);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.match-type-toggle-btn:hover {
+    background: var(--button-bg-hover);
+    border-color: var(--accent-primary);
+    transform: translateY(-1px);
+}
+
+.match-type-section {
+    margin-top: 12px;
+    padding: 18px;
+    background: var(--bg-tertiary);
+    border-radius: 10px;
+    border: 2px solid var(--border-color);
+}
+
+.match-type-buttons {
+    margin-bottom: 0;
 }
 
 .parent-types {
