@@ -944,13 +944,25 @@ footer {
     margin-top: 30px;
     padding: 20px;
     border-top: 2px solid var(--border-color);
-    text-align: center;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
 }
 
 .keyboard-hints {
     color: var(--text-secondary);
     font-size: 0.85em;
     line-height: 1.4;
+}
+
+.version-info {
+    color: var(--text-secondary);
+    font-size: 0.8em;
+    white-space: nowrap;
 }
 
 /* ============================================

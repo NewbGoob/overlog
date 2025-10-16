@@ -2694,9 +2694,34 @@ function setupSettingsListeners() {
     }
 }
 
+// Load and display version info
+async function loadVersionInfo() {
+    try {
+        const response = await fetch('version.json');
+        const versionData = await response.json();
+        const versionElement = document.getElementById('appVersion');
+        if (versionElement) {
+            const versionText = `Version ${versionData.version}`;
+            const commitHash = versionData.commitHash ? ` (${versionData.commitHash})` : '';
+            versionElement.textContent = versionText + commitHash;
+        }
+    } catch (error) {
+        console.error('Failed to load version info:', error);
+        // Fallback if version.json can't be loaded
+        const versionElement = document.getElementById('appVersion');
+        if (versionElement) {
+            versionElement.textContent = 'Version 1.0.0';
+        }
+    }
+}
+
 // Initialize when DOM is ready
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', () => {
+        init();
+        loadVersionInfo();
+    });
 } else {
     init();
+    loadVersionInfo();
 }

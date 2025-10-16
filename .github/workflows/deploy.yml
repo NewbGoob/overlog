@@ -1,0 +1,56 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for commit info
+
+      - name: Update version.json with build info
+        run: |
+          # Get current date and short commit hash
+          BUILD_DATE=$(date +%Y-%m-%d)
+          COMMIT_HASH=$(git rev-parse --short HEAD)
+
+          # Read current version from version.json
+          CURRENT_VERSION=$(jq -r '.version' version.json)
+
+          # Update version.json with new build date and commit hash
+          jq --arg date "$BUILD_DATE" --arg hash "$COMMIT_HASH" \
+            '.buildDate = $date | .commitHash = $hash' \
+            version.json > version.json.tmp
+          mv version.json.tmp version.json
+
+          echo "Updated version.json:"
+          cat version.json
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
