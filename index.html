@@ -9,11 +9,23 @@
 <body>
     <div class="container">
         <header>
-            <h1>Overwatch Match Logger</h1>
-            <div class="session-info">
-                <span id="sessionMatches">Session: 0 matches</span>
-                <span id="sessionWR">Win Rate: --</span>
+            <div class="header-content">
+                <h1>Overlog</h1>
+                <div class="session-info">
+                    <span id="sessionMatches">Session: 0 matches</span>
+                    <span id="sessionWR">Win Rate: --</span>
+                </div>
             </div>
+            <button id="newSessionBtn" class="new-session-btn" title="Start New Session">
+                <img src="arrow-path.svg" alt="New Session" class="new-session-icon">
+            </button>
+            <button id="themeToggleBtn" class="theme-toggle-btn" title="Toggle Theme">
+                <img src="sun.svg" alt="Light Mode" class="theme-icon theme-icon-sun">
+                <img src="moon.svg" alt="Dark Mode" class="theme-icon theme-icon-moon">
+            </button>
+            <button id="settingsBtn" class="settings-btn" title="Settings">
+                <img src="settings.svg" alt="Settings" class="settings-icon">
+            </button>
         </header>
 
         <main>
@@ -75,7 +87,7 @@
 
                 <!-- Recent Heroes -->
                 <div id="recentHeroesContainer" class="recent-heroes-container" style="display: none;">
-                    <div class="recent-heroes-header">Recently Used:</div>
+                    <div class="recent-heroes-header">Recent Heroes:</div>
                     <div id="recentHeroesButtons" class="recent-heroes-buttons">
                         <!-- Recent hero buttons will be dynamically generated -->
                     </div>
@@ -103,7 +115,13 @@
 
             <!-- Stats Section -->
             <section class="stats">
-                <h2>Quick Stats</h2>
+                <div class="stats-header">
+                    <h2>Quick Stats</h2>
+                    <div class="stats-toggle">
+                        <button id="statsToggleAllTime" class="stats-toggle-btn active">All Time</button>
+                        <button id="statsToggleSession" class="stats-toggle-btn">This Session</button>
+                    </div>
+                </div>
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-value" id="totalMatches">0</div>
@@ -133,21 +151,164 @@
             </section>
         </main>
 
-        <footer>
-            <div class="footer-buttons">
-                <button id="importBtn" class="import-btn">Import Data</button>
-                <button id="exportBtn" class="export-btn">Export CSV</button>
-                <button id="exportJsonBtn" class="export-json-btn">Export JSON</button>
-                <button id="clearBtn" class="clear-btn">Clear All Data</button>
-            </div>
-            <div class="footer-info">
-                <div id="storageIndicator" class="storage-indicator">Storage: Calculating...</div>
-                <div class="keyboard-hints">
-                    Navigate: WASD | Select: Spacebar | Undo: Ctrl+Z
+        <!-- Settings Modal -->
+        <div id="settingsModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Settings</h2>
+                    <button id="closeSettingsBtn" class="modal-close">&times;</button>
                 </div>
+                <div class="modal-body">
+                    <!-- UI Settings Section -->
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">UI Settings</h3>
+                        <div class="settings-group">
+                            <label class="setting-label">
+                                <span class="setting-name">Theme</span>
+                                <select id="settingTheme" class="setting-select">
+                                    <option value="auto">Auto (System)</option>
+                                    <option value="dark">Dark</option>
+                                    <option value="light">Light</option>
+                                </select>
+                            </label>
+                        </div>
+                        <div class="settings-group">
+                            <label class="setting-label">
+                                <span class="setting-name">Recent Heroes Count</span>
+                                <input type="range" id="settingRecentHeroesCount" class="setting-slider" min="0" max="8" step="1">
+                                <span id="recentHeroesCountValue" class="setting-value">4</span>
+                            </label>
+                        </div>
+                        <div class="settings-group">
+                            <label class="setting-label">
+                                <span class="setting-name">Use Overwatch-Style Text</span>
+                                <input type="checkbox" id="settingUseOwStyleText" class="setting-checkbox">
+                            </label>
+                            <p class="setting-description">Display "Victory/Defeat/Draw" instead of "Win/Loss/Draw"</p>
+                        </div>
+                        <div class="settings-group">
+                            <label class="setting-label">
+                                <span class="setting-name">Show Draw Button</span>
+                                <input type="checkbox" id="settingShowDrawButton" class="setting-checkbox">
+                            </label>
+                            <p class="setting-description">Show the draw button (disable if draws are not possible in your game mode)</p>
+                        </div>
+                        <div class="settings-group">
+                            <label class="setting-label">
+                                <span class="setting-name">Show Match Saved Notifications</span>
+                                <input type="checkbox" id="settingShowMatchSavedNotification" class="setting-checkbox">
+                            </label>
+                            <p class="setting-description">Show a notification when a match is saved</p>
+                        </div>
+                        <div class="settings-group">
+                            <label class="setting-label">
+                                <span class="setting-name">Show Session Reset Notifications</span>
+                                <input type="checkbox" id="settingShowSessionNotification" class="setting-checkbox">
+                            </label>
+                            <p class="setting-description">Show a notification when starting a new session</p>
+                        </div>
+                    </div>
+
+                    <!-- Behavior Settings Section -->
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">Behavior Settings</h3>
+                        <div class="settings-group">
+                            <label class="setting-label">
+                                <span class="setting-name">Auto-collapse Match Type Section</span>
+                                <input type="checkbox" id="settingAutoCollapseMatchType" class="setting-checkbox">
+                            </label>
+                            <p class="setting-description">Automatically collapse match type section after saving a match</p>
+                        </div>
+                        <div class="settings-group">
+                            <label class="setting-label">
+                                <span class="setting-name">Auto-collapse Hero Section</span>
+                                <input type="checkbox" id="settingAutoCollapseHero" class="setting-checkbox">
+                            </label>
+                            <p class="setting-description">Automatically collapse hero section after saving a match</p>
+                        </div>
+                    </div>
+
+                    <!-- Session Settings Section -->
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">Session Settings</h3>
+                        <div class="settings-group">
+                            <label class="setting-label">
+                                <span class="setting-name">Auto-Reset Session</span>
+                                <select id="settingSessionAutoReset" class="setting-select">
+                                    <option value="manual">Manual Only</option>
+                                    <option value="daily">Daily (at midnight)</option>
+                                    <option value="onlaunch">On App Launch</option>
+                                </select>
+                            </label>
+                            <p class="setting-description">Control when sessions automatically reset</p>
+                        </div>
+                    </div>
+
+                    <!-- Keyboard Shortcuts Section -->
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">Keyboard Shortcuts</h3>
+                        <div class="settings-group">
+                            <label class="setting-label">
+                                <span class="setting-name">Enable All Keyboard Shortcuts</span>
+                                <input type="checkbox" id="settingKeyboardShortcutsEnabled" class="setting-checkbox">
+                            </label>
+                        </div>
+                        <div id="keyboardShortcutsSub" class="settings-subsection">
+                            <div class="settings-group">
+                                <label class="setting-label">
+                                    <span class="setting-name">WASD Navigation</span>
+                                    <input type="checkbox" id="settingWasdEnabled" class="setting-checkbox">
+                                </label>
+                            </div>
+                            <div class="settings-group">
+                                <label class="setting-label">
+                                    <span class="setting-name">Number Keys (Match Types)</span>
+                                    <input type="checkbox" id="settingNumberKeysEnabled" class="setting-checkbox">
+                                </label>
+                            </div>
+                            <div class="settings-group">
+                                <label class="setting-label">
+                                    <span class="setting-name">Hotkeys (T, E, Space, Ctrl+Z)</span>
+                                    <input type="checkbox" id="settingHotkeysEnabled" class="setting-checkbox">
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Data Management Section -->
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">Data Management</h3>
+                        <div class="settings-group">
+                            <div class="storage-info">
+                                <div id="storageIndicatorModal" class="storage-indicator-modal">Local Storage: Calculating...</div>
+                            </div>
+                        </div>
+                        <div class="settings-group">
+                            <div class="data-buttons">
+                                <button id="importBtnModal" class="data-btn import-btn">Import Data</button>
+                                <button id="exportBtnModal" class="data-btn export-btn">Export CSV</button>
+                                <button id="exportJsonBtnModal" class="data-btn export-json-btn">Export JSON</button>
+                                <button id="clearBtnModal" class="data-btn clear-btn">Clear All Data</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="saveSettingsBtn" class="save-settings-btn">Save Settings</button>
+                    <button id="resetSettingsBtn" class="reset-settings-btn">Reset to Defaults</button>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <div class="keyboard-hints">
+                Navigate: WASD | Select: Spacebar | Undo: Ctrl+Z
             </div>
         </footer>
     </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="toast-container"></div>
 
     <script src="app.js"></script>
 </body>

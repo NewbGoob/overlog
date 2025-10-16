@@ -9,9 +9,9 @@ const CONFIG = {
             label: 'Unranked',
             key: '1',
             children: [
-                { id: 'quickplay', label: 'Quick Play', key: 'q' },
-                { id: '6v6-openqueue', label: '6V6 Open Queue', key: 'o' },
-                { id: 'mystery-heroes', label: 'Mystery Heroes', key: 'm' }
+                { id: 'quickplay', label: 'Quick Play', displayLabel: 'Quick Play', key: 'q' },
+                { id: '6v6-openqueue', label: '6V6 Open Queue', displayLabel: '6V6 Open Queue', key: 'o' },
+                { id: 'mystery-heroes', label: 'Mystery Heroes', displayLabel: 'Mystery Heroes', key: 'm' }
             ]
         },
         {
@@ -19,8 +19,8 @@ const CONFIG = {
             label: 'Competitive',
             key: '2',
             children: [
-                { id: 'role-queue', label: 'Role Queue', key: 'r' },
-                { id: 'open-queue', label: 'Open Queue', key: 'o' }
+                { id: 'role-queue', label: 'Role Queue', displayLabel: 'Competitive Role Queue', key: 'r' },
+                { id: 'open-queue', label: 'Open Queue', displayLabel: 'Competitive Open Queue', key: 'o' }
             ]
         },
         {
@@ -28,8 +28,8 @@ const CONFIG = {
             label: 'Stadium',
             key: '3',
             children: [
-                { id: 'quickplay', label: 'Quick Play', key: 'q' },
-                { id: 'competitive', label: 'Competitive', key: 'c' }
+                { id: 'quickplay', label: 'Quick Play', displayLabel: 'Stadium Quick Play', key: 'q' },
+                { id: 'competitive', label: 'Competitive', displayLabel: 'Stadium Competitive', key: 'c' }
             ]
         },
         {
@@ -91,6 +91,23 @@ const CONFIG = {
     ]
 };
 
+// Default settings configuration
+const DEFAULT_SETTINGS = {
+    theme: 'auto', // 'auto', 'dark', 'light'
+    autoCollapseMatchType: true,
+    autoCollapseHero: true,
+    recentHeroesCount: 4,
+    keyboardShortcutsEnabled: true,
+    wasdEnabled: true,
+    numberKeysEnabled: true,
+    hotkeysEnabled: true,
+    sessionAutoReset: 'daily', // 'manual', 'daily', 'onlaunch'
+    useOwStyleText: false, // false = Win/Loss/Draw, true = Victory/Defeat/Draw
+    showMatchSavedNotification: true, // Show toast when match is saved
+    showSessionNotification: true, // Show toast when session is reset
+    showDrawButton: true // Show or hide the draw button
+};
+
 // State management
 let state = {
     selectedParentType: null,
@@ -100,6 +117,8 @@ let state = {
     matches: [],
     sessionStartTime: null,
     recentHeroes: [], // Track 4 most recently used heroes
+    settings: { ...DEFAULT_SETTINGS }, // User settings
+    statsView: 'all-time', // 'all-time' or 'session'
     // Keyboard navigation focus
     focusZone: null, // 'match-type-toggle', 'parent', 'child', 'result', 'recent-heroes', 'hero-toggle', 'heroes', 'clear-heroes', 'save', or null when defocused
     focusIndex: 0,
@@ -116,20 +135,51 @@ function loadData() {
     }
 
     const savedSession = localStorage.getItem('owSessionStart');
+    let autoResetOccurred = false;
+    let previousSessionStats = null;
+
     if (savedSession) {
         const sessionDate = new Date(savedSession);
         const today = new Date();
 
-        // Reset session if it's a new day
-        if (sessionDate.toDateString() === today.toDateString()) {
-            state.sessionStartTime = sessionDate;
-        } else {
+        // Check if session should be reset based on settings
+        let shouldReset = false;
+
+        if (state.settings.sessionAutoReset === 'onlaunch') {
+            // Always reset on app launch
+            shouldReset = true;
+        } else if (state.settings.sessionAutoReset === 'daily') {
+            // Reset if it's a new day
+            shouldReset = sessionDate.toDateString() !== today.toDateString();
+        }
+        // If 'manual', never auto-reset (shouldReset stays false)
+
+        if (shouldReset) {
+            // Calculate previous session stats before resetting
+            const previousSessionMatches = state.matches.filter(match => {
+                const matchDate = new Date(match.timestamp);
+                return matchDate >= sessionDate;
+            });
+            const prevCount = previousSessionMatches.length;
+            const prevWins = previousSessionMatches.filter(m => m.result === 'win').length;
+            const prevWR = prevCount > 0 ? ((prevWins / prevCount) * 100).toFixed(1) : 0;
+
+            previousSessionStats = { count: prevCount, winRate: prevWR };
+            autoResetOccurred = true;
+
             state.sessionStartTime = new Date();
             localStorage.setItem('owSessionStart', state.sessionStartTime.toISOString());
+        } else {
+            state.sessionStartTime = sessionDate;
         }
     } else {
         state.sessionStartTime = new Date();
         localStorage.setItem('owSessionStart', state.sessionStartTime.toISOString());
+    }
+
+    // Store auto-reset info for later toast display (after init completes)
+    if (autoResetOccurred) {
+        state.pendingSessionResetNotification = previousSessionStats;
     }
 
     // Load recent heroes
@@ -155,6 +205,212 @@ function loadData() {
             // Invalid saved data, ignore
         }
     }
+
+    // Load stats view preference
+    const savedStatsView = localStorage.getItem('owStatsView');
+    if (savedStatsView && (savedStatsView === 'all-time' || savedStatsView === 'session')) {
+        state.statsView = savedStatsView;
+    }
+}
+
+// Load settings from localStorage
+function loadSettings() {
+    const savedSettings = localStorage.getItem('owSettings');
+    if (savedSettings) {
+        try {
+            const parsed = JSON.parse(savedSettings);
+            // Merge with defaults to handle new settings added in updates
+            state.settings = { ...DEFAULT_SETTINGS, ...parsed };
+        } catch (e) {
+            // Invalid settings data, use defaults
+            state.settings = { ...DEFAULT_SETTINGS };
+        }
+    } else {
+        state.settings = { ...DEFAULT_SETTINGS };
+    }
+
+    // Apply theme setting
+    applyTheme(state.settings.theme);
+}
+
+// Save settings to localStorage
+function saveSettings() {
+    localStorage.setItem('owSettings', JSON.stringify(state.settings));
+    // Apply theme immediately
+    applyTheme(state.settings.theme);
+}
+
+// Apply theme to document
+function applyTheme(theme) {
+    const body = document.body;
+
+    // Remove existing theme classes
+    body.classList.remove('theme-auto', 'theme-dark', 'theme-light');
+
+    // Add new theme class
+    body.classList.add(`theme-${theme}`);
+}
+
+// Get current active theme (resolves 'auto' to actual theme)
+function getCurrentActiveTheme() {
+    if (state.settings.theme === 'auto') {
+        // Check system preference
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            return 'dark';
+        } else {
+            return 'light';
+        }
+    }
+    return state.settings.theme;
+}
+
+// Toggle theme
+function toggleTheme() {
+    const currentActive = getCurrentActiveTheme();
+
+    // Switch to opposite theme
+    const newTheme = currentActive === 'dark' ? 'light' : 'dark';
+
+    // Update state and save
+    state.settings.theme = newTheme;
+    saveSettings();
+
+    // Also update the settings modal dropdown if it's open
+    const themeSelect = document.getElementById('settingTheme');
+    if (themeSelect) {
+        themeSelect.value = newTheme;
+    }
+}
+
+// Get result text based on settings (Win/Loss/Draw or Victory/Defeat/Draw)
+function getResultText(result) {
+    if (state.settings.useOwStyleText) {
+        // Overwatch style
+        if (result === 'win') return 'VICTORY';
+        if (result === 'loss') return 'DEFEAT';
+        if (result === 'draw') return 'DRAW';
+    } else {
+        // Standard style
+        if (result === 'win') return 'WIN';
+        if (result === 'loss') return 'LOSS';
+        if (result === 'draw') return 'DRAW';
+    }
+    return result ? result.toUpperCase() : '---';
+}
+
+// Update result button labels based on settings
+function updateResultButtonLabels() {
+    const resultButtons = document.querySelectorAll('.result-btn');
+    resultButtons.forEach(btn => {
+        const result = btn.dataset.result;
+        if (state.settings.useOwStyleText) {
+            // Overwatch style
+            if (result === 'win') btn.childNodes[0].textContent = 'Victory';
+            if (result === 'loss') btn.childNodes[0].textContent = 'Defeat';
+            if (result === 'draw') btn.childNodes[0].textContent = 'Draw';
+        } else {
+            // Standard style
+            if (result === 'win') btn.childNodes[0].textContent = 'Win';
+            if (result === 'loss') btn.childNodes[0].textContent = 'Loss';
+            if (result === 'draw') btn.childNodes[0].textContent = 'Draw';
+        }
+    });
+}
+
+// Update draw button visibility based on settings
+function updateDrawButtonVisibility() {
+    const drawBtn = document.querySelector('.result-btn[data-result="draw"]');
+    const resultButtonsContainer = document.querySelector('.result-buttons');
+
+    if (!drawBtn || !resultButtonsContainer) return;
+
+    if (state.settings.showDrawButton) {
+        drawBtn.style.display = '';
+        resultButtonsContainer.classList.remove('two-buttons');
+    } else {
+        drawBtn.style.display = 'none';
+        resultButtonsContainer.classList.add('two-buttons');
+
+        // If draw was selected, clear it
+        if (state.selectedResult === 'draw') {
+            state.selectedResult = null;
+            updateSelectionDisplay();
+            updateSaveButton();
+        }
+    }
+}
+
+// Get current match type display label for notifications
+function getMatchTypeDisplayLabel() {
+    if (!state.selectedParentType) return '';
+
+    const parent = CONFIG.matchTypes.find(t => t.id === state.selectedParentType);
+    if (!parent) return '';
+
+    // If parent has children and child is selected, use child's displayLabel
+    if (parent.children.length > 0 && state.selectedChildType) {
+        const child = parent.children.find(c => c.id === state.selectedChildType);
+        if (child && child.displayLabel) {
+            return child.displayLabel;
+        }
+        if (child) {
+            return `${parent.label} ${child.label}`;
+        }
+    }
+
+    // No children or no child selected, just return parent label
+    return parent.label;
+}
+
+// ============================================
+// Toast Notification System
+// ============================================
+
+// Show a toast notification
+function showToast(message, type = 'info', duration = 2500) {
+    const container = document.getElementById('toastContainer');
+    if (!container) return;
+
+    const toast = createToastElement(message, type);
+    container.appendChild(toast);
+
+    // Auto-remove after duration
+    setTimeout(() => {
+        removeToast(toast);
+    }, duration);
+}
+
+// Create a toast element
+function createToastElement(message, type) {
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.setAttribute('role', 'alert');
+    toast.setAttribute('aria-live', 'polite');
+
+    // Icon based on type
+    let icon = '✓';
+    if (type === 'info') icon = 'ℹ';
+    if (type === 'warning') icon = '⚠';
+    if (type === 'error') icon = '✕';
+
+    toast.innerHTML = `
+        <span class="toast-icon">${icon}</span>
+        <span class="toast-message">${message}</span>
+    `;
+
+    return toast;
+}
+
+// Remove a toast with animation
+function removeToast(toast) {
+    if (!toast || !toast.parentElement) return;
+
+    toast.classList.add('toast-hiding');
+    setTimeout(() => {
+        if (toast.parentElement) {
+            toast.parentElement.removeChild(toast);
+        }
+    }, 300); // Match CSS animation duration
 }
 
 // Save data to localStorage
@@ -164,6 +420,7 @@ function saveData() {
 
 // Initialize the app
 function init() {
+    loadSettings(); // Load settings first so they're available for loadData()
     loadData();
     renderMatchTypeButtons();
     renderHeroButtons();
@@ -200,11 +457,36 @@ function init() {
     checkExportReminder();
 
     // Ensure save button starts in neutral state (no result color classes)
+    // Also clear any stale result from state
+    state.selectedResult = null;
+
+    // Update displays to reflect cleared state
+    updateSelectionDisplay();
+    updateSaveButton();
+
+    // Update result button labels based on settings
+    updateResultButtonLabels();
+
+    // Update draw button visibility based on settings
+    updateDrawButtonVisibility();
+
     const saveBtn = document.getElementById('saveBtn');
     saveBtn.classList.remove('win', 'loss', 'draw');
 
     // Don't set initial focus - start defocused
     // User can press WASD or spacebar to begin navigating
+
+    // Show notification if session was automatically reset
+    if (state.pendingSessionResetNotification && state.settings.showSessionNotification) {
+        const stats = state.pendingSessionResetNotification;
+        if (stats.count > 0) {
+            showToast(`New session started! Previous: ${stats.count} matches (${stats.winRate}% WR)`, 'info', 3500);
+        } else {
+            showToast('New session started!', 'info', 2500);
+        }
+        // Clear the pending notification
+        delete state.pendingSessionResetNotification;
+    }
 }
 
 // Dynamically render match type buttons from config
@@ -293,7 +575,10 @@ function renderRecentHeroes() {
     const container = document.getElementById('recentHeroesContainer');
     if (!container) return;
 
-    if (state.recentHeroes.length === 0) {
+    // Get the count from settings (0 means hide recent heroes)
+    const count = state.settings.recentHeroesCount;
+
+    if (count === 0 || state.recentHeroes.length === 0) {
         container.style.display = 'none';
         return;
     }
@@ -301,7 +586,10 @@ function renderRecentHeroes() {
     container.style.display = 'block';
     const recentHeroesButtons = document.getElementById('recentHeroesButtons');
 
-    recentHeroesButtons.innerHTML = state.recentHeroes.map(heroId => {
+    // Slice to show only the configured number of recent heroes
+    const heroesToShow = state.recentHeroes.slice(0, count);
+
+    recentHeroesButtons.innerHTML = heroesToShow.map(heroId => {
         const hero = CONFIG.heroes.find(h => h.id === heroId);
         if (!hero) return '';
 
@@ -366,24 +654,6 @@ function setupEventListeners() {
     // Save button
     document.getElementById('saveBtn').addEventListener('click', saveMatch);
 
-    // Export CSV button
-    document.getElementById('exportBtn').addEventListener('click', exportToCSV);
-
-    // Export JSON button
-    const exportJsonBtn = document.getElementById('exportJsonBtn');
-    if (exportJsonBtn) {
-        exportJsonBtn.addEventListener('click', exportToJSON);
-    }
-
-    // Import button
-    const importBtn = document.getElementById('importBtn');
-    if (importBtn) {
-        importBtn.addEventListener('click', handleImportFile);
-    }
-
-    // Clear button
-    document.getElementById('clearBtn').addEventListener('click', clearAllData);
-
     // Banner close buttons
     const closeStorageWarningBtn = document.getElementById('closeStorageWarning');
     if (closeStorageWarningBtn) {
@@ -409,6 +679,22 @@ function setupEventListeners() {
 
     // Click to focus - add listeners to all focusable elements
     document.addEventListener('click', handleClickFocus);
+
+    // Settings modal listeners
+    setupSettingsListeners();
+
+    // Stats toggle buttons
+    document.getElementById('statsToggleAllTime').addEventListener('click', () => {
+        state.statsView = 'all-time';
+        localStorage.setItem('owStatsView', state.statsView);
+        updateStats();
+    });
+
+    document.getElementById('statsToggleSession').addEventListener('click', () => {
+        state.statsView = 'session';
+        localStorage.setItem('owStatsView', state.statsView);
+        updateStats();
+    });
 }
 
 // Handle click to focus
@@ -486,14 +772,19 @@ function handleClickFocus(e) {
 // Handle keyboard shortcuts - WASD navigation
 function handleKeyboard(e) {
     // Prevent shortcuts if user is typing in an input field
-    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
+        return;
+    }
+
+    // Check if keyboard shortcuts are globally enabled
+    if (!state.settings.keyboardShortcutsEnabled) {
         return;
     }
 
     const key = e.key.toLowerCase();
 
     // WASD Navigation
-    if (['w', 'a', 's', 'd'].includes(key)) {
+    if (state.settings.wasdEnabled && ['w', 'a', 's', 'd'].includes(key)) {
         e.preventDefault();
         // If defocused, restore last focus
         if (state.focusZone === null) {
@@ -507,7 +798,7 @@ function handleKeyboard(e) {
     }
 
     // Spacebar - Select current focused item or restore focus if defocused
-    if (e.key === ' ') {
+    if (state.settings.hotkeysEnabled && e.key === ' ') {
         e.preventDefault();
         if (state.focusZone === null) {
             // Restore focus without triggering selection
@@ -522,21 +813,21 @@ function handleKeyboard(e) {
     }
 
     // Undo shortcut (Ctrl+Z)
-    if (e.ctrlKey && e.key === 'z' && state.matches.length > 0) {
+    if (state.settings.hotkeysEnabled && e.ctrlKey && e.key === 'z' && state.matches.length > 0) {
         e.preventDefault();
         undoLastMatch();
         return;
     }
 
     // T key - Toggle match type drawer
-    if (key === 't') {
+    if (state.settings.hotkeysEnabled && key === 't') {
         e.preventDefault();
         toggleMatchTypeSectionWithFocus();
         return;
     }
 
     // E key - Toggle hero drawer
-    if (key === 'e') {
+    if (state.settings.hotkeysEnabled && key === 'e') {
         e.preventDefault();
         toggleHeroSectionWithFocus();
         return;
@@ -544,21 +835,23 @@ function handleKeyboard(e) {
 
     // Parent type hotkeys (1, 2, 3, 4, etc.)
     // Check if the pressed key matches any parent type key
-    const matchingParentType = CONFIG.matchTypes.find(type => type.key === key);
-    if (matchingParentType) {
-        e.preventDefault();
-        selectParentType(matchingParentType.id);
+    if (state.settings.numberKeysEnabled) {
+        const matchingParentType = CONFIG.matchTypes.find(type => type.key === key);
+        if (matchingParentType) {
+            e.preventDefault();
+            selectParentType(matchingParentType.id);
 
-        // Auto-advance focus to child types if available, otherwise results
-        if (matchingParentType.children.length > 0) {
-            state.focusZone = 'child';
-            state.focusIndex = 0;
-        } else {
-            state.focusZone = 'result';
-            state.focusIndex = 0;
+            // Auto-advance focus to child types if available, otherwise results
+            if (matchingParentType.children.length > 0) {
+                state.focusZone = 'child';
+                state.focusIndex = 0;
+            } else {
+                state.focusZone = 'result';
+                state.focusIndex = 0;
+            }
+            updateFocusVisuals();
+            return;
         }
-        updateFocusVisuals();
-        return;
     }
 }
 
@@ -815,7 +1108,8 @@ function getMaxIndexForZone(zone) {
     } else if (zone === 'clear-heroes') {
         return 0; // Only one button
     } else if (zone === 'result') {
-        return 2; // Win, Loss, Draw
+        // Return 2 for three buttons (Win, Loss, Draw) or 1 for two buttons (Win, Loss)
+        return state.settings.showDrawButton ? 2 : 1;
     } else if (zone === 'save') {
         return 0; // Only one button
     }
@@ -913,9 +1207,11 @@ function handleSpacebarSelection() {
         clearHeroes();
         // Stay in clear-heroes zone
     } else if (zone === 'result') {
-        const resultButtons = document.querySelectorAll('.result-btn');
-        if (resultButtons[index]) {
-            const result = resultButtons[index].dataset.result;
+        // Only include visible result buttons
+        const allResultButtons = document.querySelectorAll('.result-btn');
+        const visibleResultButtons = Array.from(allResultButtons).filter(btn => btn.style.display !== 'none');
+        if (visibleResultButtons[index]) {
+            const result = visibleResultButtons[index].dataset.result;
             selectResult(result);
             // Auto-advance to save if available
             const saveBtn = document.getElementById('saveBtn');
@@ -977,8 +1273,10 @@ function updateFocusVisuals() {
     } else if (zone === 'clear-heroes') {
         focusedElement = document.getElementById('clearHeroesBtn');
     } else if (zone === 'result') {
-        const resultButtons = document.querySelectorAll('.result-btn');
-        focusedElement = resultButtons[index];
+        // Only include visible result buttons
+        const allResultButtons = document.querySelectorAll('.result-btn');
+        const visibleResultButtons = Array.from(allResultButtons).filter(btn => btn.style.display !== 'none');
+        focusedElement = visibleResultButtons[index];
     } else if (zone === 'save') {
         focusedElement = document.getElementById('saveBtn');
     }
@@ -1097,19 +1395,22 @@ function updateMatchTypeToggleText() {
 
     if (state.selectedParentType) {
         const parent = CONFIG.matchTypes.find(t => t.id === state.selectedParentType);
-        let displayText = parent ? parent.label : state.selectedParentType;
 
-        // If parent has children and child is selected, add it
+        // If parent has children and child is selected, use child's displayLabel
         if (parent && parent.children.length > 0) {
             if (state.selectedChildType) {
                 const child = parent.children.find(c => c.id === state.selectedChildType);
-                displayText += ` > ${child ? child.label : state.selectedChildType}`;
+                const displayText = child && child.displayLabel ? child.displayLabel :
+                    (child ? `${parent.label} > ${child.label}` : state.selectedChildType);
+                toggleText.textContent = displayText;
             } else {
-                displayText += ' (select type...)';
+                toggleText.textContent = `${parent.label} (select type...)`;
             }
+        } else {
+            // No children, just show parent label
+            const displayText = parent ? parent.label : state.selectedParentType;
+            toggleText.textContent = displayText;
         }
-
-        toggleText.textContent = displayText;
     } else {
         toggleText.textContent = 'Select Match Type';
     }
@@ -1272,7 +1573,7 @@ function updateSelectionDisplay() {
 
     // Update result
     if (state.selectedResult) {
-        previewResult.textContent = state.selectedResult.toUpperCase();
+        previewResult.textContent = getResultText(state.selectedResult);
         previewResult.className = `match-result ${state.selectedResult}`;
         matchPreview.className = `match-preview ${state.selectedResult}`;
     } else {
@@ -1284,19 +1585,22 @@ function updateSelectionDisplay() {
     // Build match type display
     if (state.selectedParentType) {
         const parent = CONFIG.matchTypes.find(t => t.id === state.selectedParentType);
-        let displayText = parent ? parent.label : state.selectedParentType;
 
-        // If parent has children and child is selected, add it
+        // If parent has children and child is selected, use child's displayLabel
         if (parent && parent.children.length > 0) {
             if (state.selectedChildType) {
                 const child = parent.children.find(c => c.id === state.selectedChildType);
-                displayText += ` > ${child ? child.label : state.selectedChildType}`;
+                const displayText = child && child.displayLabel ? child.displayLabel :
+                    (child ? `${parent.label} > ${child.label}` : state.selectedChildType);
+                previewType.textContent = displayText;
             } else {
-                displayText += ' (select type...)';
+                previewType.textContent = `${parent.label} (select type...)`;
             }
+        } else {
+            // No children, just show parent label
+            const displayText = parent ? parent.label : state.selectedParentType;
+            previewType.textContent = displayText;
         }
-
-        previewType.textContent = displayText;
     } else {
         previewType.textContent = 'Select match type...';
     }
@@ -1373,8 +1677,9 @@ function saveMatch() {
             // Add to beginning
             state.recentHeroes.unshift(heroId);
         });
-        // Keep only 4 most recent
-        state.recentHeroes = state.recentHeroes.slice(0, 4);
+        // Keep only up to the configured count (or 8 max to keep history)
+        const maxRecent = Math.max(state.settings.recentHeroesCount, 8);
+        state.recentHeroes = state.recentHeroes.slice(0, maxRecent);
         // Save to localStorage
         localStorage.setItem('owRecentHeroes', JSON.stringify(state.recentHeroes));
         // Re-render recent heroes
@@ -1396,19 +1701,23 @@ function saveMatch() {
 
     updateHeroButtons();
 
-    // Auto-collapse hero section after match submission
-    const heroSection = document.getElementById('heroSelection');
-    const heroToggle = document.getElementById('heroSectionToggle');
-    if (heroSection && heroSection.style.display !== 'none') {
-        heroSection.style.display = 'none';
-        heroToggle.innerHTML = '<span class="key-hint">E</span> Add Heroes (Optional) ▼';
+    // Auto-collapse hero section after match submission (if enabled in settings)
+    if (state.settings.autoCollapseHero) {
+        const heroSection = document.getElementById('heroSelection');
+        const heroToggle = document.getElementById('heroSectionToggle');
+        if (heroSection && heroSection.style.display !== 'none') {
+            heroSection.style.display = 'none';
+            heroToggle.innerHTML = '<span class="key-hint">E</span> Add Heroes (Optional) ▼';
+        }
     }
 
-    // Auto-collapse match type section after first match
-    const matchTypeSection = document.getElementById('matchTypeSection');
-    if (matchTypeSection && matchTypeSection.style.display !== 'none') {
-        matchTypeSection.style.display = 'none';
-        updateMatchTypeToggleText();
+    // Auto-collapse match type section after first match (if enabled in settings)
+    if (state.settings.autoCollapseMatchType) {
+        const matchTypeSection = document.getElementById('matchTypeSection');
+        if (matchTypeSection && matchTypeSection.style.display !== 'none') {
+            matchTypeSection.style.display = 'none';
+            updateMatchTypeToggleText();
+        }
     }
 
     // Move focus to result for next match
@@ -1425,6 +1734,13 @@ function saveMatch() {
     setTimeout(() => {
         saveBtn.innerHTML = 'Save Match <span class="key-hint">Space</span>';
     }, 1000);
+
+    // Show toast notification if enabled
+    if (state.settings.showMatchSavedNotification) {
+        const matchTypeLabel = getMatchTypeDisplayLabel();
+        const resultText = getResultText(match.result);
+        showToast(`Match saved! <span class="toast-match-details">${matchTypeLabel} - ${resultText}</span>`, 'success', 2500);
+    }
 }
 
 // Undo last match
@@ -1459,15 +1775,31 @@ function updateUI() {
 
 // Update stats
 function updateStats() {
-    const total = state.matches.length;
-    const wins = state.matches.filter(m => m.result === 'win').length;
-    const losses = state.matches.filter(m => m.result === 'loss').length;
+    let matches;
+
+    // Filter matches based on current view
+    if (state.statsView === 'session') {
+        matches = state.matches.filter(match => {
+            const matchDate = new Date(match.timestamp);
+            return matchDate >= state.sessionStartTime;
+        });
+    } else {
+        matches = state.matches;
+    }
+
+    const total = matches.length;
+    const wins = matches.filter(m => m.result === 'win').length;
+    const losses = matches.filter(m => m.result === 'loss').length;
     const winRate = total > 0 ? ((wins / total) * 100).toFixed(1) : 0;
 
     document.getElementById('totalMatches').textContent = total;
     document.getElementById('totalWins').textContent = wins;
     document.getElementById('totalLosses').textContent = losses;
     document.getElementById('overallWR').textContent = `${winRate}%`;
+
+    // Update toggle buttons active state
+    document.getElementById('statsToggleAllTime').classList.toggle('active', state.statsView === 'all-time');
+    document.getElementById('statsToggleSession').classList.toggle('active', state.statsView === 'session');
 }
 
 // Update session info
@@ -1481,8 +1813,44 @@ function updateSessionInfo() {
     const sessionWins = sessionMatches.filter(m => m.result === 'win').length;
     const sessionWR = sessionTotal > 0 ? ((sessionWins / sessionTotal) * 100).toFixed(1) : 0;
 
-    document.getElementById('sessionMatches').textContent = `Session: ${sessionTotal} matches`;
-    document.getElementById('sessionWR').textContent = `Win Rate: ${sessionWR}%`;
+    const sessionInfoContainer = document.querySelector('.session-info');
+
+    // Hide session info if no session matches logged yet
+    if (sessionTotal === 0) {
+        sessionInfoContainer.style.display = 'none';
+    } else {
+        sessionInfoContainer.style.display = 'flex';
+        document.getElementById('sessionMatches').textContent = `Session: ${sessionTotal} matches`;
+        document.getElementById('sessionWR').textContent = `Win Rate: ${sessionWR}%`;
+    }
+}
+
+// Start a new session
+function startNewSession() {
+    // Calculate previous session stats before resetting
+    const previousSessionMatches = state.matches.filter(match => {
+        const matchDate = new Date(match.timestamp);
+        return matchDate >= state.sessionStartTime;
+    });
+    const prevCount = previousSessionMatches.length;
+    const prevWins = previousSessionMatches.filter(m => m.result === 'win').length;
+    const prevWR = prevCount > 0 ? ((prevWins / prevCount) * 100).toFixed(1) : 0;
+
+    // Reset session
+    state.sessionStartTime = new Date();
+    localStorage.setItem('owSessionStart', state.sessionStartTime.toISOString());
+
+    updateSessionInfo();
+    updateUI();
+
+    // Show toast notification if enabled
+    if (state.settings.showSessionNotification) {
+        if (prevCount > 0) {
+            showToast(`New session started! Previous: ${prevCount} matches (${prevWR}% WR)`, 'info', 3500);
+        } else {
+            showToast('New session started!', 'info', 2500);
+        }
+    }
 }
 
 // Update match list
@@ -1503,11 +1871,15 @@ function updateMatchList() {
         if (match.parentType) {
             // New hierarchical format
             const parent = CONFIG.matchTypes.find(t => t.id === match.parentType);
-            typeLabel = parent ? parent.label : match.parentType;
 
             if (match.childType) {
                 const child = parent ? parent.children.find(c => c.id === match.childType) : null;
-                typeLabel += ` > ${child ? child.label : match.childType}`;
+                // Use displayLabel if available, otherwise fall back to parent > child
+                typeLabel = child && child.displayLabel ? child.displayLabel :
+                    (child ? `${parent ? parent.label : match.parentType} > ${child.label}` : match.childType);
+            } else {
+                // No child, just show parent
+                typeLabel = parent ? parent.label : match.parentType;
             }
         } else if (match.type) {
             // Old flat format (backward compatibility)
@@ -1528,7 +1900,7 @@ function updateMatchList() {
         return `
             <div class="match-item ${match.result}">
                 <div class="match-info">
-                    <span class="match-result ${match.result}">${match.result.toUpperCase()}</span>
+                    <span class="match-result ${match.result}">${getResultText(match.result)}</span>
                     <span class="match-type">${typeLabel}</span>
                     ${heroesHtml}
                     <span class="match-time">${timeStr}</span>
@@ -1572,25 +1944,40 @@ function exportToCSV() {
         return;
     }
 
-    const headers = ['Timestamp', 'Parent Type', 'Child Type', 'Result', 'Heroes'];
+    // Show info message about CSV limitations
+    const proceedWithCSV = confirm(
+        'CSV export includes match data only.\n\n' +
+        'For a complete backup (including settings, recent heroes, and session data), ' +
+        'use "Export JSON" instead.\n\n' +
+        'Continue with CSV export?'
+    );
+
+    if (!proceedWithCSV) {
+        return;
+    }
+
+    const headers = ['Timestamp', 'Match Type', 'Result', 'Heroes'];
     const rows = state.matches.map(match => {
-        // Get match types (support both old and new format)
-        let parentType = '';
-        let childType = '';
+        // Get match type (support both old and new format)
+        let matchTypeLabel = '';
 
         if (match.parentType) {
             // New hierarchical format
             const parent = CONFIG.matchTypes.find(t => t.id === match.parentType);
-            parentType = parent ? parent.label : match.parentType;
 
             if (match.childType) {
                 const child = parent ? parent.children.find(c => c.id === match.childType) : null;
-                childType = child ? child.label : match.childType;
+                // Use displayLabel if available, otherwise fall back to parent > child
+                matchTypeLabel = child && child.displayLabel ? child.displayLabel :
+                    (child ? `${parent ? parent.label : match.parentType} > ${child.label}` : match.childType);
+            } else {
+                // No child, just show parent
+                matchTypeLabel = parent ? parent.label : match.parentType;
             }
         } else if (match.type) {
             // Old flat format
             const matchType = CONFIG.matchTypes.find(t => t.id === match.type);
-            parentType = matchType ? matchType.label : match.type;
+            matchTypeLabel = matchType ? matchType.label : match.type;
         }
 
         // Get hero names
@@ -1604,8 +1991,7 @@ function exportToCSV() {
 
         return [
             match.timestamp,
-            parentType,
-            childType,
+            matchTypeLabel,
             match.result,
             heroNames
         ];
@@ -1675,9 +2061,6 @@ function getStorageInfo() {
 
 // Update storage indicator in UI
 function updateStorageIndicator() {
-    const indicator = document.getElementById('storageIndicator');
-    if (!indicator) return;
-
     const info = getStorageInfo();
 
     // Show KB if less than 1 MB, otherwise show MB
@@ -1685,14 +2068,23 @@ function updateStorageIndicator() {
         ? `${info.sizeInKB.toFixed(1)}KB`
         : `${info.sizeInMB}MB`;
 
-    indicator.textContent = `Storage: ${sizeDisplay} / ~${info.limitMB}MB (${info.percentUsed}%)`;
+    const displayText = `Local Storage: ${sizeDisplay} / ~${info.limitMB}MB (${info.percentUsed}%)`;
 
-    // Update warning if near limit
+    // Update modal indicator
+    const indicatorModal = document.getElementById('storageIndicatorModal');
+    if (indicatorModal) {
+        indicatorModal.textContent = displayText;
+        if (info.isNearLimit) {
+            indicatorModal.classList.add('warning');
+        } else {
+            indicatorModal.classList.remove('warning');
+        }
+    }
+
+    // Update warning banner if near limit
     if (info.isNearLimit) {
-        indicator.classList.add('warning');
         showStorageWarning();
     } else {
-        indicator.classList.remove('warning');
         hideStorageWarning();
     }
 }
@@ -1800,15 +2192,70 @@ function importFromJSON(jsonString) {
     try {
         const data = JSON.parse(jsonString);
 
-        if (!Array.isArray(data)) {
-            throw new Error('Invalid format: expected array of matches');
-        }
-
         let imported = 0;
         let skipped = 0;
         let errors = [];
+        let matchesToImport = [];
+        let importedSettings = false;
+        let importedUIState = false;
 
-        data.forEach((match, index) => {
+        // Check if this is the new format (object with version) or old format (array)
+        if (Array.isArray(data)) {
+            // Old format - just matches array
+            matchesToImport = data;
+        } else if (data.version === 1 && data.matches) {
+            // New format - complete application state
+            matchesToImport = data.matches;
+
+            // Import settings if present (merge with defaults for safety)
+            if (data.settings) {
+                state.settings = { ...DEFAULT_SETTINGS, ...data.settings };
+                saveSettings();
+                importedSettings = true;
+            }
+
+            // Import session start time if present
+            if (data.sessionStartTime) {
+                state.sessionStartTime = new Date(data.sessionStartTime);
+                localStorage.setItem('owSessionStart', state.sessionStartTime.toISOString());
+            }
+
+            // Import recent heroes if present
+            if (data.recentHeroes && Array.isArray(data.recentHeroes)) {
+                state.recentHeroes = data.recentHeroes;
+                localStorage.setItem('owRecentHeroes', JSON.stringify(state.recentHeroes));
+            }
+
+            // Import stats view preference if present
+            if (data.statsView && (data.statsView === 'all-time' || data.statsView === 'session')) {
+                state.statsView = data.statsView;
+                localStorage.setItem('owStatsView', data.statsView);
+            }
+
+            // Import last match type if present
+            if (data.lastMatchType) {
+                const { parentType, childType } = data.lastMatchType;
+                // Validate that the saved types still exist in config
+                const parent = CONFIG.matchTypes.find(t => t.id === parentType);
+                if (parent) {
+                    state.selectedParentType = parentType;
+                    if (childType && parent.children.some(c => c.id === childType)) {
+                        state.selectedChildType = childType;
+                    }
+                    localStorage.setItem('owLastMatchType', JSON.stringify({
+                        parentType,
+                        childType: childType || null
+                    }));
+                }
+            }
+
+            importedUIState = true;
+        } else {
+            throw new Error('Invalid JSON format. Expected matches array or version 1 export data.');
+        }
+
+        // Import matches
+        matchesToImport.forEach((match, index) => {
             // Validate match
             const validationErrors = validateMatch(match);
             if (validationErrors.length > 0) {
@@ -1841,7 +2288,14 @@ function importFromJSON(jsonString) {
 
         saveData();
 
+        // Build success message
         let message = `Import complete!\n${imported} matches imported, ${skipped} skipped.`;
+        if (importedSettings) {
+            message += '\n✓ Settings imported';
+        }
+        if (importedUIState) {
+            message += '\n✓ UI state imported (recent heroes, session, preferences)';
+        }
         if (errors.length > 0 && errors.length <= 10) {
             message += '\n\nErrors:\n' + errors.join('\n');
         } else if (errors.length > 10) {
@@ -1854,6 +2308,13 @@ function importFromJSON(jsonString) {
         updateUI();
         updateStats();
         updateSessionInfo();
+        renderRecentHeroes();
+
+        // Update match type selection display if imported
+        if (state.selectedParentType) {
+            updateMatchTypeToggleText();
+            updateSelectionDisplay();
+        }
     } catch (error) {
         alert('Import failed: ' + error.message);
     }
@@ -2020,14 +2481,217 @@ function exportToJSON() {
         return;
     }
 
-    const data = JSON.stringify(state.matches, null, 2);
+    // Export complete application state
+    const exportData = {
+        version: 1, // For future compatibility
+        exportDate: new Date().toISOString(),
+        matches: state.matches,
+        settings: state.settings,
+        sessionStartTime: state.sessionStartTime ? state.sessionStartTime.toISOString() : null,
+        recentHeroes: state.recentHeroes,
+        statsView: state.statsView,
+        lastMatchType: state.selectedParentType ? {
+            parentType: state.selectedParentType,
+            childType: state.selectedChildType
+        } : null
+    };
+
+    const data = JSON.stringify(exportData, null, 2);
     const blob = new Blob([data], { type: 'application/json' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `overwatch-matches-${new Date().toISOString().split('T')[0]}.json`;
+    a.download = `overwatch-data-${new Date().toISOString().split('T')[0]}.json`;
     a.click();
     window.URL.revokeObjectURL(url);
+}
+
+// ============================================
+// Settings Modal Functions
+// ============================================
+
+// Open settings modal
+function openSettingsModal() {
+    const modal = document.getElementById('settingsModal');
+    if (!modal) return;
+
+    // Populate form with current settings
+    document.getElementById('settingTheme').value = state.settings.theme;
+    document.getElementById('settingAutoCollapseMatchType').checked = state.settings.autoCollapseMatchType;
+    document.getElementById('settingAutoCollapseHero').checked = state.settings.autoCollapseHero;
+    document.getElementById('settingRecentHeroesCount').value = state.settings.recentHeroesCount;
+    document.getElementById('recentHeroesCountValue').textContent = state.settings.recentHeroesCount;
+    document.getElementById('settingUseOwStyleText').checked = state.settings.useOwStyleText;
+    document.getElementById('settingShowDrawButton').checked = state.settings.showDrawButton;
+    document.getElementById('settingShowMatchSavedNotification').checked = state.settings.showMatchSavedNotification;
+    document.getElementById('settingShowSessionNotification').checked = state.settings.showSessionNotification;
+    document.getElementById('settingSessionAutoReset').value = state.settings.sessionAutoReset;
+    document.getElementById('settingKeyboardShortcutsEnabled').checked = state.settings.keyboardShortcutsEnabled;
+    document.getElementById('settingWasdEnabled').checked = state.settings.wasdEnabled;
+    document.getElementById('settingNumberKeysEnabled').checked = state.settings.numberKeysEnabled;
+    document.getElementById('settingHotkeysEnabled').checked = state.settings.hotkeysEnabled;
+
+    // Update subsection visibility
+    updateKeyboardShortcutsSubsection();
+
+    // Update storage indicator
+    updateStorageIndicator();
+
+    modal.style.display = 'flex';
+}
+
+// Close settings modal
+function closeSettingsModal() {
+    const modal = document.getElementById('settingsModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// Update keyboard shortcuts subsection visibility
+function updateKeyboardShortcutsSubsection() {
+    const masterToggle = document.getElementById('settingKeyboardShortcutsEnabled');
+    const subsection = document.getElementById('keyboardShortcutsSub');
+
+    if (masterToggle && subsection) {
+        const isEnabled = masterToggle.checked;
+        subsection.style.opacity = isEnabled ? '1' : '0.5';
+        subsection.style.pointerEvents = isEnabled ? 'auto' : 'none';
+
+        // Disable/enable child checkboxes
+        subsection.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            checkbox.disabled = !isEnabled;
+        });
+    }
+}
+
+// Save settings from modal
+function saveSettingsFromModal() {
+    // Get values from form
+    state.settings.theme = document.getElementById('settingTheme').value;
+    state.settings.autoCollapseMatchType = document.getElementById('settingAutoCollapseMatchType').checked;
+    state.settings.autoCollapseHero = document.getElementById('settingAutoCollapseHero').checked;
+    state.settings.recentHeroesCount = parseInt(document.getElementById('settingRecentHeroesCount').value);
+    state.settings.useOwStyleText = document.getElementById('settingUseOwStyleText').checked;
+    state.settings.showDrawButton = document.getElementById('settingShowDrawButton').checked;
+    state.settings.showMatchSavedNotification = document.getElementById('settingShowMatchSavedNotification').checked;
+    state.settings.showSessionNotification = document.getElementById('settingShowSessionNotification').checked;
+    state.settings.sessionAutoReset = document.getElementById('settingSessionAutoReset').value;
+    state.settings.keyboardShortcutsEnabled = document.getElementById('settingKeyboardShortcutsEnabled').checked;
+    state.settings.wasdEnabled = document.getElementById('settingWasdEnabled').checked;
+    state.settings.numberKeysEnabled = document.getElementById('settingNumberKeysEnabled').checked;
+    state.settings.hotkeysEnabled = document.getElementById('settingHotkeysEnabled').checked;
+
+    // Save to localStorage
+    saveSettings();
+
+    // Update UI based on new settings
+    renderRecentHeroes();
+    updateResultButtonLabels(); // Update result button labels
+    updateDrawButtonVisibility(); // Update draw button visibility
+    updateSelectionDisplay(); // Update result text display
+    updateMatchList(); // Update match list to reflect new text style
+
+    // Close modal
+    closeSettingsModal();
+}
+
+// Reset settings to defaults
+function resetSettingsToDefaults() {
+    if (confirm('Reset all settings to defaults?')) {
+        state.settings = { ...DEFAULT_SETTINGS };
+        saveSettings();
+
+        // Re-open modal to show updated values
+        openSettingsModal();
+
+        // Update UI
+        renderRecentHeroes();
+    }
+}
+
+// Setup settings event listeners
+function setupSettingsListeners() {
+    // New session button
+    const newSessionBtn = document.getElementById('newSessionBtn');
+    if (newSessionBtn) {
+        newSessionBtn.addEventListener('click', startNewSession);
+    }
+
+    // Theme toggle button
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    if (themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', toggleTheme);
+    }
+
+    // Settings button
+    const settingsBtn = document.getElementById('settingsBtn');
+    if (settingsBtn) {
+        settingsBtn.addEventListener('click', openSettingsModal);
+    }
+
+    // Close button
+    const closeBtn = document.getElementById('closeSettingsBtn');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeSettingsModal);
+    }
+
+    // Save button
+    const saveBtn = document.getElementById('saveSettingsBtn');
+    if (saveBtn) {
+        saveBtn.addEventListener('click', saveSettingsFromModal);
+    }
+
+    // Reset button
+    const resetBtn = document.getElementById('resetSettingsBtn');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', resetSettingsToDefaults);
+    }
+
+    // Recent heroes count slider
+    const recentHeroesSlider = document.getElementById('settingRecentHeroesCount');
+    if (recentHeroesSlider) {
+        recentHeroesSlider.addEventListener('input', (e) => {
+            document.getElementById('recentHeroesCountValue').textContent = e.target.value;
+        });
+    }
+
+    // Keyboard shortcuts master toggle
+    const masterToggle = document.getElementById('settingKeyboardShortcutsEnabled');
+    if (masterToggle) {
+        masterToggle.addEventListener('change', updateKeyboardShortcutsSubsection);
+    }
+
+    // Data management buttons in modal
+    const importBtnModal = document.getElementById('importBtnModal');
+    if (importBtnModal) {
+        importBtnModal.addEventListener('click', handleImportFile);
+    }
+
+    const exportBtnModal = document.getElementById('exportBtnModal');
+    if (exportBtnModal) {
+        exportBtnModal.addEventListener('click', exportToCSV);
+    }
+
+    const exportJsonBtnModal = document.getElementById('exportJsonBtnModal');
+    if (exportJsonBtnModal) {
+        exportJsonBtnModal.addEventListener('click', exportToJSON);
+    }
+
+    const clearBtnModal = document.getElementById('clearBtnModal');
+    if (clearBtnModal) {
+        clearBtnModal.addEventListener('click', clearAllData);
+    }
+
+    // Click outside modal to close
+    const modal = document.getElementById('settingsModal');
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeSettingsModal();
+            }
+        });
+    }
 }
 
 // Initialize when DOM is ready
