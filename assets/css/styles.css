@@ -965,6 +965,17 @@ footer {
     white-space: nowrap;
 }
 
+.version-info a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.version-info a:hover {
+    color: var(--accent-primary);
+    text-decoration: underline;
+}
+
 /* ============================================
    Warning Banners
    ============================================ */

@@ -44,6 +44,7 @@ const CONFIG = {
         // Tank
         { id: 'dva', name: 'D.Va', role: 'tank' },
         { id: 'doomfist', name: 'Doomfist', role: 'tank' },
+        { id: 'hazard', name: 'Hazard', role: 'tank' },
         { id: 'junkerqueen', name: 'Junker Queen', role: 'tank' },
         { id: 'mauga', name: 'Mauga', role: 'tank' },
         { id: 'orisa', name: 'Orisa', role: 'tank' },
@@ -60,6 +61,7 @@ const CONFIG = {
         { id: 'bastion', name: 'Bastion', role: 'damage' },
         { id: 'cassidy', name: 'Cassidy', role: 'damage' },
         { id: 'echo', name: 'Echo', role: 'damage' },
+        { id: 'freja', name: 'Freja', role: 'damage' },
         { id: 'genji', name: 'Genji', role: 'damage' },
         { id: 'hanzo', name: 'Hanzo', role: 'damage' },
         { id: 'junkrat', name: 'Junkrat', role: 'damage' },
@@ -2710,7 +2712,7 @@ async function loadVersionInfo() {
         // Fallback if version.json can't be loaded
         const versionElement = document.getElementById('appVersion');
         if (versionElement) {
-            versionElement.textContent = 'Version 1.0.0';
+            versionElement.textContent = 'Version 1.1.0';
         }
     }
 }
