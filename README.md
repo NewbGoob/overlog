@@ -2,6 +2,8 @@
 
 A simple, fast match logger for Overwatch. Track your wins, losses, and performance across different game modes and sessions with keyboard shortcuts and navigation.
 
+[Use Overlog instantly at overlog.goob.land](https://overlog.goob.land)
+
 ![Overlog Screenshot](assets/images/screenshot.png)
 
 ## Features
