@@ -98,6 +98,7 @@ const DEFAULT_SETTINGS = {
     theme: 'auto', // 'auto', 'dark', 'light'
     autoCollapseMatchType: true,
     autoCollapseHero: true,
+    rememberHeroSelection: false,
     recentHeroesCount: 4,
     keyboardShortcutsEnabled: true,
     wasdEnabled: true,
@@ -1707,7 +1708,11 @@ function saveMatch() {
 
     // Reset only result and heroes (keep match type selected for quick back-to-back logging)
     state.selectedResult = null;
-    state.selectedHeroes = [];
+
+    // Only clear heroes if the setting is disabled
+    if (!state.settings.rememberHeroSelection) {
+        state.selectedHeroes = [];
+    }
 
     // Update UI - clear only result and hero selections
     document.querySelectorAll('.result-btn').forEach(btn => {
@@ -2538,6 +2543,7 @@ function openSettingsModal() {
     document.getElementById('settingTheme').value = state.settings.theme;
     document.getElementById('settingAutoCollapseMatchType').checked = state.settings.autoCollapseMatchType;
     document.getElementById('settingAutoCollapseHero').checked = state.settings.autoCollapseHero;
+    document.getElementById('settingRememberHeroSelection').checked = state.settings.rememberHeroSelection;
     document.getElementById('settingRecentHeroesCount').value = state.settings.recentHeroesCount;
     document.getElementById('recentHeroesCountValue').textContent = state.settings.recentHeroesCount;
     document.getElementById('settingUseOwStyleText').checked = state.settings.useOwStyleText;
@@ -2590,6 +2596,7 @@ function saveSettingsFromModal() {
     state.settings.theme = document.getElementById('settingTheme').value;
     state.settings.autoCollapseMatchType = document.getElementById('settingAutoCollapseMatchType').checked;
     state.settings.autoCollapseHero = document.getElementById('settingAutoCollapseHero').checked;
+    state.settings.rememberHeroSelection = document.getElementById('settingRememberHeroSelection').checked;
     state.settings.recentHeroesCount = parseInt(document.getElementById('settingRecentHeroesCount').value);
     state.settings.useOwStyleText = document.getElementById('settingUseOwStyleText').checked;
     state.settings.showDrawButton = document.getElementById('settingShowDrawButton').checked;

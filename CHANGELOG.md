@@ -7,9 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- Result button deselection via spacebar toggle or clicking outside the result buttons area
 ### Changed
 ### Fixed
+
+## [1.2.0] - 2025-10-28
+### Added
+- Result button deselection via spacebar toggle or clicking outside the result buttons area
+- Optional "Remember Hero Selection" setting in Behavior Settings to persist hero selections across multiple matches
 
 ## [1.1.0] - 2025-10-16
 ### Added
@@ -56,6 +60,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Version display in footer with commit hash
 - GitHub Actions deployment workflow
 
-[Unreleased]: https://github.com/NewbGoob/overlog/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/NewbGoob/overlog/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/NewbGoob/overlog/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/NewbGoob/overlog/compare/v1.0.0...v1.1.0
-[1.0.0]: https://github.com/NewbGoob/overlog/releases/tag/v1.0.0
+[1.0.0]: https://github.com/NewbGoob/overlog/tree/v1.0.0
