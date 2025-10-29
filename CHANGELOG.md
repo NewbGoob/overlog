@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- Result button deselection via spacebar toggle or clicking outside the result buttons area
 ### Changed
 ### Fixed
 

@@ -638,6 +638,16 @@ function setupEventListeners() {
         btn.addEventListener('click', () => selectResult(btn.dataset.result));
     });
 
+    // Click outside result buttons to deselect
+    document.addEventListener('click', (e) => {
+        const resultButtonsContainer = document.querySelector('.result-buttons');
+        if (state.selectedResult &&
+            resultButtonsContainer &&
+            !resultButtonsContainer.contains(e.target)) {
+            selectResult(null);
+        }
+    });
+
     // Hero buttons (delegated)
     document.getElementById('heroButtons').addEventListener('click', (e) => {
         const btn = e.target.closest('.hero-btn');
@@ -1214,12 +1224,19 @@ function handleSpacebarSelection() {
         const visibleResultButtons = Array.from(allResultButtons).filter(btn => btn.style.display !== 'none');
         if (visibleResultButtons[index]) {
             const result = visibleResultButtons[index].dataset.result;
-            selectResult(result);
-            // Auto-advance to save if available
-            const saveBtn = document.getElementById('saveBtn');
-            if (saveBtn && !saveBtn.disabled) {
-                state.focusZone = 'save';
-                state.focusIndex = 0;
+
+            // Toggle: if already selected, deselect it
+            if (state.selectedResult === result) {
+                selectResult(null);
+                // Stay in result zone when deselecting
+            } else {
+                selectResult(result);
+                // Auto-advance to save if available
+                const saveBtn = document.getElementById('saveBtn');
+                if (saveBtn && !saveBtn.disabled) {
+                    state.focusZone = 'save';
+                    state.focusIndex = 0;
+                }
             }
         }
     } else if (zone === 'save') {
