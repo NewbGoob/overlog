@@ -108,7 +108,7 @@ export const DEFAULT_SETTINGS = {
     useOwStyleText: false, // false = Win/Loss/Draw, true = Victory/Defeat/Draw
     showMatchSavedNotification: true, // Show toast when match is saved
     showSessionNotification: true, // Show toast when session is reset
-    showDrawButton: true, // Show or hide the draw button
+    showDrawButton: false, // Show or hide the draw button
     limitStadiumHeroSelection: true, // Limit to 1 hero in Stadium modes
     matchesPerPage: 10, // Number of matches to display per page (5, 10, 25, 50)
     showHeroes: true // Show or hide hero selection sections

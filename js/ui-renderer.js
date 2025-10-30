@@ -460,7 +460,7 @@ export function updateHeroSectionsVisibility() {
     if (!recentHeroesContainer || !heroSectionWrapper) return;
 
     if (state.settings.showHeroes) {
-        recentHeroesContainer.style.display = '';
+        // Don't touch recentHeroesContainer - let renderRecentHeroes() handle it based on count
         heroSectionWrapper.style.display = '';
     } else {
         recentHeroesContainer.style.display = 'none';

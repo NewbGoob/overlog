@@ -125,7 +125,7 @@ export function saveMatch() {
     // Visual feedback
     saveBtn.textContent = 'Saved!';
     setTimeout(() => {
-        saveBtn.innerHTML = 'Save Match <span class="key-hint">Space</span>';
+        saveBtn.textContent = 'Save Match';
     }, 1000);
 
     // Show toast notification if enabled

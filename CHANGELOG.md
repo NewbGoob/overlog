@@ -5,6 +5,16 @@ All notable changes to Overlog will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.1] - 2025-10-30
+### Fixed
+- Recent Heroes section no longer appears when Recent Heroes Count is set to 0
+- Match type toggle and hero toggle buttons now have consistent heights
+### Changed
+- Draw button now hidden by default (can be enabled in Settings)
+- Improved keyboard focus priority after match type selection
+- Removed Space indicator from Save Match button
+- Number keys (1-4) now open match type section if closed
+
 ## [1.5.0] - 2025-10-30
 ### Added
 - Match history pagination with configurable page size (5, 10, 25, 50, All)
@@ -100,6 +110,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Version display in footer with commit hash
 - GitHub Actions deployment workflow
 
+[1.5.1]: https://github.com/NewbGoob/overlog/compare/v1.5.0...v1.5.1
 [1.5.0]: https://github.com/NewbGoob/overlog/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/NewbGoob/overlog/compare/v1.3.2...v1.4.0
 [1.3.2]: https://github.com/NewbGoob/overlog/compare/v1.3.1...v1.3.2

@@ -165,15 +165,25 @@ export function handleKeyboard(e) {
         const matchingParentType = CONFIG.matchTypes.find(type => type.key === key);
         if (matchingParentType) {
             e.preventDefault();
+
+            // Check if match type section is hidden, if so open it first
+            const matchTypeSection = document.getElementById('matchTypeSection');
+            const isHidden = !matchTypeSection || matchTypeSection.style.display === 'none';
+
+            if (isHidden) {
+                toggleMatchTypeSection();
+            }
+
             selectParentType(matchingParentType.id);
 
-            // Auto-advance focus to child types if available, otherwise results
+            // Auto-advance focus to child types if available, otherwise use priority logic
             if (matchingParentType.children.length > 0) {
                 state.focusZone = 'child';
                 state.focusIndex = 0;
             } else {
-                state.focusZone = 'result';
-                state.focusIndex = 0;
+                const nextFocus = getNextFocusAfterMatchTypeSelection();
+                state.focusZone = nextFocus.zone;
+                state.focusIndex = nextFocus.index;
             }
             updateFocusVisuals();
             return;
@@ -499,6 +509,61 @@ function getMaxIndexForZone(zone) {
     return 0;
 }
 
+// Determine next focus after match type selection
+function getNextFocusAfterMatchTypeSelection() {
+    const showHeroes = state.settings.showHeroes;
+
+    if (showHeroes) {
+        // Priority 1: Currently selected hero in recent heroes
+        const recentButtons = document.querySelectorAll('.recent-hero-btn');
+        if (recentButtons.length > 0) {
+            for (let i = 0; i < recentButtons.length; i++) {
+                const heroId = recentButtons[i].dataset.hero;
+                if (state.selectedHeroes.includes(heroId)) {
+                    return { zone: 'recent-heroes', index: i };
+                }
+            }
+            // Priority 2: First listed hero in recent heroes
+            return { zone: 'recent-heroes', index: 0 };
+        }
+
+        // Priority 3: First selected hero in main heroes section
+        const heroButtons = document.querySelectorAll('.hero-btn:not(.recent-hero-btn)');
+        const heroSection = document.getElementById('heroSelection');
+        const isHeroSectionVisible = heroSection && heroSection.style.display !== 'none';
+
+        if (isHeroSectionVisible && heroButtons.length > 0) {
+            for (let i = 0; i < heroButtons.length; i++) {
+                const heroId = heroButtons[i].dataset.hero;
+                if (state.selectedHeroes.includes(heroId)) {
+                    return { zone: 'heroes', index: i };
+                }
+            }
+            // Priority 4: First listed hero in main heroes section
+            return { zone: 'heroes', index: 0 };
+        }
+
+        // Priority 5: Add Heroes button
+        return { zone: 'hero-toggle', index: 0 };
+    } else {
+        // Heroes disabled
+        // Priority 1: Currently selected result button
+        const resultButtons = document.querySelectorAll('.result-btn');
+        const visibleResultButtons = Array.from(resultButtons).filter(btn => btn.style.display !== 'none');
+
+        if (state.selectedResult) {
+            for (let i = 0; i < visibleResultButtons.length; i++) {
+                if (visibleResultButtons[i].dataset.result === state.selectedResult) {
+                    return { zone: 'result', index: i };
+                }
+            }
+        }
+
+        // Priority 2: First listed result button (Win)
+        return { zone: 'result', index: 0 };
+    }
+}
+
 // Handle spacebar selection
 function handleSpacebarSelection() {
     const zone = state.focusZone;
@@ -536,14 +601,17 @@ function handleSpacebarSelection() {
             const typeId = parentButtons[index].dataset.type;
             selectParentType(typeId);
 
-            // Auto-advance to child types if available, otherwise results
+            // Check if this parent has children
             const parent = CONFIG.matchTypes.find(t => t.id === typeId);
             if (parent && parent.children.length > 0) {
+                // Has children, go to child selection
                 state.focusZone = 'child';
                 state.focusIndex = 0;
             } else {
-                state.focusZone = 'result';
-                state.focusIndex = 0;
+                // No children, match type is complete - use priority logic
+                const nextFocus = getNextFocusAfterMatchTypeSelection();
+                state.focusZone = nextFocus.zone;
+                state.focusIndex = nextFocus.index;
             }
         }
     } else if (zone === 'child') {
@@ -551,9 +619,10 @@ function handleSpacebarSelection() {
         if (childButtons[index]) {
             const typeId = childButtons[index].dataset.type;
             selectChildType(typeId);
-            // Auto-advance to results
-            state.focusZone = 'result';
-            state.focusIndex = 0;
+            // Match type is complete - use priority logic
+            const nextFocus = getNextFocusAfterMatchTypeSelection();
+            state.focusZone = nextFocus.zone;
+            state.focusIndex = nextFocus.index;
         }
     } else if (zone === 'recent-heroes') {
         const recentButtons = document.querySelectorAll('.recent-hero-btn');
