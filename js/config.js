@@ -42,54 +42,54 @@ export const CONFIG = {
 
     heroes: [
         // Tank
-        { id: 'dva', name: 'D.Va', role: 'tank' },
-        { id: 'doomfist', name: 'Doomfist', role: 'tank' },
-        { id: 'hazard', name: 'Hazard', role: 'tank' },
-        { id: 'junkerqueen', name: 'Junker Queen', role: 'tank' },
-        { id: 'mauga', name: 'Mauga', role: 'tank' },
-        { id: 'orisa', name: 'Orisa', role: 'tank' },
-        { id: 'ramattra', name: 'Ramattra', role: 'tank' },
-        { id: 'reinhardt', name: 'Reinhardt', role: 'tank' },
-        { id: 'roadhog', name: 'Roadhog', role: 'tank' },
-        { id: 'sigma', name: 'Sigma', role: 'tank' },
-        { id: 'winston', name: 'Winston', role: 'tank' },
-        { id: 'wreckingball', name: 'Wrecking Ball', role: 'tank' },
-        { id: 'zarya', name: 'Zarya', role: 'tank' },
+        { id: 'dva', name: 'D.Va', role: 'tank', portrait: 'dva.png' },
+        { id: 'doomfist', name: 'Doomfist', role: 'tank', portrait: 'doomfist.png' },
+        { id: 'hazard', name: 'Hazard', role: 'tank', portrait: 'hazard.png' },
+        { id: 'junkerqueen', name: 'Junker Queen', role: 'tank', portrait: 'junkerqueen.png' },
+        { id: 'mauga', name: 'Mauga', role: 'tank', portrait: 'mauga.png' },
+        { id: 'orisa', name: 'Orisa', role: 'tank', portrait: 'orisa.png' },
+        { id: 'ramattra', name: 'Ramattra', role: 'tank', portrait: 'ramattra.png' },
+        { id: 'reinhardt', name: 'Reinhardt', role: 'tank', portrait: 'reinhardt.png' },
+        { id: 'roadhog', name: 'Roadhog', role: 'tank', portrait: 'roadhog.png' },
+        { id: 'sigma', name: 'Sigma', role: 'tank', portrait: 'sigma.png' },
+        { id: 'winston', name: 'Winston', role: 'tank', portrait: 'winston.png' },
+        { id: 'wreckingball', name: 'Wrecking Ball', role: 'tank', portrait: 'wrecking-ball.png' },
+        { id: 'zarya', name: 'Zarya', role: 'tank', portrait: 'zarya.png' },
 
         // Damage
-        { id: 'ashe', name: 'Ashe', role: 'damage' },
-        { id: 'bastion', name: 'Bastion', role: 'damage' },
-        { id: 'cassidy', name: 'Cassidy', role: 'damage' },
-        { id: 'echo', name: 'Echo', role: 'damage' },
-        { id: 'freja', name: 'Freja', role: 'damage' },
-        { id: 'genji', name: 'Genji', role: 'damage' },
-        { id: 'hanzo', name: 'Hanzo', role: 'damage' },
-        { id: 'junkrat', name: 'Junkrat', role: 'damage' },
-        { id: 'mei', name: 'Mei', role: 'damage' },
-        { id: 'pharah', name: 'Pharah', role: 'damage' },
-        { id: 'reaper', name: 'Reaper', role: 'damage' },
-        { id: 'sojourn', name: 'Sojourn', role: 'damage' },
-        { id: 'soldier76', name: 'Soldier: 76', role: 'damage' },
-        { id: 'sombra', name: 'Sombra', role: 'damage' },
-        { id: 'symmetra', name: 'Symmetra', role: 'damage' },
-        { id: 'torbjorn', name: 'Torbjörn', role: 'damage' },
-        { id: 'tracer', name: 'Tracer', role: 'damage' },
-        { id: 'venture', name: 'Venture', role: 'damage' },
-        { id: 'widowmaker', name: 'Widowmaker', role: 'damage' },
+        { id: 'ashe', name: 'Ashe', role: 'damage', portrait: 'ashe.png' },
+        { id: 'bastion', name: 'Bastion', role: 'damage', portrait: 'bastion.png' },
+        { id: 'cassidy', name: 'Cassidy', role: 'damage', portrait: 'cassidy.png' },
+        { id: 'echo', name: 'Echo', role: 'damage', portrait: 'echo.png' },
+        { id: 'freja', name: 'Freja', role: 'damage', portrait: 'freja.png' },
+        { id: 'genji', name: 'Genji', role: 'damage', portrait: 'genji.png' },
+        { id: 'hanzo', name: 'Hanzo', role: 'damage', portrait: 'hanzo.png' },
+        { id: 'junkrat', name: 'Junkrat', role: 'damage', portrait: 'junkrat.png' },
+        { id: 'mei', name: 'Mei', role: 'damage', portrait: 'mei.png' },
+        { id: 'pharah', name: 'Pharah', role: 'damage', portrait: 'pharah.png' },
+        { id: 'reaper', name: 'Reaper', role: 'damage', portrait: 'reaper.png' },
+        { id: 'sojourn', name: 'Sojourn', role: 'damage', portrait: 'sojourn.png' },
+        { id: 'soldier76', name: 'Soldier: 76', role: 'damage', portrait: 'soldier-76.png' },
+        { id: 'sombra', name: 'Sombra', role: 'damage', portrait: 'sombra.png' },
+        { id: 'symmetra', name: 'Symmetra', role: 'damage', portrait: 'symetra.png' },
+        { id: 'torbjorn', name: 'Torbjörn', role: 'damage', portrait: 'torbjorn.png' },
+        { id: 'tracer', name: 'Tracer', role: 'damage', portrait: 'tracer.png' },
+        { id: 'venture', name: 'Venture', role: 'damage', portrait: 'venture.png' },
+        { id: 'widowmaker', name: 'Widowmaker', role: 'damage', portrait: 'widowmaker.png' },
 
         // Support
-        { id: 'ana', name: 'Ana', role: 'support' },
-        { id: 'baptiste', name: 'Baptiste', role: 'support' },
-        { id: 'brigitte', name: 'Brigitte', role: 'support' },
-        { id: 'illari', name: 'Illari', role: 'support' },
-        { id: 'juno', name: 'Juno', role: 'support' },
-        { id: 'kiriko', name: 'Kiriko', role: 'support' },
-        { id: 'lifeweaver', name: 'Lifeweaver', role: 'support' },
-        { id: 'lucio', name: 'Lúcio', role: 'support' },
-        { id: 'mercy', name: 'Mercy', role: 'support' },
-        { id: 'moira', name: 'Moira', role: 'support' },
-        { id: 'wuyang', name: 'Wuyang', role: 'support' },
-        { id: 'zenyatta', name: 'Zenyatta', role: 'support' }
+        { id: 'ana', name: 'Ana', role: 'support', portrait: 'ana.png' },
+        { id: 'baptiste', name: 'Baptiste', role: 'support', portrait: 'baptiste.png' },
+        { id: 'brigitte', name: 'Brigitte', role: 'support', portrait: 'brigitte.png' },
+        { id: 'illari', name: 'Illari', role: 'support', portrait: 'illari.png' },
+        { id: 'juno', name: 'Juno', role: 'support', portrait: 'juno.png' },
+        { id: 'kiriko', name: 'Kiriko', role: 'support', portrait: 'kiriko.png' },
+        { id: 'lifeweaver', name: 'Lifeweaver', role: 'support', portrait: 'lifeweaver.png' },
+        { id: 'lucio', name: 'Lúcio', role: 'support', portrait: 'lucio.png' },
+        { id: 'mercy', name: 'Mercy', role: 'support', portrait: 'mercy.png' },
+        { id: 'moira', name: 'Moira', role: 'support', portrait: 'moira.png' },
+        { id: 'wuyang', name: 'Wuyang', role: 'support', portrait: 'wuyang.png' },
+        { id: 'zenyatta', name: 'Zenyatta', role: 'support', portrait: 'zenyatta.png' }
     ]
 };
 
@@ -111,7 +111,9 @@ export const DEFAULT_SETTINGS = {
     showDrawButton: false, // Show or hide the draw button
     limitStadiumHeroSelection: true, // Limit to 1 hero in Stadium modes
     matchesPerPage: 10, // Number of matches to display per page (5, 10, 25, 50)
-    showHeroes: true // Show or hide hero selection sections
+    showHeroes: true, // Show or hide hero selection sections
+    showHeroPortraits: true, // Show hero portraits on hero buttons
+    alwaysShowAllHeroes: false // Always show hero section expanded (hides toggle button)
 };
 
 // Create initial state structure

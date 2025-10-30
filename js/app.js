@@ -293,6 +293,37 @@ function toggleHeroSection() {
     }
 }
 
+// Update hero section based on alwaysShowAllHeroes setting
+function updateAlwaysShowAllHeroes() {
+    const heroSectionWrapper = document.querySelector('.hero-section-wrapper');
+    const heroSection = document.getElementById('heroSelection');
+    const heroToggle = document.getElementById('heroSectionToggle');
+
+    if (!heroSectionWrapper || !heroSection || !heroToggle) return;
+
+    // Check if heroes are disabled in settings
+    if (!state.settings.showHeroes) {
+        // If heroes are disabled, hide everything
+        heroSectionWrapper.style.display = 'none';
+        return;
+    }
+
+    if (state.settings.alwaysShowAllHeroes) {
+        // Hide the toggle button
+        heroToggle.style.display = 'none';
+        // Show the hero section
+        heroSection.style.display = 'block';
+        // Show the wrapper
+        heroSectionWrapper.style.display = '';
+    } else {
+        // Show the toggle button
+        heroToggle.style.display = '';
+        // Hero section visibility is controlled by toggle
+        // Show the wrapper
+        heroSectionWrapper.style.display = '';
+    }
+}
+
 // Select parent match type
 function selectParentType(parentId) {
     state.selectedParentType = parentId;
@@ -546,6 +577,8 @@ function openSettingsModal() {
     document.getElementById('settingUseOwStyleText').checked = state.settings.useOwStyleText;
     document.getElementById('settingShowDrawButton').checked = state.settings.showDrawButton;
     document.getElementById('settingShowHeroes').checked = state.settings.showHeroes;
+    document.getElementById('settingShowHeroPortraits').checked = state.settings.showHeroPortraits;
+    document.getElementById('settingAlwaysShowAllHeroes').checked = state.settings.alwaysShowAllHeroes;
     document.getElementById('settingShowMatchSavedNotification').checked = state.settings.showMatchSavedNotification;
     document.getElementById('settingShowSessionNotification').checked = state.settings.showSessionNotification;
     document.getElementById('settingSessionAutoReset').value = state.settings.sessionAutoReset;
@@ -585,6 +618,8 @@ function saveSettingsFromModal() {
     state.settings.useOwStyleText = document.getElementById('settingUseOwStyleText').checked;
     state.settings.showDrawButton = document.getElementById('settingShowDrawButton').checked;
     state.settings.showHeroes = document.getElementById('settingShowHeroes').checked;
+    state.settings.showHeroPortraits = document.getElementById('settingShowHeroPortraits').checked;
+    state.settings.alwaysShowAllHeroes = document.getElementById('settingAlwaysShowAllHeroes').checked;
     state.settings.showMatchSavedNotification = document.getElementById('settingShowMatchSavedNotification').checked;
     state.settings.showSessionNotification = document.getElementById('settingShowSessionNotification').checked;
     state.settings.sessionAutoReset = document.getElementById('settingSessionAutoReset').value;
@@ -600,10 +635,12 @@ function saveSettingsFromModal() {
     applyTheme(state.settings.theme);
 
     // Update UI based on new settings
-    renderRecentHeroes();
+    renderHeroButtons(); // Re-render hero buttons to show/hide portraits
+    renderRecentHeroes(); // Re-render recent heroes to show/hide portraits
     updateResultButtonLabels(); // Update result button labels
     updateDrawButtonVisibility(); // Update draw button visibility
     updateHeroSectionsVisibility(); // Update hero sections visibility
+    updateAlwaysShowAllHeroes(); // Update always show all heroes setting
     updateSelectionDisplay(); // Update result text display
     updateMatchList(); // Update match list to reflect new text style
 
@@ -1125,6 +1162,9 @@ function init() {
 
     // Update hero sections visibility based on settings
     updateHeroSectionsVisibility();
+
+    // Update always show all heroes setting
+    updateAlwaysShowAllHeroes();
 
     const saveBtn = document.getElementById('saveBtn');
     saveBtn.classList.remove('win', 'loss', 'draw');

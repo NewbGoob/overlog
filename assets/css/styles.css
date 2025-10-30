@@ -561,8 +561,7 @@ h2::after {
 }
 
 .hero-container {
-    max-height: 300px;
-    overflow-y: auto;
+    /* No max-height - show all heroes without scrolling */
 }
 
 .hero-role-section {
@@ -576,6 +575,15 @@ h2::after {
     text-transform: uppercase;
     letter-spacing: 1px;
     font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.hero-role-section h4 .role-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
 }
 
 .hero-buttons {
@@ -611,6 +619,62 @@ h2::after {
     box-shadow: 0 0 10px rgba(254, 130, 34, 0.3);
 }
 
+/* Hero button with portrait */
+.hero-btn.with-portrait {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.hero-btn.with-portrait .hero-portrait {
+    width: 40px;
+    height: 40px;
+    border-radius: 0;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.hero-btn.with-portrait .hero-name {
+    flex: 1;
+    text-align: left;
+    padding: 6px 8px;
+    font-size: 0.8em;
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Recent hero button with portrait */
+.recent-hero-btn.with-portrait {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.recent-hero-btn.with-portrait .hero-portrait {
+    width: 48px;
+    height: 48px;
+    border-radius: 0;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.recent-hero-btn.with-portrait .hero-name {
+    flex: 1;
+    text-align: left;
+    padding: 8px 10px;
+    font-size: 0.9em;
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .clear-heroes-btn {
     width: 100%;
     padding: 8px;
@@ -628,25 +692,6 @@ h2::after {
 .clear-heroes-btn:hover {
     background: var(--color-loss);
     color: white;
-}
-
-/* Hero Container Scrollbar */
-.hero-container::-webkit-scrollbar {
-    width: 8px;
-}
-
-.hero-container::-webkit-scrollbar-track {
-    background: var(--bg-solid-tertiary);
-    border-radius: 4px;
-}
-
-.hero-container::-webkit-scrollbar-thumb {
-    background: var(--text-secondary);
-    border-radius: 4px;
-}
-
-.hero-container::-webkit-scrollbar-thumb:hover {
-    background: var(--accent-primary);
 }
 
 /* ============================================

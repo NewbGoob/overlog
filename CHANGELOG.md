@@ -5,6 +5,17 @@ All notable changes to Overlog will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - 2025-10-30
+### Added
+- Hero portrait images for all 38 heroes
+- "Show Hero Portraits" setting in UI Settings to display hero portraits on hero selection buttons (enabled by default)
+- "Always Show All Heroes" setting in UI Settings to keep hero section permanently expanded (disabled by default)
+### Changed
+- Hero selection container now displays all heroes without scrolling
+- E keyboard shortcut focuses hero area instead of toggling visibility when "Always Show All Heroes" is enabled
+- Hero section no longer auto-collapses after saving a match when "Always Show All Heroes" is enabled
+- WASD keyboard navigation automatically skips hero toggle button when "Always Show All Heroes" is enabled
+
 ## [1.5.1] - 2025-10-30
 ### Fixed
 - Recent Heroes section no longer appears when Recent Heroes Count is set to 0
@@ -110,6 +121,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Version display in footer with commit hash
 - GitHub Actions deployment workflow
 
+[1.6.0]: https://github.com/NewbGoob/overlog/compare/v1.5.1...v1.6.0
 [1.5.1]: https://github.com/NewbGoob/overlog/compare/v1.5.0...v1.5.1
 [1.5.0]: https://github.com/NewbGoob/overlog/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/NewbGoob/overlog/compare/v1.3.2...v1.4.0

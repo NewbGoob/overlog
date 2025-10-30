@@ -23,6 +23,11 @@ export function initKeyboardNav(deps) {
     undoLastMatch = deps.undoLastMatch;
 }
 
+// Helper function to check if hero toggle should be shown
+function shouldShowHeroToggle() {
+    return !state.settings.alwaysShowAllHeroes;
+}
+
 // Handle focus when clicking on elements
 export function handleClickFocus(e) {
     // Check if clicked element is a focusable button
@@ -65,9 +70,12 @@ export function handleClickFocus(e) {
             updateFocusVisuals();
         }
     } else if (target.id === 'heroSectionToggle') {
-        state.focusZone = 'hero-toggle';
-        state.focusIndex = 0;
-        updateFocusVisuals();
+        // Only allow focus if hero toggle is shown
+        if (shouldShowHeroToggle()) {
+            state.focusZone = 'hero-toggle';
+            state.focusIndex = 0;
+            updateFocusVisuals();
+        }
     } else if (target.classList.contains('hero-btn') && !target.classList.contains('recent-hero-btn')) {
         const heroButtons = Array.from(document.querySelectorAll('.hero-btn:not(.recent-hero-btn)'));
         const index = heroButtons.indexOf(target);
@@ -220,12 +228,14 @@ function handleWASDNavigation(key) {
             state.focusZone = 'parent';
             state.focusIndex = 0;
         } else if (currentZone === 'result') {
-            // If heroes are visible, go to clear-heroes (if drawer open) or hero-toggle
+            // If heroes are visible, go to clear-heroes (if drawer open) or hero-toggle (if shown) or recent heroes
             if (showHeroes) {
-                if (isHeroSectionVisible) {
+                if (isHeroSectionVisible || !shouldShowHeroToggle()) {
+                    // Hero section is visible, or always shown - go to clear-heroes
                     state.focusZone = 'clear-heroes';
                     state.focusIndex = 0;
                 } else {
+                    // Hero section is hidden and toggle is shown - go to toggle
                     state.focusZone = 'hero-toggle';
                     state.focusIndex = 0;
                 }
@@ -259,9 +269,31 @@ function handleWASDNavigation(key) {
             const heroButtons = document.querySelectorAll('.hero-btn:not(.recent-hero-btn)');
             state.focusIndex = Math.max(0, heroButtons.length - 1);
         } else if (currentZone === 'heroes') {
-            // Move from heroes to hero-toggle
-            state.focusZone = 'hero-toggle';
-            state.focusIndex = 0;
+            // Move from heroes up - skip hero-toggle if not shown
+            if (shouldShowHeroToggle()) {
+                state.focusZone = 'hero-toggle';
+                state.focusIndex = 0;
+            } else if (hasRecentHeroes) {
+                state.focusZone = 'recent-heroes';
+                state.focusIndex = 0;
+            } else {
+                // No toggle, no recent heroes - go to match types
+                const matchTypeSection = document.getElementById('matchTypeSection');
+                if (matchTypeSection && matchTypeSection.style.display !== 'none') {
+                    // Check if child types are visible
+                    const childTypes = document.getElementById('childTypes');
+                    if (childTypes && childTypes.style.display !== 'none') {
+                        state.focusZone = 'child';
+                        state.focusIndex = 0;
+                    } else {
+                        state.focusZone = 'parent';
+                        state.focusIndex = 0;
+                    }
+                } else {
+                    state.focusZone = 'match-type-toggle';
+                    state.focusIndex = 0;
+                }
+            }
         } else if (currentZone === 'hero-toggle') {
             // Move from hero-toggle to recent-heroes if available, otherwise match types
             if (hasRecentHeroes) {
@@ -318,8 +350,12 @@ function handleWASDNavigation(key) {
                     if (hasRecentHeroes) {
                         state.focusZone = 'recent-heroes';
                         state.focusIndex = 0;
-                    } else {
+                    } else if (shouldShowHeroToggle()) {
                         state.focusZone = 'hero-toggle';
+                        state.focusIndex = 0;
+                    } else {
+                        // Heroes always shown, go to heroes
+                        state.focusZone = 'heroes';
                         state.focusIndex = 0;
                     }
                 } else {
@@ -339,8 +375,12 @@ function handleWASDNavigation(key) {
                     if (hasRecentHeroes) {
                         state.focusZone = 'recent-heroes';
                         state.focusIndex = 0;
-                    } else {
+                    } else if (shouldShowHeroToggle()) {
                         state.focusZone = 'hero-toggle';
+                        state.focusIndex = 0;
+                    } else {
+                        // Heroes always shown, go to heroes
+                        state.focusZone = 'heroes';
                         state.focusIndex = 0;
                     }
                 } else {
@@ -354,8 +394,12 @@ function handleWASDNavigation(key) {
                 if (hasRecentHeroes) {
                     state.focusZone = 'recent-heroes';
                     state.focusIndex = 0;
-                } else {
+                } else if (shouldShowHeroToggle()) {
                     state.focusZone = 'hero-toggle';
+                    state.focusIndex = 0;
+                } else {
+                    // Heroes always shown, go to heroes
+                    state.focusZone = 'heroes';
                     state.focusIndex = 0;
                 }
             } else {
@@ -370,8 +414,15 @@ function handleWASDNavigation(key) {
                 state.focusIndex = 0;
             }
         } else if (currentZone === 'recent-heroes') {
-            state.focusZone = 'hero-toggle';
-            state.focusIndex = 0;
+            // Move down from recent heroes - skip hero-toggle if not shown
+            if (shouldShowHeroToggle()) {
+                state.focusZone = 'hero-toggle';
+                state.focusIndex = 0;
+            } else {
+                // Skip to heroes
+                state.focusZone = 'heroes';
+                state.focusIndex = 0;
+            }
         } else if (currentZone === 'hero-toggle') {
             // Move to heroes if visible, otherwise results
             if (isHeroSectionVisible) {
@@ -531,8 +582,9 @@ function getNextFocusAfterMatchTypeSelection() {
         const heroButtons = document.querySelectorAll('.hero-btn:not(.recent-hero-btn)');
         const heroSection = document.getElementById('heroSelection');
         const isHeroSectionVisible = heroSection && heroSection.style.display !== 'none';
+        const alwaysShowAllHeroes = state.settings.alwaysShowAllHeroes;
 
-        if (isHeroSectionVisible && heroButtons.length > 0) {
+        if ((isHeroSectionVisible || alwaysShowAllHeroes) && heroButtons.length > 0) {
             for (let i = 0; i < heroButtons.length; i++) {
                 const heroId = heroButtons[i].dataset.hero;
                 if (state.selectedHeroes.includes(heroId)) {
@@ -543,25 +595,27 @@ function getNextFocusAfterMatchTypeSelection() {
             return { zone: 'heroes', index: 0 };
         }
 
-        // Priority 5: Add Heroes button
-        return { zone: 'hero-toggle', index: 0 };
-    } else {
-        // Heroes disabled
-        // Priority 1: Currently selected result button
-        const resultButtons = document.querySelectorAll('.result-btn');
-        const visibleResultButtons = Array.from(resultButtons).filter(btn => btn.style.display !== 'none');
+        // Priority 5: Add Heroes button (only if toggle is shown)
+        if (shouldShowHeroToggle()) {
+            return { zone: 'hero-toggle', index: 0 };
+        }
+    }
 
-        if (state.selectedResult) {
-            for (let i = 0; i < visibleResultButtons.length; i++) {
-                if (visibleResultButtons[i].dataset.result === state.selectedResult) {
-                    return { zone: 'result', index: i };
-                }
+    // Priority 6 (for both heroes disabled and heroes always shown with no heroes): Result buttons
+    // Check for currently selected result button
+    const resultButtons = document.querySelectorAll('.result-btn');
+    const visibleResultButtons = Array.from(resultButtons).filter(btn => btn.style.display !== 'none');
+
+    if (state.selectedResult) {
+        for (let i = 0; i < visibleResultButtons.length; i++) {
+            if (visibleResultButtons[i].dataset.result === state.selectedResult) {
+                return { zone: 'result', index: i };
             }
         }
-
-        // Priority 2: First listed result button (Win)
-        return { zone: 'result', index: 0 };
     }
+
+    // Priority 7: First listed result button (Win)
+    return { zone: 'result', index: 0 };
 }
 
 // Handle spacebar selection
@@ -765,6 +819,14 @@ function toggleMatchTypeSectionWithFocus() {
 
 // Toggle hero section with focus management
 function toggleHeroSectionWithFocus() {
+    // If always showing all heroes, just focus the heroes area instead of toggling
+    if (state.settings.alwaysShowAllHeroes) {
+        state.focusZone = 'heroes';
+        state.focusIndex = 0;
+        updateFocusVisuals();
+        return;
+    }
+
     toggleHeroSection();
     const heroSection = document.getElementById('heroSelection');
     const isVisible = heroSection && heroSection.style.display !== 'none';

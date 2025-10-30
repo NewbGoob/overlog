@@ -92,7 +92,8 @@ export function saveMatch() {
     updateHeroButtons();
 
     // Auto-collapse hero section after match submission (if enabled in settings)
-    if (state.settings.autoCollapseHero) {
+    // Don't auto-collapse if always showing all heroes
+    if (state.settings.autoCollapseHero && !state.settings.alwaysShowAllHeroes) {
         const heroSection = document.getElementById('heroSelection');
         const heroToggle = document.getElementById('heroSectionToggle');
         if (heroSection && heroSection.style.display !== 'none') {
