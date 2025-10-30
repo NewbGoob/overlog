@@ -2607,7 +2607,8 @@ async function openChangelogModal() {
 
     // Fetch and display changelog
     const changelogText = await loadChangelog();
-    content.textContent = changelogText;
+    const changelogHTML = parseMarkdownToHTML(changelogText);
+    content.innerHTML = changelogHTML;
 }
 
 // Close changelog modal
@@ -2628,6 +2629,84 @@ async function loadChangelog() {
         console.error('Failed to load changelog:', error);
         return 'Failed to load changelog. Please visit the GitHub repository.';
     }
+}
+
+// Parse basic markdown to HTML for changelog display
+function parseMarkdownToHTML(markdown) {
+    let html = '';
+    const lines = markdown.split('\n');
+    let inList = false;
+
+    for (let i = 0; i < lines.length; i++) {
+        let line = lines[i];
+
+        // Skip the title line (# Changelog)
+        if (line.startsWith('# ')) {
+            continue;
+        }
+
+        // Handle h2 headers (## Version)
+        if (line.startsWith('## ')) {
+            if (inList) {
+                html += '</ul>\n';
+                inList = false;
+            }
+            const headerText = line.substring(3);
+            html += `<h2>${headerText}</h2>\n`;
+            continue;
+        }
+
+        // Handle h3 headers (### Added, Changed, Fixed)
+        if (line.startsWith('### ')) {
+            if (inList) {
+                html += '</ul>\n';
+                inList = false;
+            }
+            const headerText = line.substring(4);
+            html += `<h3>${headerText}</h3>\n`;
+            continue;
+        }
+
+        // Handle list items
+        if (line.startsWith('- ')) {
+            if (!inList) {
+                html += '<ul>\n';
+                inList = true;
+            }
+            let listItem = line.substring(2);
+            // Convert markdown links [text](url) to HTML
+            listItem = listItem.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+            html += `<li>${listItem}</li>\n`;
+            continue;
+        }
+
+        // Handle empty lines
+        if (line.trim() === '') {
+            if (inList) {
+                html += '</ul>\n';
+                inList = false;
+            }
+            continue;
+        }
+
+        // Handle regular text (like the description lines)
+        if (line.trim().length > 0 && !line.startsWith('[')) {
+            if (inList) {
+                html += '</ul>\n';
+                inList = false;
+            }
+            // Convert markdown links in regular text
+            line = line.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+            html += `<p class="changelog-description">${line}</p>\n`;
+        }
+    }
+
+    // Close any open list
+    if (inList) {
+        html += '</ul>\n';
+    }
+
+    return html;
 }
 
 // Update keyboard shortcuts subsection visibility

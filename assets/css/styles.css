@@ -1423,17 +1423,85 @@ body.theme-light .theme-icon-moon {
     background: var(--accent-primary);
 }
 
+.modal-title-link {
+    color: var(--accent-primary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.modal-title-link:hover {
+    color: var(--text-primary);
+}
+
+.external-link-icon {
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+    vertical-align: middle;
+    filter: brightness(0) saturate(100%) invert(60%) sepia(67%) saturate(3476%) hue-rotate(343deg) brightness(102%) contrast(99%);
+    transition: all 0.3s ease;
+}
+
+.modal-title-link:hover .external-link-icon {
+    filter: brightness(0) saturate(100%) invert(64%) sepia(8%) saturate(366%) hue-rotate(353deg) brightness(91%) contrast(87%);
+    transform: translate(2px, -2px);
+}
+
 .changelog-text {
-    font-family: 'Courier New', monospace;
-    font-size: 0.9em;
+    font-size: 0.95em;
     line-height: 1.6;
     color: var(--text-primary);
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    background: var(--bg-tertiary);
-    padding: 15px;
-    border-radius: 8px;
-    margin: 0;
+}
+
+.changelog-text h2 {
+    font-size: 1.5em;
+    font-weight: 600;
+    color: var(--accent-primary);
+    margin: 1.5em 0 0.5em 0;
+    padding-bottom: 0.3em;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.changelog-text h2:first-child {
+    margin-top: 0;
+}
+
+.changelog-text h3 {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin: 1em 0 0.5em 0;
+}
+
+.changelog-text ul {
+    margin: 0.5em 0 1em 0;
+    padding-left: 1.5em;
+    list-style-type: disc;
+}
+
+.changelog-text li {
+    margin: 0.3em 0;
+    line-height: 1.6;
+}
+
+.changelog-text a {
+    color: var(--accent-primary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.changelog-text a:hover {
+    color: var(--accent-secondary);
+    text-decoration: underline;
+}
+
+.changelog-description {
+    margin: 0.5em 0;
+    color: var(--text-secondary);
+    font-size: 0.9em;
 }
 
 .modal-footer {

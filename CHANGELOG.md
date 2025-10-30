@@ -5,10 +5,13 @@ All notable changes to Overlog will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.3.1] - 2025-10-30
 ### Added
+- External link indicator icon next to Changelog modal title
 ### Changed
-### Fixed
+- Changelog modal now displays formatted markdown instead of plain text
+- Changelog modal title is now a clickable link to GitHub CHANGELOG.md
+- Changelog modal title color now matches other modals (orange at rest)
 
 ## [1.3.0] - 2025-10-30
 ### Added
@@ -65,7 +68,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Version display in footer with commit hash
 - GitHub Actions deployment workflow
 
-[Unreleased]: https://github.com/NewbGoob/overlog/compare/v1.3.0...HEAD
+[1.3.1]: https://github.com/NewbGoob/overlog/compare/v1.3.0...v1.3.1
 [1.3.0]: https://github.com/NewbGoob/overlog/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/NewbGoob/overlog/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/NewbGoob/overlog/compare/v1.0.0...v1.1.0
