@@ -643,9 +643,21 @@ function setupEventListeners() {
     // Click outside result buttons to deselect
     document.addEventListener('click', (e) => {
         const resultButtonsContainer = document.querySelector('.result-buttons');
+
+        // Check if click is on a hero button or any hero-related element
+        const clickedElement = e.target;
+        const isHeroButton = clickedElement.closest('.hero-btn');
+        const isRecentHeroContainer = clickedElement.closest('#recentHeroesContainer');
+        const isHeroSectionWrapper = clickedElement.closest('.hero-section-wrapper');
+        const isHeroToggle = clickedElement.closest('#heroSectionToggle') ||
+                            clickedElement.classList?.contains('hero-toggle-btn');
+
+        const isHeroClick = isHeroButton || isRecentHeroContainer || isHeroSectionWrapper || isHeroToggle;
+
         if (state.selectedResult &&
             resultButtonsContainer &&
-            !resultButtonsContainer.contains(e.target)) {
+            !resultButtonsContainer.contains(e.target) &&
+            !isHeroClick) {
             selectResult(null);
         }
     });
