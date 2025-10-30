@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- Optional "Limit Stadium Hero Selection" setting in Behavior Settings to restrict hero selection to 1 in Stadium game modes (enabled by default)
 ### Changed
 ### Fixed
 

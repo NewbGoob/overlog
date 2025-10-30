@@ -108,7 +108,8 @@ const DEFAULT_SETTINGS = {
     useOwStyleText: false, // false = Win/Loss/Draw, true = Victory/Defeat/Draw
     showMatchSavedNotification: true, // Show toast when match is saved
     showSessionNotification: true, // Show toast when session is reset
-    showDrawButton: true // Show or hide the draw button
+    showDrawButton: true, // Show or hide the draw button
+    limitStadiumHeroSelection: true // Limit to 1 hero in Stadium modes
 };
 
 // State management
@@ -1312,9 +1313,21 @@ function updateFocusVisuals() {
 function toggleHero(heroId) {
     const index = state.selectedHeroes.indexOf(heroId);
     if (index > -1) {
+        // Remove if already selected
         state.selectedHeroes.splice(index, 1);
     } else {
-        state.selectedHeroes.push(heroId);
+        // Add if not selected
+        // Check if we're in Stadium mode with the limit enabled
+        const isStadiumMode = state.selectedParentType === 'stadium';
+        const limitStadiumHeroes = state.settings.limitStadiumHeroSelection;
+
+        if (isStadiumMode && limitStadiumHeroes && state.selectedHeroes.length > 0) {
+            // In Stadium mode with limit - replace the existing hero
+            state.selectedHeroes = [heroId];
+        } else {
+            // Normal mode or no limit - add to array
+            state.selectedHeroes.push(heroId);
+        }
     }
     updateHeroButtons();
     updateSelectionDisplay();
@@ -1507,6 +1520,16 @@ function selectParentType(parentId) {
     state.selectedParentType = parentId;
     state.selectedChildType = null; // Reset child selection
     state.selectedResult = null; // Reset result when parent changes
+
+    // Check if switching to Stadium mode with hero limit enabled
+    const isStadiumMode = parentId === 'stadium';
+    const limitStadiumHeroes = state.settings.limitStadiumHeroSelection;
+
+    if (isStadiumMode && limitStadiumHeroes && state.selectedHeroes.length > 1) {
+        // Keep only the first selected hero
+        state.selectedHeroes = [state.selectedHeroes[0]];
+        updateHeroButtons();
+    }
 
     // Update UI - highlight selected parent
     document.querySelectorAll('.parent-type-btn').forEach(btn => {
@@ -2544,6 +2567,7 @@ function openSettingsModal() {
     document.getElementById('settingAutoCollapseMatchType').checked = state.settings.autoCollapseMatchType;
     document.getElementById('settingAutoCollapseHero').checked = state.settings.autoCollapseHero;
     document.getElementById('settingRememberHeroSelection').checked = state.settings.rememberHeroSelection;
+    document.getElementById('settingLimitStadiumHeroSelection').checked = state.settings.limitStadiumHeroSelection;
     document.getElementById('settingRecentHeroesCount').value = state.settings.recentHeroesCount;
     document.getElementById('recentHeroesCountValue').textContent = state.settings.recentHeroesCount;
     document.getElementById('settingUseOwStyleText').checked = state.settings.useOwStyleText;
@@ -2597,6 +2621,7 @@ function saveSettingsFromModal() {
     state.settings.autoCollapseMatchType = document.getElementById('settingAutoCollapseMatchType').checked;
     state.settings.autoCollapseHero = document.getElementById('settingAutoCollapseHero').checked;
     state.settings.rememberHeroSelection = document.getElementById('settingRememberHeroSelection').checked;
+    state.settings.limitStadiumHeroSelection = document.getElementById('settingLimitStadiumHeroSelection').checked;
     state.settings.recentHeroesCount = parseInt(document.getElementById('settingRecentHeroesCount').value);
     state.settings.useOwStyleText = document.getElementById('settingUseOwStyleText').checked;
     state.settings.showDrawButton = document.getElementById('settingShowDrawButton').checked;
