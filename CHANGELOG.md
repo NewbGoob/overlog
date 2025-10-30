@@ -7,9 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- Optional "Limit Stadium Hero Selection" setting in Behavior Settings to restrict hero selection to 1 in Stadium game modes (enabled by default)
 ### Changed
 ### Fixed
+
+## [1.3.0] - 2025-10-30
+### Added
+- Optional "Limit Stadium Hero Selection" setting in Behavior Settings to restrict hero selection to 1 in Stadium game modes (enabled by default)
+- Changelog info button next to version number in footer that displays CHANGELOG.md in a modal
 
 ## [1.2.0] - 2025-10-28
 ### Added
@@ -61,7 +65,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Version display in footer with commit hash
 - GitHub Actions deployment workflow
 
-[Unreleased]: https://github.com/NewbGoob/overlog/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/NewbGoob/overlog/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/NewbGoob/overlog/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/NewbGoob/overlog/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/NewbGoob/overlog/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/NewbGoob/overlog/tree/v1.0.0

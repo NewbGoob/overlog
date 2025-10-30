@@ -314,6 +314,19 @@
             </div>
         </div>
 
+        <!-- Changelog Modal -->
+        <div id="changelogModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Changelog</h2>
+                    <button id="closeChangelogBtn" class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <pre id="changelogContent" class="changelog-text">Loading changelog...</pre>
+                </div>
+            </div>
+        </div>
+
         <footer>
             <div class="footer-content">
                 <div class="keyboard-hints">
@@ -321,6 +334,9 @@
                 </div>
                 <div class="version-info">
                     <a href="https://github.com/NewbGoob/overlog" target="_blank" rel="noopener noreferrer" id="appVersion">Version 1.1.0 (local)</a>
+                    <button id="changelogBtn" class="changelog-btn" title="View Changelog">
+                        <img src="assets/icons/info.svg" alt="Changelog" class="changelog-icon">
+                    </button>
                 </div>
             </div>
         </footer>

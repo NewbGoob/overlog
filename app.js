@@ -2597,6 +2597,39 @@ function closeSettingsModal() {
     }
 }
 
+// Open changelog modal
+async function openChangelogModal() {
+    const modal = document.getElementById('changelogModal');
+    const content = document.getElementById('changelogContent');
+    if (!modal || !content) return;
+
+    modal.style.display = 'flex';
+
+    // Fetch and display changelog
+    const changelogText = await loadChangelog();
+    content.textContent = changelogText;
+}
+
+// Close changelog modal
+function closeChangelogModal() {
+    const modal = document.getElementById('changelogModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// Load changelog from file
+async function loadChangelog() {
+    try {
+        const response = await fetch('CHANGELOG.md');
+        const text = await response.text();
+        return text;
+    } catch (error) {
+        console.error('Failed to load changelog:', error);
+        return 'Failed to load changelog. Please visit the GitHub repository.';
+    }
+}
+
 // Update keyboard shortcuts subsection visibility
 function updateKeyboardShortcutsSubsection() {
     const masterToggle = document.getElementById('settingKeyboardShortcutsEnabled');
@@ -2740,6 +2773,28 @@ function setupSettingsListeners() {
         modal.addEventListener('click', (e) => {
             if (e.target === modal) {
                 closeSettingsModal();
+            }
+        });
+    }
+
+    // Changelog button
+    const changelogBtn = document.getElementById('changelogBtn');
+    if (changelogBtn) {
+        changelogBtn.addEventListener('click', openChangelogModal);
+    }
+
+    // Close changelog button
+    const closeChangelogBtn = document.getElementById('closeChangelogBtn');
+    if (closeChangelogBtn) {
+        closeChangelogBtn.addEventListener('click', closeChangelogModal);
+    }
+
+    // Click outside changelog modal to close
+    const changelogModal = document.getElementById('changelogModal');
+    if (changelogModal) {
+        changelogModal.addEventListener('click', (e) => {
+            if (e.target === changelogModal) {
+                closeChangelogModal();
             }
         });
     }

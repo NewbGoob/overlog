@@ -1215,6 +1215,38 @@ body.theme-light {
     filter: brightness(0) saturate(100%) invert(60%) sepia(67%) saturate(3476%) hue-rotate(343deg) brightness(102%) contrast(99%);
 }
 
+.changelog-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    padding: 4px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 8px;
+    vertical-align: middle;
+    opacity: 0.6;
+}
+
+.changelog-btn:hover {
+    opacity: 1;
+    border-color: var(--accent-primary);
+    transform: translateY(-1px);
+}
+
+.changelog-icon {
+    width: 14px;
+    height: 14px;
+    filter: brightness(0) saturate(100%) invert(64%) sepia(8%) saturate(366%) hue-rotate(353deg) brightness(91%) contrast(87%);
+    transition: all 0.3s ease;
+}
+
+.changelog-btn:hover .changelog-icon {
+    filter: brightness(0) saturate(100%) invert(60%) sepia(67%) saturate(3476%) hue-rotate(343deg) brightness(102%) contrast(99%);
+}
+
 .theme-toggle-btn {
     background: transparent;
     border: 1px solid transparent;
@@ -1389,6 +1421,19 @@ body.theme-light .theme-icon-moon {
 
 .modal-body::-webkit-scrollbar-thumb:hover {
     background: var(--accent-primary);
+}
+
+.changelog-text {
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+    line-height: 1.6;
+    color: var(--text-primary);
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    background: var(--bg-tertiary);
+    padding: 15px;
+    border-radius: 8px;
+    margin: 0;
 }
 
 .modal-footer {
