@@ -109,7 +109,9 @@ export const DEFAULT_SETTINGS = {
     showMatchSavedNotification: true, // Show toast when match is saved
     showSessionNotification: true, // Show toast when session is reset
     showDrawButton: true, // Show or hide the draw button
-    limitStadiumHeroSelection: true // Limit to 1 hero in Stadium modes
+    limitStadiumHeroSelection: true, // Limit to 1 hero in Stadium modes
+    matchesPerPage: 10, // Number of matches to display per page (5, 10, 25, 50)
+    showHeroes: true // Show or hide hero selection sections
 };
 
 // Create initial state structure
@@ -124,6 +126,8 @@ export function createInitialState() {
         recentHeroes: [], // Track 4 most recently used heroes
         settings: { ...DEFAULT_SETTINGS }, // User settings
         statsView: 'all-time', // 'all-time' or 'session'
+        matchHistoryView: 'all-time', // 'all-time' or 'session' - filter for match history
+        matchHistoryPage: 1, // Current page number for match history pagination
         // Keyboard navigation focus
         focusZone: null, // 'match-type-toggle', 'parent', 'child', 'result', 'recent-heroes', 'hero-toggle', 'heroes', 'clear-heroes', 'save', or null when defocused
         focusIndex: 0,

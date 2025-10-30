@@ -90,6 +90,12 @@ export function loadData() {
     if (savedStatsView && (savedStatsView === 'all-time' || savedStatsView === 'session')) {
         state.statsView = savedStatsView;
     }
+
+    // Load match history view preference
+    const savedMatchHistoryView = localStorage.getItem('owMatchHistoryView');
+    if (savedMatchHistoryView && (savedMatchHistoryView === 'all-time' || savedMatchHistoryView === 'session')) {
+        state.matchHistoryView = savedMatchHistoryView;
+    }
 }
 
 // Load settings from localStorage

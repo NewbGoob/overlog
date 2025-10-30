@@ -47,6 +47,7 @@ import {
     getResultText as getResultTextFromModule,
     updateResultButtonLabels as updateResultButtonLabelsFromModule,
     updateDrawButtonVisibility as updateDrawButtonVisibilityFromModule,
+    updateHeroSectionsVisibility as updateHeroSectionsVisibilityFromModule,
     getMatchTypeDisplayLabel as getMatchTypeDisplayLabelFromModule,
     initUIRenderer
 } from './ui-renderer.js';
@@ -156,6 +157,7 @@ function removeToast(toast) {
 const getResultText = getResultTextFromModule;
 const updateResultButtonLabels = updateResultButtonLabelsFromModule;
 const updateDrawButtonVisibility = updateDrawButtonVisibilityFromModule;
+const updateHeroSectionsVisibility = updateHeroSectionsVisibilityFromModule;
 const getMatchTypeDisplayLabel = getMatchTypeDisplayLabelFromModule;
 
 // ============================================
@@ -540,8 +542,10 @@ function openSettingsModal() {
     document.getElementById('settingLimitStadiumHeroSelection').checked = state.settings.limitStadiumHeroSelection;
     document.getElementById('settingRecentHeroesCount').value = state.settings.recentHeroesCount;
     document.getElementById('recentHeroesCountValue').textContent = state.settings.recentHeroesCount;
+    document.getElementById('settingMatchesPerPage').value = state.settings.matchesPerPage;
     document.getElementById('settingUseOwStyleText').checked = state.settings.useOwStyleText;
     document.getElementById('settingShowDrawButton').checked = state.settings.showDrawButton;
+    document.getElementById('settingShowHeroes').checked = state.settings.showHeroes;
     document.getElementById('settingShowMatchSavedNotification').checked = state.settings.showMatchSavedNotification;
     document.getElementById('settingShowSessionNotification').checked = state.settings.showSessionNotification;
     document.getElementById('settingSessionAutoReset').value = state.settings.sessionAutoReset;
@@ -576,8 +580,11 @@ function saveSettingsFromModal() {
     state.settings.rememberHeroSelection = document.getElementById('settingRememberHeroSelection').checked;
     state.settings.limitStadiumHeroSelection = document.getElementById('settingLimitStadiumHeroSelection').checked;
     state.settings.recentHeroesCount = parseInt(document.getElementById('settingRecentHeroesCount').value);
+    const matchesPerPageValue = document.getElementById('settingMatchesPerPage').value;
+    state.settings.matchesPerPage = matchesPerPageValue === 'all' ? 'all' : parseInt(matchesPerPageValue);
     state.settings.useOwStyleText = document.getElementById('settingUseOwStyleText').checked;
     state.settings.showDrawButton = document.getElementById('settingShowDrawButton').checked;
+    state.settings.showHeroes = document.getElementById('settingShowHeroes').checked;
     state.settings.showMatchSavedNotification = document.getElementById('settingShowMatchSavedNotification').checked;
     state.settings.showSessionNotification = document.getElementById('settingShowSessionNotification').checked;
     state.settings.sessionAutoReset = document.getElementById('settingSessionAutoReset').value;
@@ -596,6 +603,7 @@ function saveSettingsFromModal() {
     renderRecentHeroes();
     updateResultButtonLabels(); // Update result button labels
     updateDrawButtonVisibility(); // Update draw button visibility
+    updateHeroSectionsVisibility(); // Update hero sections visibility
     updateSelectionDisplay(); // Update result text display
     updateMatchList(); // Update match list to reflect new text style
 
@@ -984,6 +992,34 @@ function setupEventListeners() {
         localStorage.setItem('owStatsView', state.statsView);
         updateStats();
     });
+
+    // Match history toggle buttons
+    document.getElementById('matchHistoryToggleAllTime').addEventListener('click', () => {
+        state.matchHistoryView = 'all-time';
+        state.matchHistoryPage = 1; // Reset to first page
+        localStorage.setItem('owMatchHistoryView', state.matchHistoryView);
+        updateMatchList();
+    });
+
+    document.getElementById('matchHistoryToggleSession').addEventListener('click', () => {
+        state.matchHistoryView = 'session';
+        state.matchHistoryPage = 1; // Reset to first page
+        localStorage.setItem('owMatchHistoryView', state.matchHistoryView);
+        updateMatchList();
+    });
+
+    // Pagination controls
+    document.getElementById('prevPageBtn').addEventListener('click', () => {
+        if (state.matchHistoryPage > 1) {
+            state.matchHistoryPage--;
+            updateMatchList();
+        }
+    });
+
+    document.getElementById('nextPageBtn').addEventListener('click', () => {
+        state.matchHistoryPage++;
+        updateMatchList();
+    });
 }
 
 // ============================================
@@ -1086,6 +1122,9 @@ function init() {
 
     // Update draw button visibility based on settings
     updateDrawButtonVisibility();
+
+    // Update hero sections visibility based on settings
+    updateHeroSectionsVisibility();
 
     const saveBtn = document.getElementById('saveBtn');
     saveBtn.classList.remove('win', 'loss', 'draw');

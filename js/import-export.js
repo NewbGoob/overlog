@@ -295,7 +295,8 @@ export function importFromJSON(jsonString) {
 
         alert(message);
 
-        // Force UI update after alert
+        // Reset to first page and force UI update after alert
+        state.matchHistoryPage = 1;
         updateUI();
         updateStats();
         updateSessionInfo();
@@ -427,7 +428,8 @@ export function importFromCSV(csvString) {
 
         alert(`Import complete!\n${imported} matches imported, ${skipped} skipped.`);
 
-        // Force UI update after alert
+        // Reset to first page and force UI update after alert
+        state.matchHistoryPage = 1;
         updateUI();
         updateStats();
         updateSessionInfo();
@@ -469,6 +471,7 @@ export function handleImportFile() {
 export function clearAllData() {
     if (confirm('Are you sure you want to clear ALL match data? This cannot be undone!')) {
         state.matches = [];
+        state.matchHistoryPage = 1; // Reset to first page
         state.sessionStartTime = new Date();
         localStorage.setItem('owSessionStart', state.sessionStartTime.toISOString());
         saveData();

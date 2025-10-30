@@ -44,7 +44,8 @@ export function saveMatch() {
         childType: state.selectedChildType || null,
         result: state.selectedResult,
         heroes: [...state.selectedHeroes], // Copy the array
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        sessionId: state.sessionStartTime ? state.sessionStartTime.getTime() : Date.now()
     };
 
     state.matches.unshift(match); // Add to beginning of array
@@ -113,6 +114,9 @@ export function saveMatch() {
     state.focusZone = 'result';
     state.focusIndex = 0;
 
+    // Reset to first page to show newly saved match
+    state.matchHistoryPage = 1;
+
     updateSelectionDisplay();
     updateSaveButton();
     updateUI();
@@ -139,6 +143,7 @@ export function undoLastMatch() {
     }
 
     state.matches.shift(); // Remove first (most recent) match
+    state.matchHistoryPage = 1; // Reset to first page
     saveData();
     updateUI();
 }
@@ -147,6 +152,7 @@ export function undoLastMatch() {
 export function deleteMatch(id) {
     if (confirm('Delete this match?')) {
         state.matches = state.matches.filter(match => match.id !== id);
+        state.matchHistoryPage = 1; // Reset to first page
         saveData();
         updateUI();
     }

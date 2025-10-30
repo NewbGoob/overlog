@@ -104,6 +104,12 @@ export function renderRecentHeroes() {
     const container = document.getElementById('recentHeroesContainer');
     if (!container) return;
 
+    // Check if heroes are disabled in settings
+    if (!state.settings.showHeroes) {
+        container.style.display = 'none';
+        return;
+    }
+
     // Get the count from settings (0 means hide recent heroes)
     const count = state.settings.recentHeroesCount;
 
@@ -239,13 +245,71 @@ export function startNewSession() {
 // Update match list
 export function updateMatchList() {
     const matchList = document.getElementById('matchList');
+    const paginationControls = document.getElementById('paginationControls');
+    const prevPageBtn = document.getElementById('prevPageBtn');
+    const nextPageBtn = document.getElementById('nextPageBtn');
+    const pageInfo = document.getElementById('pageInfo');
 
-    if (state.matches.length === 0) {
+    // Update filter toggle buttons active state
+    document.getElementById('matchHistoryToggleAllTime').classList.toggle('active', state.matchHistoryView === 'all-time');
+    document.getElementById('matchHistoryToggleSession').classList.toggle('active', state.matchHistoryView === 'session');
+
+    // Filter matches based on current view
+    let filteredMatches;
+    if (state.matchHistoryView === 'session') {
+        // Filter by session - use sessionId if available, otherwise fall back to timestamp comparison
+        const currentSessionId = state.sessionStartTime ? state.sessionStartTime.getTime() : null;
+        filteredMatches = state.matches.filter(match => {
+            if (match.sessionId !== undefined) {
+                // New format: use sessionId
+                return match.sessionId === currentSessionId;
+            } else {
+                // Legacy format: use timestamp comparison
+                const matchDate = new Date(match.timestamp);
+                return matchDate >= state.sessionStartTime;
+            }
+        });
+    } else {
+        // Show all matches
+        filteredMatches = state.matches;
+    }
+
+    // Handle empty state
+    if (filteredMatches.length === 0) {
         matchList.innerHTML = '<p class="empty-state">No matches logged yet. Start logging!</p>';
+        paginationControls.style.display = 'none';
         return;
     }
 
-    matchList.innerHTML = state.matches.map(match => {
+    // Calculate pagination
+    const matchesPerPage = state.settings.matchesPerPage;
+    let paginatedMatches;
+    let totalPages = 1;
+
+    if (matchesPerPage === 'all') {
+        // Show all matches without pagination
+        paginatedMatches = filteredMatches;
+        paginationControls.style.display = 'none';
+    } else {
+        // Paginate matches
+        totalPages = Math.ceil(filteredMatches.length / matchesPerPage);
+
+        // Ensure current page is valid
+        if (state.matchHistoryPage > totalPages) {
+            state.matchHistoryPage = totalPages;
+        }
+        if (state.matchHistoryPage < 1) {
+            state.matchHistoryPage = 1;
+        }
+
+        // Get matches for current page
+        const startIndex = (state.matchHistoryPage - 1) * matchesPerPage;
+        const endIndex = startIndex + matchesPerPage;
+        paginatedMatches = filteredMatches.slice(startIndex, endIndex);
+    }
+
+    // Render matches
+    matchList.innerHTML = paginatedMatches.map(match => {
         const date = new Date(match.timestamp);
         const timeStr = formatTime(date);
 
@@ -292,6 +356,16 @@ export function updateMatchList() {
             </div>
         `;
     }).join('');
+
+    // Update pagination controls
+    if (matchesPerPage !== 'all' && totalPages > 1) {
+        paginationControls.style.display = 'flex';
+        pageInfo.textContent = `Page ${state.matchHistoryPage} of ${totalPages}`;
+        prevPageBtn.disabled = state.matchHistoryPage === 1;
+        nextPageBtn.disabled = state.matchHistoryPage === totalPages;
+    } else {
+        paginationControls.style.display = 'none';
+    }
 }
 
 // Update undo button state
@@ -372,6 +446,29 @@ export function updateDrawButtonVisibility() {
         // If draw was selected, clear it
         if (state.selectedResult === 'draw') {
             state.selectedResult = null;
+            updateSelectionDisplay();
+            updateSaveButton();
+        }
+    }
+}
+
+// Update hero sections visibility based on settings
+export function updateHeroSectionsVisibility() {
+    const recentHeroesContainer = document.getElementById('recentHeroesContainer');
+    const heroSectionWrapper = document.querySelector('.hero-section-wrapper');
+
+    if (!recentHeroesContainer || !heroSectionWrapper) return;
+
+    if (state.settings.showHeroes) {
+        recentHeroesContainer.style.display = '';
+        heroSectionWrapper.style.display = '';
+    } else {
+        recentHeroesContainer.style.display = 'none';
+        heroSectionWrapper.style.display = 'none';
+
+        // If heroes were selected, clear them
+        if (state.selectedHeroes.length > 0) {
+            state.selectedHeroes = [];
             updateSelectionDisplay();
             updateSaveButton();
         }

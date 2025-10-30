@@ -73,18 +73,6 @@
                     </div>
                 </div>
 
-                <div class="result-buttons">
-                    <button class="result-btn win" data-result="win" data-key="w">
-                        Win
-                    </button>
-                    <button class="result-btn loss" data-result="loss" data-key="l">
-                        Loss
-                    </button>
-                    <button class="result-btn draw" data-result="draw" data-key="d">
-                        Draw
-                    </button>
-                </div>
-
                 <!-- Recent Heroes -->
                 <div id="recentHeroesContainer" class="recent-heroes-container" style="display: none;">
                     <div class="recent-heroes-header">Recent Heroes:</div>
@@ -106,6 +94,18 @@
                         </div>
                         <button id="clearHeroesBtn" class="clear-heroes-btn">Clear Heroes</button>
                     </div>
+                </div>
+
+                <div class="result-buttons">
+                    <button class="result-btn win" data-result="win" data-key="w">
+                        Win
+                    </button>
+                    <button class="result-btn loss" data-result="loss" data-key="l">
+                        Loss
+                    </button>
+                    <button class="result-btn draw" data-result="draw" data-key="d">
+                        Draw
+                    </button>
                 </div>
 
                 <button id="saveBtn" class="save-btn" disabled>
@@ -142,11 +142,22 @@
                 </div>
             </section>
 
-            <!-- Recent Matches Section -->
+            <!-- Match History Section -->
             <section class="recent-matches">
-                <h2>Recent Matches</h2>
+                <div class="stats-header">
+                    <h2>Match History</h2>
+                    <div class="stats-toggle">
+                        <button id="matchHistoryToggleAllTime" class="stats-toggle-btn active">All Time</button>
+                        <button id="matchHistoryToggleSession" class="stats-toggle-btn">This Session</button>
+                    </div>
+                </div>
                 <div id="matchList" class="match-list">
                     <p class="empty-state">No matches logged yet. Start logging!</p>
+                </div>
+                <div id="paginationControls" class="pagination-controls" style="display: none;">
+                    <button id="prevPageBtn" class="pagination-btn" disabled>← Previous</button>
+                    <span id="pageInfo" class="page-info">Page 1 of 1</span>
+                    <button id="nextPageBtn" class="pagination-btn" disabled>Next →</button>
                 </div>
             </section>
         </main>
@@ -181,6 +192,19 @@
                         </div>
                         <div class="settings-group">
                             <label class="setting-label">
+                                <span class="setting-name">Matches Per Page</span>
+                                <select id="settingMatchesPerPage" class="setting-select">
+                                    <option value="5">5</option>
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="all">All</option>
+                                </select>
+                            </label>
+                            <p class="setting-description">Number of matches to display per page in Match History</p>
+                        </div>
+                        <div class="settings-group">
+                            <label class="setting-label">
                                 <span class="setting-name">Use Overwatch-Style Text</span>
                                 <input type="checkbox" id="settingUseOwStyleText" class="setting-checkbox">
                             </label>
@@ -192,6 +216,13 @@
                                 <input type="checkbox" id="settingShowDrawButton" class="setting-checkbox">
                             </label>
                             <p class="setting-description">Show the draw button (disable if draws are not possible in your game mode)</p>
+                        </div>
+                        <div class="settings-group">
+                            <label class="setting-label">
+                                <span class="setting-name">Show Heroes</span>
+                                <input type="checkbox" id="settingShowHeroes" class="setting-checkbox">
+                            </label>
+                            <p class="setting-description">Show hero selection sections (Recent Heroes and Add Heroes)</p>
                         </div>
                         <div class="settings-group">
                             <label class="setting-label">
