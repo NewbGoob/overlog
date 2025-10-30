@@ -5,6 +5,23 @@ All notable changes to Overlog will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2025-10-30
+### Changed
+- **Code Architecture:** Refactored monolithic app.js (2,924 lines) into modular ES6 structure with 8 focused modules
+  - `config.js` - Configuration and constants
+  - `state.js` - Shared application state
+  - `storage.js` - localStorage operations and storage management
+  - `keyboard-navigation.js` - Complete WASD navigation system
+  - `import-export.js` - CSV/JSON import/export functionality
+  - `match-manager.js` - Match saving and management
+  - `ui-renderer.js` - UI rendering and statistics
+  - `app.js` - Main application initialization and coordination
+- Optimized for AI agent context management (75-90% reduction in context size for targeted tasks)
+- Improved code maintainability and organization
+- No user-facing changes - all functionality preserved
+- No build step required - native ES6 modules work directly in modern browsers
+- Fully compatible with GitHub Pages deployment
+
 ## [1.3.2] - 2025-10-30
 ### Fixed
 - Result buttons no longer deselect when clicking on hero buttons, recent hero buttons, or the Show/Hide Heroes toggle
@@ -72,6 +89,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Version display in footer with commit hash
 - GitHub Actions deployment workflow
 
+[1.4.0]: https://github.com/NewbGoob/overlog/compare/v1.3.2...v1.4.0
 [1.3.2]: https://github.com/NewbGoob/overlog/compare/v1.3.1...v1.3.2
 [1.3.1]: https://github.com/NewbGoob/overlog/compare/v1.3.0...v1.3.1
 [1.3.0]: https://github.com/NewbGoob/overlog/compare/v1.2.0...v1.3.0
