@@ -166,6 +166,18 @@ const getMatchTypeDisplayLabel = getMatchTypeDisplayLabelFromModule;
 
 // Toggle hero selection
 function toggleHero(heroId) {
+    // Check if hero is disabled (non-Stadium hero in Stadium mode)
+    const isStadiumMode = state.selectedParentType === 'stadium';
+    const disableSetting = state.settings.disableNonStadiumHeroes;
+
+    if (isStadiumMode && disableSetting !== 'none') {
+        const hero = CONFIG.heroes.find(h => h.id === heroId);
+        if (hero && !hero.stadiumAvailable) {
+            // Hero is disabled, don't allow selection
+            return;
+        }
+    }
+
     const index = state.selectedHeroes.indexOf(heroId);
     if (index > -1) {
         // Remove if already selected
@@ -173,7 +185,6 @@ function toggleHero(heroId) {
     } else {
         // Add if not selected
         // Check if we're in Stadium mode with the limit enabled
-        const isStadiumMode = state.selectedParentType === 'stadium';
         const limitStadiumHeroes = state.settings.limitStadiumHeroSelection;
 
         if (isStadiumMode && limitStadiumHeroes && state.selectedHeroes.length > 0) {
@@ -333,12 +344,28 @@ function selectParentType(parentId) {
     // Check if switching to Stadium mode with hero limit enabled
     const isStadiumMode = parentId === 'stadium';
     const limitStadiumHeroes = state.settings.limitStadiumHeroSelection;
+    const disableSetting = state.settings.disableNonStadiumHeroes;
 
-    if (isStadiumMode && limitStadiumHeroes && state.selectedHeroes.length > 1) {
-        // Keep only the first selected hero
-        state.selectedHeroes = [state.selectedHeroes[0]];
-        updateHeroButtons();
+    if (isStadiumMode) {
+        // Clear non-Stadium heroes if disable setting is active
+        if (disableSetting !== 'none') {
+            state.selectedHeroes = state.selectedHeroes.filter(heroId => {
+                const hero = CONFIG.heroes.find(h => h.id === heroId);
+                return hero && hero.stadiumAvailable;
+            });
+        }
+
+        // Apply hero limit if enabled
+        if (limitStadiumHeroes && state.selectedHeroes.length > 1) {
+            // Keep only the first selected hero
+            state.selectedHeroes = [state.selectedHeroes[0]];
+        }
     }
+
+    // Re-render hero buttons to update disabled states
+    renderHeroButtons();
+    renderRecentHeroes();
+    updateHeroButtons();
 
     // Update UI - highlight selected parent
     document.querySelectorAll('.parent-type-btn').forEach(btn => {
@@ -571,6 +598,7 @@ function openSettingsModal() {
     document.getElementById('settingAutoCollapseHero').checked = state.settings.autoCollapseHero;
     document.getElementById('settingRememberHeroSelection').checked = state.settings.rememberHeroSelection;
     document.getElementById('settingLimitStadiumHeroSelection').checked = state.settings.limitStadiumHeroSelection;
+    document.getElementById('settingDisableNonStadiumHeroes').value = state.settings.disableNonStadiumHeroes;
     document.getElementById('settingRecentHeroesCount').value = state.settings.recentHeroesCount;
     document.getElementById('recentHeroesCountValue').textContent = state.settings.recentHeroesCount;
     document.getElementById('settingMatchesPerPage').value = state.settings.matchesPerPage;
@@ -612,6 +640,7 @@ function saveSettingsFromModal() {
     state.settings.autoCollapseHero = document.getElementById('settingAutoCollapseHero').checked;
     state.settings.rememberHeroSelection = document.getElementById('settingRememberHeroSelection').checked;
     state.settings.limitStadiumHeroSelection = document.getElementById('settingLimitStadiumHeroSelection').checked;
+    state.settings.disableNonStadiumHeroes = document.getElementById('settingDisableNonStadiumHeroes').value;
     state.settings.recentHeroesCount = parseInt(document.getElementById('settingRecentHeroesCount').value);
     const matchesPerPageValue = document.getElementById('settingMatchesPerPage').value;
     state.settings.matchesPerPage = matchesPerPageValue === 'all' ? 'all' : parseInt(matchesPerPageValue);
@@ -633,6 +662,15 @@ function saveSettingsFromModal() {
 
     // Apply theme change
     applyTheme(state.settings.theme);
+
+    // Clear invalid hero selections if in Stadium mode with disable setting active
+    const isStadiumMode = state.selectedParentType === 'stadium';
+    if (isStadiumMode && state.settings.disableNonStadiumHeroes !== 'none') {
+        state.selectedHeroes = state.selectedHeroes.filter(heroId => {
+            const hero = CONFIG.heroes.find(h => h.id === heroId);
+            return hero && hero.stadiumAvailable;
+        });
+    }
 
     // Update UI based on new settings
     renderHeroButtons(); // Re-render hero buttons to show/hide portraits

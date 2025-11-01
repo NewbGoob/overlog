@@ -72,15 +72,27 @@ export function renderHeroButtons() {
     };
 
     const showPortraits = state.settings.showHeroPortraits;
+    const isStadiumMode = state.selectedParentType === 'stadium';
+    const disableSetting = state.settings.disableNonStadiumHeroes;
 
     const renderHeroButton = (hero) => {
+        // Check if hero should be hidden in Stadium mode
+        if (isStadiumMode && disableSetting === 'hide' && !hero.stadiumAvailable) {
+            return ''; // Skip rendering this hero
+        }
+
+        // Determine if hero should be disabled
+        const isDisabled = isStadiumMode && disableSetting === 'dim' && !hero.stadiumAvailable;
+        const disabledClass = isDisabled ? ' disabled' : '';
+        const tooltipAttr = isDisabled ? ' title="Not available in Stadium mode"' : '';
+
         if (showPortraits && hero.portrait) {
-            return `<button class="hero-btn with-portrait" data-hero="${hero.id}">
+            return `<button class="hero-btn with-portrait${disabledClass}" data-hero="${hero.id}"${tooltipAttr}>
                         <img src="assets/images/heroes/${hero.portrait}" alt="${hero.name}" class="hero-portrait">
                         <span class="hero-name">${hero.name}</span>
                     </button>`;
         } else {
-            return `<button class="hero-btn" data-hero="${hero.id}">${hero.name}</button>`;
+            return `<button class="hero-btn${disabledClass}" data-hero="${hero.id}"${tooltipAttr}>${hero.name}</button>`;
         }
     };
 
@@ -148,24 +160,41 @@ export function renderRecentHeroes() {
     container.style.display = 'block';
     const recentHeroesButtons = document.getElementById('recentHeroesButtons');
 
-    // Slice to show only the configured number of recent heroes
-    const heroesToShow = state.recentHeroes.slice(0, count);
-
+    const isStadiumMode = state.selectedParentType === 'stadium';
+    const disableSetting = state.settings.disableNonStadiumHeroes;
     const showPortraits = state.settings.showHeroPortraits;
 
-    recentHeroesButtons.innerHTML = heroesToShow.map(heroId => {
-        const hero = CONFIG.heroes.find(h => h.id === heroId);
-        if (!hero) return '';
+    let heroesToShow;
 
-        const isSelected = state.selectedHeroes.includes(heroId);
+    // Handle backfill for Stadium mode with hide setting
+    if (isStadiumMode && disableSetting === 'hide') {
+        // Scan full recent heroes history to find Stadium-valid heroes
+        heroesToShow = state.recentHeroes
+            .map(heroId => CONFIG.heroes.find(h => h.id === heroId))
+            .filter(hero => hero && hero.stadiumAvailable)
+            .slice(0, count);
+    } else {
+        // Normal behavior: just slice to the configured count
+        heroesToShow = state.recentHeroes.slice(0, count)
+            .map(heroId => CONFIG.heroes.find(h => h.id === heroId))
+            .filter(hero => hero);
+    }
+
+    recentHeroesButtons.innerHTML = heroesToShow.map(hero => {
+        const isSelected = state.selectedHeroes.includes(hero.id);
+
+        // Apply disabled class for dim mode
+        const isDisabled = isStadiumMode && disableSetting === 'dim' && !hero.stadiumAvailable;
+        const disabledClass = isDisabled ? ' disabled' : '';
+        const tooltipAttr = isDisabled ? ' title="Not available in Stadium mode"' : '';
 
         if (showPortraits && hero.portrait) {
-            return `<button class="hero-btn recent-hero-btn with-portrait ${isSelected ? 'active' : ''}" data-hero="${heroId}">
+            return `<button class="hero-btn recent-hero-btn with-portrait${disabledClass} ${isSelected ? 'active' : ''}" data-hero="${hero.id}"${tooltipAttr}>
                         <img src="assets/images/heroes/${hero.portrait}" alt="${hero.name}" class="hero-portrait">
                         <span class="hero-name">${hero.name}</span>
                     </button>`;
         } else {
-            return `<button class="hero-btn recent-hero-btn ${isSelected ? 'active' : ''}" data-hero="${heroId}">${hero.name}</button>`;
+            return `<button class="hero-btn recent-hero-btn${disabledClass} ${isSelected ? 'active' : ''}" data-hero="${hero.id}"${tooltipAttr}>${hero.name}</button>`;
         }
     }).join('');
 

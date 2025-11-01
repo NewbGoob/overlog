@@ -42,54 +42,54 @@ export const CONFIG = {
 
     heroes: [
         // Tank
-        { id: 'dva', name: 'D.Va', role: 'tank', portrait: 'dva.png' },
-        { id: 'doomfist', name: 'Doomfist', role: 'tank', portrait: 'doomfist.png' },
-        { id: 'hazard', name: 'Hazard', role: 'tank', portrait: 'hazard.png' },
-        { id: 'junkerqueen', name: 'Junker Queen', role: 'tank', portrait: 'junkerqueen.png' },
-        { id: 'mauga', name: 'Mauga', role: 'tank', portrait: 'mauga.png' },
-        { id: 'orisa', name: 'Orisa', role: 'tank', portrait: 'orisa.png' },
-        { id: 'ramattra', name: 'Ramattra', role: 'tank', portrait: 'ramattra.png' },
-        { id: 'reinhardt', name: 'Reinhardt', role: 'tank', portrait: 'reinhardt.png' },
-        { id: 'roadhog', name: 'Roadhog', role: 'tank', portrait: 'roadhog.png' },
-        { id: 'sigma', name: 'Sigma', role: 'tank', portrait: 'sigma.png' },
-        { id: 'winston', name: 'Winston', role: 'tank', portrait: 'winston.png' },
-        { id: 'wreckingball', name: 'Wrecking Ball', role: 'tank', portrait: 'wrecking-ball.png' },
-        { id: 'zarya', name: 'Zarya', role: 'tank', portrait: 'zarya.png' },
+        { id: 'dva', name: 'D.Va', role: 'tank', portrait: 'dva.png', stadiumAvailable: true },
+        { id: 'doomfist', name: 'Doomfist', role: 'tank', portrait: 'doomfist.png', stadiumAvailable: false },
+        { id: 'hazard', name: 'Hazard', role: 'tank', portrait: 'hazard.png', stadiumAvailable: true },
+        { id: 'junkerqueen', name: 'Junker Queen', role: 'tank', portrait: 'junkerqueen.png', stadiumAvailable: true },
+        { id: 'mauga', name: 'Mauga', role: 'tank', portrait: 'mauga.png', stadiumAvailable: false },
+        { id: 'orisa', name: 'Orisa', role: 'tank', portrait: 'orisa.png', stadiumAvailable: true },
+        { id: 'ramattra', name: 'Ramattra', role: 'tank', portrait: 'ramattra.png', stadiumAvailable: false },
+        { id: 'reinhardt', name: 'Reinhardt', role: 'tank', portrait: 'reinhardt.png', stadiumAvailable: true },
+        { id: 'roadhog', name: 'Roadhog', role: 'tank', portrait: 'roadhog.png', stadiumAvailable: false },
+        { id: 'sigma', name: 'Sigma', role: 'tank', portrait: 'sigma.png', stadiumAvailable: true },
+        { id: 'winston', name: 'Winston', role: 'tank', portrait: 'winston.png', stadiumAvailable: true },
+        { id: 'wreckingball', name: 'Wrecking Ball', role: 'tank', portrait: 'wrecking-ball.png', stadiumAvailable: false },
+        { id: 'zarya', name: 'Zarya', role: 'tank', portrait: 'zarya.png', stadiumAvailable: true },
 
         // Damage
-        { id: 'ashe', name: 'Ashe', role: 'damage', portrait: 'ashe.png' },
-        { id: 'bastion', name: 'Bastion', role: 'damage', portrait: 'bastion.png' },
-        { id: 'cassidy', name: 'Cassidy', role: 'damage', portrait: 'cassidy.png' },
-        { id: 'echo', name: 'Echo', role: 'damage', portrait: 'echo.png' },
-        { id: 'freja', name: 'Freja', role: 'damage', portrait: 'freja.png' },
-        { id: 'genji', name: 'Genji', role: 'damage', portrait: 'genji.png' },
-        { id: 'hanzo', name: 'Hanzo', role: 'damage', portrait: 'hanzo.png' },
-        { id: 'junkrat', name: 'Junkrat', role: 'damage', portrait: 'junkrat.png' },
-        { id: 'mei', name: 'Mei', role: 'damage', portrait: 'mei.png' },
-        { id: 'pharah', name: 'Pharah', role: 'damage', portrait: 'pharah.png' },
-        { id: 'reaper', name: 'Reaper', role: 'damage', portrait: 'reaper.png' },
-        { id: 'sojourn', name: 'Sojourn', role: 'damage', portrait: 'sojourn.png' },
-        { id: 'soldier76', name: 'Soldier: 76', role: 'damage', portrait: 'soldier-76.png' },
-        { id: 'sombra', name: 'Sombra', role: 'damage', portrait: 'sombra.png' },
-        { id: 'symmetra', name: 'Symmetra', role: 'damage', portrait: 'symetra.png' },
-        { id: 'torbjorn', name: 'Torbjörn', role: 'damage', portrait: 'torbjorn.png' },
-        { id: 'tracer', name: 'Tracer', role: 'damage', portrait: 'tracer.png' },
-        { id: 'venture', name: 'Venture', role: 'damage', portrait: 'venture.png' },
-        { id: 'widowmaker', name: 'Widowmaker', role: 'damage', portrait: 'widowmaker.png' },
+        { id: 'ashe', name: 'Ashe', role: 'damage', portrait: 'ashe.png', stadiumAvailable: true },
+        { id: 'bastion', name: 'Bastion', role: 'damage', portrait: 'bastion.png', stadiumAvailable: false },
+        { id: 'cassidy', name: 'Cassidy', role: 'damage', portrait: 'cassidy.png', stadiumAvailable: true },
+        { id: 'echo', name: 'Echo', role: 'damage', portrait: 'echo.png', stadiumAvailable: false },
+        { id: 'freja', name: 'Freja', role: 'damage', portrait: 'freja.png', stadiumAvailable: true },
+        { id: 'genji', name: 'Genji', role: 'damage', portrait: 'genji.png', stadiumAvailable: true },
+        { id: 'hanzo', name: 'Hanzo', role: 'damage', portrait: 'hanzo.png', stadiumAvailable: false },
+        { id: 'junkrat', name: 'Junkrat', role: 'damage', portrait: 'junkrat.png', stadiumAvailable: true },
+        { id: 'mei', name: 'Mei', role: 'damage', portrait: 'mei.png', stadiumAvailable: true },
+        { id: 'pharah', name: 'Pharah', role: 'damage', portrait: 'pharah.png', stadiumAvailable: true },
+        { id: 'reaper', name: 'Reaper', role: 'damage', portrait: 'reaper.png', stadiumAvailable: true },
+        { id: 'sojourn', name: 'Sojourn', role: 'damage', portrait: 'sojourn.png', stadiumAvailable: true },
+        { id: 'soldier76', name: 'Soldier: 76', role: 'damage', portrait: 'soldier-76.png', stadiumAvailable: true },
+        { id: 'sombra', name: 'Sombra', role: 'damage', portrait: 'sombra.png', stadiumAvailable: false },
+        { id: 'symmetra', name: 'Symmetra', role: 'damage', portrait: 'symetra.png', stadiumAvailable: false },
+        { id: 'torbjorn', name: 'Torbjörn', role: 'damage', portrait: 'torbjorn.png', stadiumAvailable: true },
+        { id: 'tracer', name: 'Tracer', role: 'damage', portrait: 'tracer.png', stadiumAvailable: true },
+        { id: 'venture', name: 'Venture', role: 'damage', portrait: 'venture.png', stadiumAvailable: false },
+        { id: 'widowmaker', name: 'Widowmaker', role: 'damage', portrait: 'widowmaker.png', stadiumAvailable: false },
 
         // Support
-        { id: 'ana', name: 'Ana', role: 'support', portrait: 'ana.png' },
-        { id: 'baptiste', name: 'Baptiste', role: 'support', portrait: 'baptiste.png' },
-        { id: 'brigitte', name: 'Brigitte', role: 'support', portrait: 'brigitte.png' },
-        { id: 'illari', name: 'Illari', role: 'support', portrait: 'illari.png' },
-        { id: 'juno', name: 'Juno', role: 'support', portrait: 'juno.png' },
-        { id: 'kiriko', name: 'Kiriko', role: 'support', portrait: 'kiriko.png' },
-        { id: 'lifeweaver', name: 'Lifeweaver', role: 'support', portrait: 'lifeweaver.png' },
-        { id: 'lucio', name: 'Lúcio', role: 'support', portrait: 'lucio.png' },
-        { id: 'mercy', name: 'Mercy', role: 'support', portrait: 'mercy.png' },
-        { id: 'moira', name: 'Moira', role: 'support', portrait: 'moira.png' },
-        { id: 'wuyang', name: 'Wuyang', role: 'support', portrait: 'wuyang.png' },
-        { id: 'zenyatta', name: 'Zenyatta', role: 'support', portrait: 'zenyatta.png' }
+        { id: 'ana', name: 'Ana', role: 'support', portrait: 'ana.png', stadiumAvailable: true },
+        { id: 'baptiste', name: 'Baptiste', role: 'support', portrait: 'baptiste.png', stadiumAvailable: false },
+        { id: 'brigitte', name: 'Brigitte', role: 'support', portrait: 'brigitte.png', stadiumAvailable: true },
+        { id: 'illari', name: 'Illari', role: 'support', portrait: 'illari.png', stadiumAvailable: false },
+        { id: 'juno', name: 'Juno', role: 'support', portrait: 'juno.png', stadiumAvailable: true },
+        { id: 'kiriko', name: 'Kiriko', role: 'support', portrait: 'kiriko.png', stadiumAvailable: true },
+        { id: 'lifeweaver', name: 'Lifeweaver', role: 'support', portrait: 'lifeweaver.png', stadiumAvailable: false },
+        { id: 'lucio', name: 'Lúcio', role: 'support', portrait: 'lucio.png', stadiumAvailable: true },
+        { id: 'mercy', name: 'Mercy', role: 'support', portrait: 'mercy.png', stadiumAvailable: true },
+        { id: 'moira', name: 'Moira', role: 'support', portrait: 'moira.png', stadiumAvailable: true },
+        { id: 'wuyang', name: 'Wuyang', role: 'support', portrait: 'wuyang.png', stadiumAvailable: false },
+        { id: 'zenyatta', name: 'Zenyatta', role: 'support', portrait: 'zenyatta.png', stadiumAvailable: true }
     ]
 };
 
@@ -110,6 +110,7 @@ export const DEFAULT_SETTINGS = {
     showSessionNotification: true, // Show toast when session is reset
     showDrawButton: false, // Show or hide the draw button
     limitStadiumHeroSelection: true, // Limit to 1 hero in Stadium modes
+    disableNonStadiumHeroes: 'dim', // 'none', 'dim', or 'hide' - disable non-Stadium heroes in Stadium mode
     matchesPerPage: 10, // Number of matches to display per page (5, 10, 25, 50)
     showHeroes: true, // Show or hide hero selection sections
     showHeroPortraits: true, // Show hero portraits on hero buttons

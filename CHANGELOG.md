@@ -5,6 +5,19 @@ All notable changes to Overlog will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.0] - 2025-11-01
+### Added
+- "Disable Non-Stadium Heroes" setting in Stadium Settings with three modes: Allow All Heroes, Dim Unavailable Heroes (default), and Hide Unavailable Heroes
+- Stadium availability tracking for all 41 heroes (28 available in Stadium mode)
+- Automatic filtering of non-Stadium heroes when switching to Stadium mode
+- Recent Heroes backfill to maintain configured count when hiding unavailable heroes
+- Tooltips on disabled heroes indicating they are not available in Stadium mode
+### Changed
+- Reorganized settings into more logical categories: Log Match Settings, Hero Settings, Stadium Settings, Session Settings, UI Settings, and Keyboard Shortcuts
+### Fixed
+- WASD navigation now properly skips disabled/dimmed heroes in all directions (W/A/S/D)
+- North navigation (W key) from top of hero grid now correctly skips hidden hero toggle when "Always Show All Heroes" is enabled
+
 ## [1.6.0] - 2025-10-30
 ### Added
 - Hero portrait images for all 38 heroes
@@ -121,6 +134,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Version display in footer with commit hash
 - GitHub Actions deployment workflow
 
+[1.7.0]: https://github.com/NewbGoob/overlog/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/NewbGoob/overlog/compare/v1.5.1...v1.6.0
 [1.5.1]: https://github.com/NewbGoob/overlog/compare/v1.5.0...v1.5.1
 [1.5.0]: https://github.com/NewbGoob/overlog/compare/v1.4.0...v1.5.0

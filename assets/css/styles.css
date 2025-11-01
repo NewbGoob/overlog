@@ -619,6 +619,17 @@ h2::after {
     box-shadow: 0 0 10px rgba(254, 130, 34, 0.3);
 }
 
+.hero-btn.disabled {
+    opacity: 0.35;
+    filter: grayscale(0.8);
+    cursor: not-allowed;
+}
+
+.hero-btn.disabled:hover {
+    transform: none;
+    border-color: var(--border-color-strong);
+}
+
 /* Hero button with portrait */
 .hero-btn.with-portrait {
     display: flex;

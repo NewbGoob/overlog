@@ -442,14 +442,47 @@ function handleWASDNavigation(key) {
         }
     } else if (key === 'a') {
         // Move left within current zone
-        if (state.focusIndex > 0) {
-            state.focusIndex--;
+        if (currentZone === 'heroes') {
+            // Special handling for heroes zone - skip disabled heroes
+            const heroButtons = document.querySelectorAll('.hero-btn:not(.recent-hero-btn)');
+            let newIndex = state.focusIndex - 1;
+
+            // Find next enabled hero to the left
+            while (newIndex >= 0) {
+                if (!heroButtons[newIndex].classList.contains('disabled')) {
+                    state.focusIndex = newIndex;
+                    state.lastHeroFocusIndex = newIndex;
+                    break;
+                }
+                newIndex--;
+            }
+        } else {
+            if (state.focusIndex > 0) {
+                state.focusIndex--;
+            }
         }
     } else if (key === 'd') {
         // Move right within current zone
-        const maxIndex = getMaxIndexForZone(currentZone);
-        if (state.focusIndex < maxIndex) {
-            state.focusIndex++;
+        if (currentZone === 'heroes') {
+            // Special handling for heroes zone - skip disabled heroes
+            const heroButtons = document.querySelectorAll('.hero-btn:not(.recent-hero-btn)');
+            const maxIndex = heroButtons.length - 1;
+            let newIndex = state.focusIndex + 1;
+
+            // Find next enabled hero to the right
+            while (newIndex <= maxIndex) {
+                if (!heroButtons[newIndex].classList.contains('disabled')) {
+                    state.focusIndex = newIndex;
+                    state.lastHeroFocusIndex = newIndex;
+                    break;
+                }
+                newIndex++;
+            }
+        } else {
+            const maxIndex = getMaxIndexForZone(currentZone);
+            if (state.focusIndex < maxIndex) {
+                state.focusIndex++;
+            }
         }
     }
 }
@@ -473,6 +506,10 @@ function handleHeroGridNavigation(key) {
         // Move up - find closest button above current position
         for (let i = 0; i < heroButtons.length; i++) {
             const btn = heroButtons[i];
+
+            // Skip disabled heroes
+            if (btn.classList.contains('disabled')) continue;
+
             const btnTop = btn.offsetTop;
             const btnLeft = btn.offsetLeft;
 
@@ -494,15 +531,37 @@ function handleHeroGridNavigation(key) {
             state.focusIndex = bestMatch;
             state.lastHeroFocusIndex = bestMatch;
         } else {
-            // No button above, exit to hero-toggle zone
+            // No button above, exit upward - skip hero-toggle if not shown
             state.lastHeroFocusIndex = state.focusIndex;
-            state.focusZone = 'hero-toggle';
-            state.focusIndex = 0;
+            const recentHeroesContainer = document.getElementById('recentHeroesContainer');
+            const hasRecentHeroes = recentHeroesContainer && recentHeroesContainer.style.display !== 'none';
+
+            if (shouldShowHeroToggle()) {
+                state.focusZone = 'hero-toggle';
+                state.focusIndex = 0;
+            } else if (hasRecentHeroes) {
+                state.focusZone = 'recent-heroes';
+                state.focusIndex = 0;
+            } else {
+                // No toggle and no recent heroes, go to child or parent match types
+                const childTypes = document.getElementById('childTypes');
+                if (childTypes && childTypes.style.display !== 'none') {
+                    state.focusZone = 'child';
+                    state.focusIndex = 0;
+                } else {
+                    state.focusZone = 'parent';
+                    state.focusIndex = 0;
+                }
+            }
         }
     } else if (key === 's') {
         // Move down - find closest button below current position
         for (let i = 0; i < heroButtons.length; i++) {
             const btn = heroButtons[i];
+
+            // Skip disabled heroes
+            if (btn.classList.contains('disabled')) continue;
+
             const btnTop = btn.offsetTop;
             const btnLeft = btn.offsetLeft;
 
@@ -783,6 +842,36 @@ export function updateFocusVisuals() {
     } else if (zone === 'heroes') {
         const heroButtons = document.querySelectorAll('.hero-btn:not(.recent-hero-btn)');
         focusedElement = heroButtons[index];
+
+        // If focused hero is disabled, find nearest enabled hero
+        if (focusedElement && focusedElement.classList.contains('disabled')) {
+            let nearestEnabled = null;
+            let nearestDistance = Infinity;
+
+            // Search all hero buttons for nearest enabled one
+            for (let i = 0; i < heroButtons.length; i++) {
+                const btn = heroButtons[i];
+                if (!btn.classList.contains('disabled')) {
+                    const distance = Math.abs(i - index);
+                    if (distance < nearestDistance) {
+                        nearestDistance = distance;
+                        nearestEnabled = i;
+                    }
+                }
+            }
+
+            // Update focus to nearest enabled hero
+            if (nearestEnabled !== null) {
+                state.focusIndex = nearestEnabled;
+                state.lastHeroFocusIndex = nearestEnabled;
+                focusedElement = heroButtons[nearestEnabled];
+            } else {
+                // No enabled heroes, exit zone
+                state.focusZone = 'hero-toggle';
+                state.focusIndex = 0;
+                focusedElement = document.getElementById('heroSectionToggle');
+            }
+        }
     } else if (zone === 'clear-heroes') {
         focusedElement = document.getElementById('clearHeroesBtn');
     } else if (zone === 'result') {

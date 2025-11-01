@@ -170,6 +170,126 @@
                     <button id="closeSettingsBtn" class="modal-close">&times;</button>
                 </div>
                 <div class="modal-body">
+                    <!-- Log Match Settings Section -->
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">Log Match Settings</h3>
+                        <div class="settings-group">
+                            <label class="setting-label">
+                                <span class="setting-name">Auto-collapse Match Type Section</span>
+                                <input type="checkbox" id="settingAutoCollapseMatchType" class="setting-checkbox">
+                            </label>
+                            <p class="setting-description">Automatically collapse match type section after saving a match</p>
+                        </div>
+                        <div class="settings-group">
+                            <label class="setting-label">
+                                <span class="setting-name">Show Match Saved Notifications</span>
+                                <input type="checkbox" id="settingShowMatchSavedNotification" class="setting-checkbox">
+                            </label>
+                            <p class="setting-description">Show a notification when a match is saved</p>
+                        </div>
+                        <div class="settings-group">
+                            <label class="setting-label">
+                                <span class="setting-name">Show Draw Button</span>
+                                <input type="checkbox" id="settingShowDrawButton" class="setting-checkbox">
+                            </label>
+                            <p class="setting-description">Show the draw button (disable if draws are not possible in your game mode)</p>
+                        </div>
+                    </div>
+
+                    <!-- Hero Settings Section -->
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">Hero Settings</h3>
+                        <div class="settings-group">
+                            <label class="setting-label">
+                                <span class="setting-name">Show Heroes</span>
+                                <input type="checkbox" id="settingShowHeroes" class="setting-checkbox">
+                            </label>
+                            <p class="setting-description">Show hero selection sections (Recent Heroes and Add Heroes)</p>
+                        </div>
+                        <div class="settings-group">
+                            <label class="setting-label">
+                                <span class="setting-name">Remember Hero Selection</span>
+                                <input type="checkbox" id="settingRememberHeroSelection" class="setting-checkbox">
+                            </label>
+                            <p class="setting-description">Keep heroes selected across matches instead of clearing after each save</p>
+                        </div>
+                        <div class="settings-group">
+                            <label class="setting-label">
+                                <span class="setting-name">Recent Heroes Count</span>
+                                <input type="range" id="settingRecentHeroesCount" class="setting-slider" min="0" max="8" step="1">
+                                <span id="recentHeroesCountValue" class="setting-value">4</span>
+                            </label>
+                            <p class="setting-description">How many heroes to show in the Recent Heroes list (set to 0 to disable)</p>
+                        </div>
+                        <div class="settings-group">
+                            <label class="setting-label">
+                                <span class="setting-name">Auto-collapse Hero List</span>
+                                <input type="checkbox" id="settingAutoCollapseHero" class="setting-checkbox">
+                            </label>
+                            <p class="setting-description">Automatically collapse hero list after saving a match</p>
+                        </div>
+                        <div class="settings-group">
+                            <label class="setting-label">
+                                <span class="setting-name">Always Show Full Hero List</span>
+                                <input type="checkbox" id="settingAlwaysShowAllHeroes" class="setting-checkbox">
+                            </label>
+                            <p class="setting-description">Keep the full hero list always expanded (hides toggle button)</p>
+                        </div>
+                        <div class="settings-group">
+                            <label class="setting-label">
+                                <span class="setting-name">Show Hero Portraits</span>
+                                <input type="checkbox" id="settingShowHeroPortraits" class="setting-checkbox">
+                            </label>
+                            <p class="setting-description">Display portraits on hero buttons</p>
+                        </div>
+                    </div>
+
+                    <!-- Stadium Settings Section -->
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">Stadium Settings</h3>
+                        <div class="settings-group">
+                            <label class="setting-label">
+                                <span class="setting-name">Limit Stadium Hero Selection</span>
+                                <input type="checkbox" id="settingLimitStadiumHeroSelection" class="setting-checkbox">
+                            </label>
+                            <p class="setting-description">Only allow selecting 1 hero at a time in Stadium game modes</p>
+                        </div>
+                        <div class="settings-group">
+                            <label class="setting-label">
+                                <span class="setting-name">Disable Non-Stadium Heroes</span>
+                                <select id="settingDisableNonStadiumHeroes" class="setting-select">
+                                    <option value="none">Allow All Heroes</option>
+                                    <option value="dim">Dim Unavailable Heroes</option>
+                                    <option value="hide">Hide Unavailable Heroes</option>
+                                </select>
+                            </label>
+                            <p class="setting-description">Control how non-Stadium heroes appear in Stadium game modes</p>
+                        </div>
+                    </div>
+
+                    <!-- Session Settings Section -->
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">Session Settings</h3>
+                        <div class="settings-group">
+                            <label class="setting-label">
+                                <span class="setting-name">Auto-Reset Session</span>
+                                <select id="settingSessionAutoReset" class="setting-select">
+                                    <option value="manual">Manual Only</option>
+                                    <option value="daily">Daily (at midnight)</option>
+                                    <option value="onlaunch">On App Launch</option>
+                                </select>
+                            </label>
+                            <p class="setting-description">Control when sessions automatically reset</p>
+                        </div>
+                        <div class="settings-group">
+                            <label class="setting-label">
+                                <span class="setting-name">Show Session Reset Notifications</span>
+                                <input type="checkbox" id="settingShowSessionNotification" class="setting-checkbox">
+                            </label>
+                            <p class="setting-description">Show a notification when starting a new session</p>
+                        </div>
+                    </div>
+
                     <!-- UI Settings Section -->
                     <div class="settings-section">
                         <h3 class="settings-section-title">UI Settings</h3>
@@ -181,13 +301,6 @@
                                     <option value="dark">Dark</option>
                                     <option value="light">Light</option>
                                 </select>
-                            </label>
-                        </div>
-                        <div class="settings-group">
-                            <label class="setting-label">
-                                <span class="setting-name">Recent Heroes Count</span>
-                                <input type="range" id="settingRecentHeroesCount" class="setting-slider" min="0" max="8" step="1">
-                                <span id="recentHeroesCountValue" class="setting-value">4</span>
                             </label>
                         </div>
                         <div class="settings-group">
@@ -209,97 +322,6 @@
                                 <input type="checkbox" id="settingUseOwStyleText" class="setting-checkbox">
                             </label>
                             <p class="setting-description">Display "Victory/Defeat/Draw" instead of "Win/Loss/Draw"</p>
-                        </div>
-                        <div class="settings-group">
-                            <label class="setting-label">
-                                <span class="setting-name">Show Draw Button</span>
-                                <input type="checkbox" id="settingShowDrawButton" class="setting-checkbox">
-                            </label>
-                            <p class="setting-description">Show the draw button (disable if draws are not possible in your game mode)</p>
-                        </div>
-                        <div class="settings-group">
-                            <label class="setting-label">
-                                <span class="setting-name">Show Heroes</span>
-                                <input type="checkbox" id="settingShowHeroes" class="setting-checkbox">
-                            </label>
-                            <p class="setting-description">Show hero selection sections (Recent Heroes and Add Heroes)</p>
-                        </div>
-                        <div class="settings-group">
-                            <label class="setting-label">
-                                <span class="setting-name">Show Hero Portraits</span>
-                                <input type="checkbox" id="settingShowHeroPortraits" class="setting-checkbox">
-                            </label>
-                            <p class="setting-description">Display hero portraits on hero selection buttons</p>
-                        </div>
-                        <div class="settings-group">
-                            <label class="setting-label">
-                                <span class="setting-name">Always Show All Heroes</span>
-                                <input type="checkbox" id="settingAlwaysShowAllHeroes" class="setting-checkbox">
-                            </label>
-                            <p class="setting-description">Keep hero section always expanded (hides toggle button)</p>
-                        </div>
-                        <div class="settings-group">
-                            <label class="setting-label">
-                                <span class="setting-name">Show Match Saved Notifications</span>
-                                <input type="checkbox" id="settingShowMatchSavedNotification" class="setting-checkbox">
-                            </label>
-                            <p class="setting-description">Show a notification when a match is saved</p>
-                        </div>
-                        <div class="settings-group">
-                            <label class="setting-label">
-                                <span class="setting-name">Show Session Reset Notifications</span>
-                                <input type="checkbox" id="settingShowSessionNotification" class="setting-checkbox">
-                            </label>
-                            <p class="setting-description">Show a notification when starting a new session</p>
-                        </div>
-                    </div>
-
-                    <!-- Behavior Settings Section -->
-                    <div class="settings-section">
-                        <h3 class="settings-section-title">Behavior Settings</h3>
-                        <div class="settings-group">
-                            <label class="setting-label">
-                                <span class="setting-name">Auto-collapse Match Type Section</span>
-                                <input type="checkbox" id="settingAutoCollapseMatchType" class="setting-checkbox">
-                            </label>
-                            <p class="setting-description">Automatically collapse match type section after saving a match</p>
-                        </div>
-                        <div class="settings-group">
-                            <label class="setting-label">
-                                <span class="setting-name">Auto-collapse Hero Section</span>
-                                <input type="checkbox" id="settingAutoCollapseHero" class="setting-checkbox">
-                            </label>
-                            <p class="setting-description">Automatically collapse hero section after saving a match</p>
-                        </div>
-                        <div class="settings-group">
-                            <label class="setting-label">
-                                <span class="setting-name">Remember Hero Selection</span>
-                                <input type="checkbox" id="settingRememberHeroSelection" class="setting-checkbox">
-                            </label>
-                            <p class="setting-description">Keep selected heroes across matches instead of clearing after each save</p>
-                        </div>
-                        <div class="settings-group">
-                            <label class="setting-label">
-                                <span class="setting-name">Limit Stadium Hero Selection</span>
-                                <input type="checkbox" id="settingLimitStadiumHeroSelection" class="setting-checkbox">
-                            </label>
-                            <p class="setting-description">Only allow selecting 1 hero in Stadium game modes</p>
-                        </div>
-                    </div>
-
-                    <!-- Session Settings Section -->
-                    <div class="settings-section">
-                        <h3 class="settings-section-title">Session Settings</h3>
-                        <div class="settings-group">
-                            <label class="setting-label">
-                                <span class="setting-name">Auto-Reset Session</span>
-                                <select id="settingSessionAutoReset" class="setting-select">
-                                    <option value="manual">Manual Only</option>
-                                    <option value="daily">Daily (at midnight)</option>
-                                    <option value="onlaunch">On App Launch</option>
-                                </select>
-                            </label>
-                            <p class="setting-description">Control when sessions automatically reset</p>
                         </div>
                     </div>
 
