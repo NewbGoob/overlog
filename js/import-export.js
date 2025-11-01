@@ -471,10 +471,13 @@ export function handleImportFile() {
 export function clearAllData() {
     if (confirm('Are you sure you want to clear ALL match data? This cannot be undone!')) {
         state.matches = [];
+        state.recentHeroes = [];
         state.matchHistoryPage = 1; // Reset to first page
         state.sessionStartTime = new Date();
         localStorage.setItem('owSessionStart', state.sessionStartTime.toISOString());
+        localStorage.setItem('owRecentHeroes', JSON.stringify(state.recentHeroes));
         saveData();
         updateUI();
+        renderRecentHeroes(); // Update recent heroes display
     }
 }

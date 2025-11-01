@@ -695,11 +695,27 @@ function resetSettingsToDefaults() {
         // Apply default theme
         applyTheme(state.settings.theme);
 
+        // Clear invalid hero selections if in Stadium mode with disable setting active
+        const isStadiumMode = state.selectedParentType === 'stadium';
+        if (isStadiumMode && state.settings.disableNonStadiumHeroes !== 'none') {
+            state.selectedHeroes = state.selectedHeroes.filter(heroId => {
+                const hero = CONFIG.heroes.find(h => h.id === heroId);
+                return hero && hero.stadiumAvailable;
+            });
+        }
+
+        // Update UI based on reset settings
+        renderHeroButtons(); // Re-render hero buttons to show/hide portraits
+        renderRecentHeroes(); // Re-render recent heroes to show/hide portraits
+        updateResultButtonLabels(); // Update result button labels
+        updateDrawButtonVisibility(); // Update draw button visibility
+        updateHeroSectionsVisibility(); // Update hero sections visibility
+        updateAlwaysShowAllHeroes(); // Update always show all heroes setting
+        updateSelectionDisplay(); // Update result text display
+        updateMatchList(); // Update match list to reflect new text style
+
         // Re-open modal to show updated values
         openSettingsModal();
-
-        // Update UI
-        renderRecentHeroes();
     }
 }
 
@@ -1105,6 +1121,10 @@ function setupEventListeners() {
 function init() {
     loadSettings(); // Load settings first so they're available for loadData()
     applyTheme(state.settings.theme); // Apply theme after loading settings
+
+    // Check if this is a first-time user (before loadData)
+    const isFirstTimeUser = !localStorage.getItem('owMatches');
+
     loadData();
 
     // Initialize dependency injection for modules
@@ -1206,6 +1226,15 @@ function init() {
 
     const saveBtn = document.getElementById('saveBtn');
     saveBtn.classList.remove('win', 'loss', 'draw');
+
+    // For first-time users, show match type section expanded
+    if (isFirstTimeUser) {
+        const matchTypeSection = document.getElementById('matchTypeSection');
+        if (matchTypeSection) {
+            matchTypeSection.style.display = 'block';
+            updateMatchTypeToggleText();
+        }
+    }
 
     // Don't set initial focus - start defocused
     // User can press WASD or spacebar to begin navigating

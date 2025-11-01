@@ -5,6 +5,13 @@ All notable changes to Overlog will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.1] - 2025-11-01
+### Added
+- Match type section now automatically expands for first-time users on initial launch
+### Fixed
+- Reset to Defaults button now properly updates all UI elements and settings
+- Clear All Data now also clears recent heroes list
+
 ## [1.7.0] - 2025-11-01
 ### Added
 - "Disable Non-Stadium Heroes" setting in Stadium Settings with three modes: Allow All Heroes, Dim Unavailable Heroes (default), and Hide Unavailable Heroes
@@ -134,6 +141,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Version display in footer with commit hash
 - GitHub Actions deployment workflow
 
+[1.7.1]: https://github.com/NewbGoob/overlog/compare/v1.7.0...v1.7.1
 [1.7.0]: https://github.com/NewbGoob/overlog/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/NewbGoob/overlog/compare/v1.5.1...v1.6.0
 [1.5.1]: https://github.com/NewbGoob/overlog/compare/v1.5.0...v1.5.1
