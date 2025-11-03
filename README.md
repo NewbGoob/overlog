@@ -28,11 +28,12 @@ Open the app and start logging matches:
 
 Use keyboard shortcuts for faster logging:
 - **WASD** - Navigate between buttons
-- **Space** - Save match
+- **Space** - Save match / Select button
 - **Ctrl+Z** - Undo last match
 - **Number keys** - Select match types
 - **T** - Toggle match type section
 - **E** - Toggle hero section
+- **C** - Clear selected heroes
 
 ## Data Management
 
