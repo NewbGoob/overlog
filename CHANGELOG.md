@@ -5,6 +5,18 @@ All notable changes to Overlog will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.0] - 2025-11-03
+### Added
+- C hotkey to clear all selected heroes (when hotkeys are enabled)
+- Discrete pencil icon button to edit match type (replaces large toggle button)
+### Changed
+- Match type section toggle replaced with small pencil icon next to match type name in match preview
+- Auto-collapse Match Type Section now triggers when match type is fully selected OR when a match is saved
+- Clear Heroes button removed in favor of C hotkey only
+- WASD navigation no longer includes match type toggle or clear heroes button
+- Updated keyboard hints in footer to include "Clear Heroes: C"
+- Updated hotkey settings label to include C key
+
 ## [1.7.1] - 2025-11-01
 ### Added
 - Match type section now automatically expands for first-time users on initial launch
@@ -141,6 +153,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Version display in footer with commit hash
 - GitHub Actions deployment workflow
 
+[1.8.0]: https://github.com/NewbGoob/overlog/compare/v1.7.1...v1.8.0
 [1.7.1]: https://github.com/NewbGoob/overlog/compare/v1.7.0...v1.7.1
 [1.7.0]: https://github.com/NewbGoob/overlog/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/NewbGoob/overlog/compare/v1.5.1...v1.6.0

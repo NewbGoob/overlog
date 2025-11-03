@@ -218,14 +218,9 @@ function updateHeroButtons() {
 // Toggle match type section visibility
 function toggleMatchTypeSection() {
     const section = document.getElementById('matchTypeSection');
-    const toggle = document.getElementById('matchTypeToggle');
-    const toggleText = document.getElementById('matchTypeToggleText');
     const isHidden = section.style.display === 'none';
 
     section.style.display = isHidden ? 'block' : 'none';
-
-    // Update toggle text to show current selection or prompt
-    updateMatchTypeToggleText();
 
     // When collapsing match type section, move focus to result if match type is selected
     if (!isHidden) {
@@ -239,40 +234,16 @@ function toggleMatchTypeSection() {
             if (typeComplete) {
                 state.focusZone = 'result';
                 state.focusIndex = 0;
-            } else {
-                state.focusZone = 'match-type-toggle';
-                state.focusIndex = 0;
             }
             updateFocusVisuals();
         }
     }
 }
 
-// Update match type toggle button text
+// Update match type toggle button text (no longer needed, but kept for backwards compatibility)
 function updateMatchTypeToggleText() {
-    const toggleText = document.getElementById('matchTypeToggleText');
-
-    if (state.selectedParentType) {
-        const parent = CONFIG.matchTypes.find(t => t.id === state.selectedParentType);
-
-        // If parent has children and child is selected, use child's displayLabel
-        if (parent && parent.children.length > 0) {
-            if (state.selectedChildType) {
-                const child = parent.children.find(c => c.id === state.selectedChildType);
-                const displayText = child && child.displayLabel ? child.displayLabel :
-                    (child ? `${parent.label} > ${child.label}` : state.selectedChildType);
-                toggleText.textContent = displayText;
-            } else {
-                toggleText.textContent = `${parent.label} (select type...)`;
-            }
-        } else {
-            // No children, just show parent label
-            const displayText = parent ? parent.label : state.selectedParentType;
-            toggleText.textContent = displayText;
-        }
-    } else {
-        toggleText.textContent = 'Select Match Type';
-    }
+    // This function is no longer needed since we removed the toggle button
+    // But we keep it to avoid breaking references in other parts of the code
 }
 
 // Toggle hero section visibility
@@ -396,6 +367,14 @@ function selectParentType(parentId) {
             parentType: parentId,
             childType: null
         }));
+
+        // Auto-collapse match type section when selection is complete (if enabled in settings)
+        if (state.settings.autoCollapseMatchType) {
+            const matchTypeSection = document.getElementById('matchTypeSection');
+            if (matchTypeSection && matchTypeSection.style.display !== 'none') {
+                matchTypeSection.style.display = 'none';
+            }
+        }
     }
 
     updateSelectionDisplay();
@@ -417,6 +396,14 @@ function selectChildType(childId) {
         parentType: state.selectedParentType,
         childType: childId
     }));
+
+    // Auto-collapse match type section when selection is complete (if enabled in settings)
+    if (state.settings.autoCollapseMatchType) {
+        const matchTypeSection = document.getElementById('matchTypeSection');
+        if (matchTypeSection && matchTypeSection.style.display !== 'none') {
+            matchTypeSection.style.display = 'none';
+        }
+    }
 
     updateSelectionDisplay();
     updateMatchTypeToggleText();
@@ -1030,14 +1017,11 @@ function setupEventListeners() {
         if (btn) toggleHero(btn.dataset.hero);
     });
 
-    // Match type section toggle
-    document.getElementById('matchTypeToggle').addEventListener('click', toggleMatchTypeSection);
+    // Match type section edit button
+    document.getElementById('matchTypeEdit').addEventListener('click', toggleMatchTypeSection);
 
     // Hero section toggle
     document.getElementById('heroSectionToggle').addEventListener('click', toggleHeroSection);
-
-    // Clear heroes button
-    document.getElementById('clearHeroesBtn').addEventListener('click', clearHeroes);
 
     // Save button
     document.getElementById('saveBtn').addEventListener('click', saveMatch);

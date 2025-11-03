@@ -102,12 +102,11 @@ export function saveMatch() {
         }
     }
 
-    // Auto-collapse match type section after first match (if enabled in settings)
+    // Auto-collapse match type section after saving a match (if enabled in settings)
     if (state.settings.autoCollapseMatchType) {
         const matchTypeSection = document.getElementById('matchTypeSection');
         if (matchTypeSection && matchTypeSection.style.display !== 'none') {
             matchTypeSection.style.display = 'none';
-            updateMatchTypeToggleText();
         }
     }
 

@@ -456,10 +456,42 @@ h2::after {
     color: var(--color-draw-light);
 }
 
+.match-type-with-edit {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .match-preview .match-type {
     color: var(--text-secondary);
     text-transform: capitalize;
     font-weight: 500;
+}
+
+.match-type-edit-btn {
+    background: transparent;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    opacity: 0.6;
+    transition: all 0.2s ease;
+    border-radius: 4px;
+}
+
+.match-type-edit-btn:hover {
+    opacity: 1;
+    color: var(--accent-primary);
+    background: var(--bg-tertiary);
+}
+
+.match-type-edit-btn svg {
+    width: 16px;
+    height: 16px;
+    stroke: currentColor;
 }
 
 .match-preview .match-heroes {
@@ -684,25 +716,6 @@ h2::after {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-}
-
-.clear-heroes-btn {
-    width: 100%;
-    padding: 8px;
-    margin-top: 10px;
-    font-size: 0.9em;
-    background: var(--button-bg);
-    color: var(--color-loss);
-    border: 2px solid var(--color-loss);
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-weight: 600;
-}
-
-.clear-heroes-btn:hover {
-    background: var(--color-loss);
-    color: white;
 }
 
 /* ============================================

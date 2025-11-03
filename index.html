@@ -54,18 +54,21 @@
                 <div id="matchPreview" class="match-preview">
                     <div class="match-info">
                         <span id="previewResult" class="match-result">---</span>
-                        <span id="previewType" class="match-type">Select match type...</span>
+                        <div class="match-type-with-edit">
+                            <span id="previewType" class="match-type">Select match type...</span>
+                            <button id="matchTypeEdit" class="match-type-edit-btn" title="Edit match type (T)" aria-label="Edit match type">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                            </button>
+                        </div>
                         <span id="previewHeroes" class="match-heroes" style="display: none;"></span>
                     </div>
                 </div>
 
                 <!-- Match Type Selection (Collapsible) -->
                 <div class="match-type-wrapper">
-                    <button id="matchTypeToggle" class="match-type-toggle-btn">
-                        <span class="key-hint">T</span>
-                        <span id="matchTypeToggleText">Select Match Type</span> ▼
-                    </button>
-
                     <div id="matchTypeSection" class="match-type-section" style="display: none;">
                         <div class="match-type-buttons">
                             <!-- Match type buttons will be dynamically generated -->
@@ -92,7 +95,6 @@
                         <div id="heroButtons" class="hero-container">
                             <!-- Hero buttons will be dynamically generated -->
                         </div>
-                        <button id="clearHeroesBtn" class="clear-heroes-btn">Clear Heroes</button>
                     </div>
                 </div>
 
@@ -178,7 +180,7 @@
                                 <span class="setting-name">Auto-collapse Match Type Section</span>
                                 <input type="checkbox" id="settingAutoCollapseMatchType" class="setting-checkbox">
                             </label>
-                            <p class="setting-description">Automatically collapse match type section after saving a match</p>
+                            <p class="setting-description">Automatically collapse match type section after selecting a complete match type or saving a match</p>
                         </div>
                         <div class="settings-group">
                             <label class="setting-label">
@@ -349,7 +351,7 @@
                             </div>
                             <div class="settings-group">
                                 <label class="setting-label">
-                                    <span class="setting-name">Hotkeys (T, E, Space, Ctrl+Z)</span>
+                                    <span class="setting-name">Hotkeys (T, E, C, Space, Ctrl+Z)</span>
                                     <input type="checkbox" id="settingHotkeysEnabled" class="setting-checkbox">
                                 </label>
                             </div>
@@ -397,7 +399,7 @@
         <footer>
             <div class="footer-content">
                 <div class="keyboard-hints">
-                    Navigate: WASD | Select: Spacebar | Undo: Ctrl+Z
+                    Navigate: WASD | Select: Spacebar | Clear Heroes: C | Undo: Ctrl+Z
                 </div>
                 <div class="version-info">
                     <a href="https://github.com/NewbGoob/overlog" target="_blank" rel="noopener noreferrer" id="appVersion">Version 1.1.0 (local)</a>

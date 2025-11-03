@@ -41,11 +41,7 @@ export function handleClickFocus(e) {
     }
 
     // Determine what was clicked and set focus accordingly
-    if (target.id === 'matchTypeToggle') {
-        state.focusZone = 'match-type-toggle';
-        state.focusIndex = 0;
-        updateFocusVisuals();
-    } else if (target.classList.contains('parent-type-btn')) {
+    if (target.classList.contains('parent-type-btn')) {
         const parentButtons = Array.from(document.querySelectorAll('.parent-type-btn'));
         const index = parentButtons.indexOf(target);
         if (index >= 0) {
@@ -84,10 +80,6 @@ export function handleClickFocus(e) {
             state.focusIndex = index;
             updateFocusVisuals();
         }
-    } else if (target.id === 'clearHeroesBtn') {
-        state.focusZone = 'clear-heroes';
-        state.focusIndex = 0;
-        updateFocusVisuals();
     } else if (target.classList.contains('result-btn')) {
         const resultButtons = Array.from(document.querySelectorAll('.result-btn'));
         const index = resultButtons.indexOf(target);
@@ -167,6 +159,13 @@ export function handleKeyboard(e) {
         return;
     }
 
+    // C key - Clear heroes
+    if (state.settings.hotkeysEnabled && key === 'c') {
+        e.preventDefault();
+        clearHeroes();
+        return;
+    }
+
     // Parent type hotkeys (1, 2, 3, 4, etc.)
     // Check if the pressed key matches any parent type key
     if (state.settings.numberKeysEnabled) {
@@ -216,24 +215,21 @@ function handleWASDNavigation(key) {
 
     if (key === 'w') {
         // Move up (previous zone)
-        if (currentZone === 'match-type-toggle') {
-            // Can't go up from match-type-toggle (it's at the top)
+        if (currentZone === 'parent') {
+            // Can't go up from parent types (it's at the top now)
             return;
-        } else if (currentZone === 'parent') {
-            // Move from parent to match-type-toggle
-            state.focusZone = 'match-type-toggle';
-            state.focusIndex = 0;
         } else if (currentZone === 'child') {
             // Move from child to parent
             state.focusZone = 'parent';
             state.focusIndex = 0;
         } else if (currentZone === 'result') {
-            // If heroes are visible, go to clear-heroes (if drawer open) or hero-toggle (if shown) or recent heroes
+            // If heroes are visible, go to heroes (if drawer open) or hero-toggle (if shown) or recent heroes
             if (showHeroes) {
                 if (isHeroSectionVisible || !shouldShowHeroToggle()) {
-                    // Hero section is visible, or always shown - go to clear-heroes
-                    state.focusZone = 'clear-heroes';
-                    state.focusIndex = 0;
+                    // Hero section is visible, or always shown - go to heroes
+                    state.focusZone = 'heroes';
+                    const heroButtons = document.querySelectorAll('.hero-btn:not(.recent-hero-btn)');
+                    state.focusIndex = Math.max(0, heroButtons.length - 1);
                 } else {
                     // Hero section is hidden and toggle is shown - go to toggle
                     state.focusZone = 'hero-toggle';
@@ -253,21 +249,14 @@ function handleWASDNavigation(key) {
                         state.focusIndex = 0;
                     }
                 } else {
-                    // Match type section is collapsed, go to toggle
-                    state.focusZone = 'match-type-toggle';
-                    state.focusIndex = 0;
+                    // Match type section is collapsed, can't navigate to it
+                    return;
                 }
             }
         } else if (currentZone === 'save') {
             // Always move from save to result buttons
             state.focusZone = 'result';
             state.focusIndex = 0;
-        } else if (currentZone === 'clear-heroes') {
-            // Move from clear-heroes to heroes
-            state.focusZone = 'heroes';
-            // Start at the bottom of the hero list when coming from below
-            const heroButtons = document.querySelectorAll('.hero-btn:not(.recent-hero-btn)');
-            state.focusIndex = Math.max(0, heroButtons.length - 1);
         } else if (currentZone === 'heroes') {
             // Move from heroes up - skip hero-toggle if not shown
             if (shouldShowHeroToggle()) {
@@ -290,8 +279,8 @@ function handleWASDNavigation(key) {
                         state.focusIndex = 0;
                     }
                 } else {
-                    state.focusZone = 'match-type-toggle';
-                    state.focusIndex = 0;
+                    // Match type section is collapsed, can't navigate to it
+                    return;
                 }
             }
         } else if (currentZone === 'hero-toggle') {
@@ -313,8 +302,8 @@ function handleWASDNavigation(key) {
                         state.focusIndex = 0;
                     }
                 } else {
-                    state.focusZone = 'match-type-toggle';
-                    state.focusIndex = 0;
+                    // No match type section visible, can't navigate to it
+                    return;
                 }
             }
         } else if (currentZone === 'recent-heroes') {
@@ -331,39 +320,13 @@ function handleWASDNavigation(key) {
                     state.focusIndex = 0;
                 }
             } else {
-                state.focusZone = 'match-type-toggle';
-                state.focusIndex = 0;
+                // No match type section visible, can't navigate to it
+                return;
             }
         }
     } else if (key === 's') {
         // Move down (next zone)
-        if (currentZone === 'match-type-toggle') {
-            // Check if match type section is visible
-            const matchTypeSection = document.getElementById('matchTypeSection');
-            if (matchTypeSection && matchTypeSection.style.display !== 'none') {
-                // Go to parent types
-                state.focusZone = 'parent';
-                state.focusIndex = 0;
-            } else {
-                // Section collapsed, check if heroes are visible
-                if (showHeroes) {
-                    if (hasRecentHeroes) {
-                        state.focusZone = 'recent-heroes';
-                        state.focusIndex = 0;
-                    } else if (shouldShowHeroToggle()) {
-                        state.focusZone = 'hero-toggle';
-                        state.focusIndex = 0;
-                    } else {
-                        // Heroes always shown, go to heroes
-                        state.focusZone = 'heroes';
-                        state.focusIndex = 0;
-                    }
-                } else {
-                    state.focusZone = 'result';
-                    state.focusIndex = 0;
-                }
-            }
-        } else if (currentZone === 'parent') {
+        if (currentZone === 'parent') {
             // Check if child types are visible
             const childTypes = document.getElementById('childTypes');
             if (childTypes && childTypes.style.display !== 'none') {
@@ -433,9 +396,6 @@ function handleWASDNavigation(key) {
                 state.focusIndex = 0;
             }
         } else if (currentZone === 'heroes') {
-            state.focusZone = 'clear-heroes';
-            state.focusIndex = 0;
-        } else if (currentZone === 'clear-heroes') {
             // Move to results
             state.focusZone = 'result';
             state.focusIndex = 0;
@@ -583,9 +543,9 @@ function handleHeroGridNavigation(key) {
             state.focusIndex = bestMatch;
             state.lastHeroFocusIndex = bestMatch;
         } else {
-            // No button below, exit to clear-heroes zone
+            // No button below, exit to result zone
             state.lastHeroFocusIndex = state.focusIndex;
-            state.focusZone = 'clear-heroes';
+            state.focusZone = 'result';
             state.focusIndex = 0;
         }
     }
@@ -593,9 +553,7 @@ function handleHeroGridNavigation(key) {
 
 // Get maximum index for current focus zone
 function getMaxIndexForZone(zone) {
-    if (zone === 'match-type-toggle') {
-        return 0; // Only one button
-    } else if (zone === 'parent') {
+    if (zone === 'parent') {
         return CONFIG.matchTypes.length - 1;
     } else if (zone === 'child') {
         const childButtons = document.querySelectorAll('.child-type-btn');
@@ -608,8 +566,6 @@ function getMaxIndexForZone(zone) {
     } else if (zone === 'heroes') {
         const heroButtons = document.querySelectorAll('.hero-btn:not(.recent-hero-btn)');
         return Math.max(0, heroButtons.length - 1);
-    } else if (zone === 'clear-heroes') {
-        return 0; // Only one button
     } else if (zone === 'result') {
         // Return 2 for three buttons (Win, Loss, Draw) or 1 for two buttons (Win, Loss)
         return state.settings.showDrawButton ? 2 : 1;
@@ -682,33 +638,7 @@ function handleSpacebarSelection() {
     const zone = state.focusZone;
     const index = state.focusIndex;
 
-    if (zone === 'match-type-toggle') {
-        // Toggle match type section visibility
-        toggleMatchTypeSection();
-        // Check if section is now visible and move to it
-        const matchTypeSection = document.getElementById('matchTypeSection');
-        const isVisible = matchTypeSection && matchTypeSection.style.display !== 'none';
-        if (isVisible) {
-            // Check if child types are visible
-            const childTypes = document.getElementById('childTypes');
-            if (childTypes && childTypes.style.display !== 'none') {
-                state.focusZone = 'child';
-                state.focusIndex = 0;
-            } else {
-                state.focusZone = 'parent';
-                state.focusIndex = 0;
-            }
-        } else {
-            // Section collapsed, move to result if match type is complete
-            const parent = CONFIG.matchTypes.find(t => t.id === state.selectedParentType);
-            const typeComplete = state.selectedParentType &&
-                (!parent || parent.children.length === 0 || state.selectedChildType);
-            if (typeComplete) {
-                state.focusZone = 'result';
-                state.focusIndex = 0;
-            }
-        }
-    } else if (zone === 'parent') {
+    if (zone === 'parent') {
         const parentButtons = document.querySelectorAll('.parent-type-btn');
         if (parentButtons[index]) {
             const typeId = parentButtons[index].dataset.type;
@@ -767,10 +697,6 @@ function handleSpacebarSelection() {
             toggleHero(heroId);
             // Don't auto-advance, stay in heroes zone for multi-selection
         }
-    } else if (zone === 'clear-heroes') {
-        // Clear all selected heroes
-        clearHeroes();
-        // Stay in clear-heroes zone
     } else if (zone === 'result') {
         // Only include visible result buttons
         const allResultButtons = document.querySelectorAll('.result-btn');
@@ -826,9 +752,7 @@ export function updateFocusVisuals() {
 
     let focusedElement = null;
 
-    if (zone === 'match-type-toggle') {
-        focusedElement = document.getElementById('matchTypeToggle');
-    } else if (zone === 'parent') {
+    if (zone === 'parent') {
         const parentButtons = document.querySelectorAll('.parent-type-btn');
         focusedElement = parentButtons[index];
     } else if (zone === 'child') {
@@ -872,8 +796,6 @@ export function updateFocusVisuals() {
                 focusedElement = document.getElementById('heroSectionToggle');
             }
         }
-    } else if (zone === 'clear-heroes') {
-        focusedElement = document.getElementById('clearHeroesBtn');
     } else if (zone === 'result') {
         // Only include visible result buttons
         const allResultButtons = document.querySelectorAll('.result-btn');
