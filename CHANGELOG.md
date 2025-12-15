@@ -5,6 +5,13 @@ All notable changes to Overlog will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.1] - 2025-12-14
+### Added
+- New damage hero: Vendetta
+### Changed
+- Doomfist now available in Stadium mode
+- Wuyang now available in Stadium mode
+
 ## [1.8.0] - 2025-11-03
 ### Added
 - C hotkey to clear all selected heroes (when hotkeys are enabled)
@@ -153,6 +160,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Version display in footer with commit hash
 - GitHub Actions deployment workflow
 
+[1.8.1]: https://github.com/NewbGoob/overlog/compare/v1.8.0...v1.8.1
 [1.8.0]: https://github.com/NewbGoob/overlog/compare/v1.7.1...v1.8.0
 [1.7.1]: https://github.com/NewbGoob/overlog/compare/v1.7.0...v1.7.1
 [1.7.0]: https://github.com/NewbGoob/overlog/compare/v1.6.0...v1.7.0

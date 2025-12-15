@@ -43,7 +43,7 @@ export const CONFIG = {
     heroes: [
         // Tank
         { id: 'dva', name: 'D.Va', role: 'tank', portrait: 'dva.png', stadiumAvailable: true },
-        { id: 'doomfist', name: 'Doomfist', role: 'tank', portrait: 'doomfist.png', stadiumAvailable: false },
+        { id: 'doomfist', name: 'Doomfist', role: 'tank', portrait: 'doomfist.png', stadiumAvailable: true },
         { id: 'hazard', name: 'Hazard', role: 'tank', portrait: 'hazard.png', stadiumAvailable: true },
         { id: 'junkerqueen', name: 'Junker Queen', role: 'tank', portrait: 'junkerqueen.png', stadiumAvailable: true },
         { id: 'mauga', name: 'Mauga', role: 'tank', portrait: 'mauga.png', stadiumAvailable: false },
@@ -74,6 +74,7 @@ export const CONFIG = {
         { id: 'symmetra', name: 'Symmetra', role: 'damage', portrait: 'symetra.png', stadiumAvailable: false },
         { id: 'torbjorn', name: 'Torbjörn', role: 'damage', portrait: 'torbjorn.png', stadiumAvailable: true },
         { id: 'tracer', name: 'Tracer', role: 'damage', portrait: 'tracer.png', stadiumAvailable: true },
+        { id: 'vendetta', name: 'Vendetta', role: 'damage', portrait: 'vendetta.png', stadiumAvailable: false },
         { id: 'venture', name: 'Venture', role: 'damage', portrait: 'venture.png', stadiumAvailable: false },
         { id: 'widowmaker', name: 'Widowmaker', role: 'damage', portrait: 'widowmaker.png', stadiumAvailable: false },
 
@@ -88,7 +89,7 @@ export const CONFIG = {
         { id: 'lucio', name: 'Lúcio', role: 'support', portrait: 'lucio.png', stadiumAvailable: true },
         { id: 'mercy', name: 'Mercy', role: 'support', portrait: 'mercy.png', stadiumAvailable: true },
         { id: 'moira', name: 'Moira', role: 'support', portrait: 'moira.png', stadiumAvailable: true },
-        { id: 'wuyang', name: 'Wuyang', role: 'support', portrait: 'wuyang.png', stadiumAvailable: false },
+        { id: 'wuyang', name: 'Wuyang', role: 'support', portrait: 'wuyang.png', stadiumAvailable: true },
         { id: 'zenyatta', name: 'Zenyatta', role: 'support', portrait: 'zenyatta.png', stadiumAvailable: true }
     ]
 };
