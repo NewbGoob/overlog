@@ -839,6 +839,14 @@ function parseMarkdownToHTML(markdown) {
     return html;
 }
 
+// ============================================
+// VERSION UPDATE DETECTION
+// ============================================
+
+// Store the current version when app loads
+let currentVersion = null;
+let versionCheckInterval = null;
+
 // Load and display version info
 async function loadVersionInfo() {
     try {
@@ -850,6 +858,13 @@ async function loadVersionInfo() {
             const commitHash = versionData.commitHash ? ` (${versionData.commitHash})` : '';
             versionElement.textContent = versionText + commitHash;
         }
+
+        // Store current version for update detection
+        currentVersion = {
+            version: versionData.version,
+            buildDate: versionData.buildDate,
+            commitHash: versionData.commitHash
+        };
     } catch (error) {
         console.error('Failed to load version info:', error);
         // Fallback if version.json can't be loaded
@@ -857,6 +872,105 @@ async function loadVersionInfo() {
         if (versionElement) {
             versionElement.textContent = 'Version 1.1.0';
         }
+        currentVersion = { version: '1.1.0', buildDate: null, commitHash: 'local' };
+    }
+}
+
+// Check if a new version is available
+async function checkForUpdates() {
+    if (!currentVersion) return false;
+
+    try {
+        // Add cache-busting parameter to ensure we get the latest version.json
+        const response = await fetch(`version.json?t=${Date.now()}`);
+        const latestVersion = await response.json();
+
+        // Compare versions - check if any field has changed
+        const hasUpdate =
+            latestVersion.version !== currentVersion.version ||
+            latestVersion.buildDate !== currentVersion.buildDate ||
+            latestVersion.commitHash !== currentVersion.commitHash;
+
+        return hasUpdate;
+    } catch (error) {
+        console.error('Failed to check for updates:', error);
+        return false;
+    }
+}
+
+// Show update notification
+function showUpdateNotification() {
+    // Check if notification already exists
+    if (document.getElementById('updateNotification')) return;
+
+    const notification = document.createElement('div');
+    notification.id = 'updateNotification';
+    notification.className = 'update-notification';
+    notification.setAttribute('role', 'alert');
+    notification.setAttribute('aria-live', 'assertive');
+
+    notification.innerHTML = `
+        <div class="update-content">
+            <span class="update-icon">🔄</span>
+            <div class="update-text">
+                <strong>Update Available</strong>
+                <p>A new version of Overlog is available!</p>
+            </div>
+            <div class="update-buttons">
+                <button id="updateReloadBtn" class="update-btn update-btn-primary">Reload Now</button>
+                <button id="updateDismissBtn" class="update-btn update-btn-secondary">Dismiss</button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(notification);
+
+    // Add event listeners
+    document.getElementById('updateReloadBtn').addEventListener('click', () => {
+        window.location.reload(true);
+    });
+
+    document.getElementById('updateDismissBtn').addEventListener('click', () => {
+        notification.remove();
+    });
+
+    // Auto-show with animation
+    setTimeout(() => {
+        notification.classList.add('show');
+    }, 100);
+}
+
+// Start periodic version checking (every 5 minutes)
+function startVersionChecking() {
+    // Check immediately on visibility change
+    document.addEventListener('visibilitychange', async () => {
+        if (!document.hidden) {
+            const hasUpdate = await checkForUpdates();
+            if (hasUpdate) {
+                showUpdateNotification();
+            }
+        }
+    });
+
+    // Periodic check every 5 minutes (300000ms)
+    versionCheckInterval = setInterval(async () => {
+        const hasUpdate = await checkForUpdates();
+        if (hasUpdate) {
+            showUpdateNotification();
+            // Stop checking once we've detected an update
+            if (versionCheckInterval) {
+                clearInterval(versionCheckInterval);
+                versionCheckInterval = null;
+            }
+        }
+    }, 300000); // 5 minutes
+}
+
+// Stop version checking (useful for cleanup)
+function stopVersionChecking() {
+    if (versionCheckInterval) {
+        clearInterval(versionCheckInterval);
+        versionCheckInterval = null;
     }
 }
 
@@ -1238,13 +1352,17 @@ function init() {
 
 // Initialize when DOM is ready
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
         init();
-        loadVersionInfo();
+        await loadVersionInfo();
+        startVersionChecking();
     });
 } else {
-    init();
-    loadVersionInfo();
+    (async () => {
+        init();
+        await loadVersionInfo();
+        startVersionChecking();
+    })();
 }
 
 // ============================================

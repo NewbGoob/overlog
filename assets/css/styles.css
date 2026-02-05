@@ -2018,3 +2018,141 @@ body.theme-light .theme-icon-moon {
         font-size: 0.9em;
     }
 }
+
+/* ============================================
+   Update Notification
+   ============================================ */
+
+.update-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10000;
+    background: var(--bg-solid-secondary);
+    border: 2px solid var(--accent-secondary);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px var(--shadow-color);
+    padding: 0;
+    max-width: 420px;
+    opacity: 0;
+    transform: translateX(450px);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.update-notification.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.update-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 20px;
+}
+
+.update-icon {
+    font-size: 2em;
+    flex-shrink: 0;
+    animation: rotate 2s linear infinite;
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.update-text {
+    flex: 1;
+}
+
+.update-text strong {
+    display: block;
+    font-size: 1.1em;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.update-text p {
+    font-size: 0.95em;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.update-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 16px;
+    width: 100%;
+    padding: 0 20px 20px 20px;
+}
+
+.update-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.95em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 100%;
+}
+
+.update-btn-primary {
+    background: var(--accent-secondary);
+    color: var(--bg-solid-primary);
+}
+
+.update-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(250, 206, 89, 0.3);
+}
+
+.update-btn-secondary {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color-strong);
+}
+
+.update-btn-secondary:hover {
+    background: var(--bg-solid-tertiary);
+    color: var(--text-primary);
+}
+
+/* Mobile responsiveness for update notification */
+@media (max-width: 768px) {
+    .update-notification {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        max-width: calc(100vw - 20px);
+    }
+
+    .update-content {
+        padding: 16px;
+        gap: 12px;
+    }
+
+    .update-icon {
+        font-size: 1.5em;
+    }
+
+    .update-text strong {
+        font-size: 1em;
+    }
+
+    .update-text p {
+        font-size: 0.9em;
+    }
+
+    .update-buttons {
+        padding: 0 16px 16px 16px;
+        margin-top: 12px;
+    }
+
+    .update-btn {
+        padding: 8px 16px;
+        font-size: 0.9em;
+    }
+}
