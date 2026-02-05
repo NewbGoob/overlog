@@ -57,6 +57,7 @@ export const CONFIG = {
         { id: 'zarya', name: 'Zarya', role: 'tank', portrait: 'zarya.png', stadiumAvailable: true },
 
         // Damage
+        { id: 'anran', name: 'Anran', role: 'damage', portrait: '', stadiumAvailable: false },
         { id: 'ashe', name: 'Ashe', role: 'damage', portrait: 'ashe.png', stadiumAvailable: true },
         { id: 'bastion', name: 'Bastion', role: 'damage', portrait: 'bastion.png', stadiumAvailable: false },
         { id: 'cassidy', name: 'Cassidy', role: 'damage', portrait: 'cassidy.png', stadiumAvailable: true },

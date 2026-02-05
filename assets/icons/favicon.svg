@@ -1,0 +1,48 @@
+<svg
+  width="256"
+  height="256"
+  viewBox="0 0 256 256"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <defs>
+    <!-- Angled UI-style gradient -->
+    <linearGradient
+      id="triangleGradient"
+      x1="0%"
+      y1="0%"
+      x2="100%"
+      y2="100%"
+    >
+      <stop offset="0%" stop-color="#FFE08A"/>
+      <stop offset="55%" stop-color="#FFB200"/>
+      <stop offset="100%" stop-color="#E07F00"/>
+    </linearGradient>
+
+    <!-- Simplified glow for small sizes -->
+    <filter id="subtleGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feColorMatrix
+        type="matrix"
+        values="
+          1 0 0 0 0
+          0 0.75 0 0 0
+          0 0 0 0 0
+          0 0 0 0.4 0
+        "
+      />
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Triangle with minimal padding for favicon -->
+  <polygon
+    points="128,210 28,60 228,60"
+    fill="url(#triangleGradient)"
+    stroke="#C96E00"
+    stroke-width="4"
+    filter="url(#subtleGlow)"
+  />
+</svg>

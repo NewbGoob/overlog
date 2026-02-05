@@ -5,6 +5,17 @@ All notable changes to Overlog will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.0] - 2026-02-05
+### Added
+- New damage hero: Anran
+- Favicon support with optimized golden down-triangle icon
+  - SVG favicon for modern browsers
+  - PNG favicons in multiple sizes (16x16, 32x32, 48x48)
+  - ICO fallback for legacy browser compatibility
+- Golden down-triangle logo icon next to "Overlog" header text
+### Changed
+- Removed glow effect from header text for cleaner appearance
+
 ## [1.8.1] - 2025-12-14
 ### Added
 - New damage hero: Vendetta
@@ -160,6 +171,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Version display in footer with commit hash
 - GitHub Actions deployment workflow
 
+[1.9.0]: https://github.com/NewbGoob/overlog/compare/v1.8.1...v1.9.0
 [1.8.1]: https://github.com/NewbGoob/overlog/compare/v1.8.0...v1.8.1
 [1.8.0]: https://github.com/NewbGoob/overlog/compare/v1.7.1...v1.8.0
 [1.7.1]: https://github.com/NewbGoob/overlog/compare/v1.7.0...v1.7.1
