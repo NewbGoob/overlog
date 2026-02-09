@@ -469,15 +469,45 @@ export function handleImportFile() {
 
 // Clear all data
 export function clearAllData() {
-    if (confirm('Are you sure you want to clear ALL match data? This cannot be undone!')) {
+    if (confirm('Are you sure you want to clear ALL DATA?\n\nThis will permanently delete:\n• All match history\n• All settings (reset to defaults)\n• Recent heroes\n• Session data\n• UI preferences\n\nThis cannot be undone!')) {
+        // Clear all match data
         state.matches = [];
         state.recentHeroes = [];
-        state.matchHistoryPage = 1; // Reset to first page
+        state.matchHistoryPage = 1;
         state.sessionStartTime = new Date();
+
+        // Reset settings to defaults
+        state.settings = { ...DEFAULT_SETTINGS };
+
+        // Reset match type selections
+        state.selectedParentType = null;
+        state.selectedChildType = null;
+        state.selectedResult = null;
+
+        // Reset view preferences
+        state.statsView = 'all-time';
+        state.matchHistoryView = 'all-time';
+
+        // Clear all localStorage keys
+        localStorage.removeItem('owMatches');
+        localStorage.removeItem('owSettings');
+        localStorage.removeItem('owSessionStart');
+        localStorage.removeItem('owRecentHeroes');
+        localStorage.removeItem('owLastMatchType');
+        localStorage.removeItem('owStatsView');
+        localStorage.removeItem('owMatchHistoryView');
+        localStorage.removeItem('lastExportReminder');
+
+        // Re-initialize session
         localStorage.setItem('owSessionStart', state.sessionStartTime.toISOString());
         localStorage.setItem('owRecentHeroes', JSON.stringify(state.recentHeroes));
         saveData();
+        saveSettings();
+
+        // Update UI
         updateUI();
-        renderRecentHeroes(); // Update recent heroes display
+        renderRecentHeroes();
+        updateMatchTypeToggleText();
+        updateSelectionDisplay();
     }
 }

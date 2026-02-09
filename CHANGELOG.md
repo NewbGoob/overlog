@@ -5,6 +5,21 @@ All notable changes to Overlog will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2026-02-09
+### Added
+- Dev menu for testing UI components and notifications
+  - Opt-in setting in Keyboard Shortcuts section (disabled by default)
+  - Accessible via ` key when enabled
+  - Slides in from right side without blocking view of results
+  - Test toast notifications, modals, banners, and contextual scenarios
+### Fixed
+- Dev menu update notification reload button now properly reloads the page
+- Update notification icon no longer animates (removed rotating animation)
+- Clear All Data function now properly clears all localStorage keys:
+  - Now clears settings, match type preferences, view preferences, and export reminder tracking
+  - Confirmation dialog now clearly lists all data that will be deleted
+  - Function now performs a complete factory reset as intended
+
 ## [2.0.0] - 2026-02-09
 ### Added
 - Hero subrole system with 10 subrole categories:

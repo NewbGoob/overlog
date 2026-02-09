@@ -51,6 +51,10 @@ import {
     getMatchTypeDisplayLabel as getMatchTypeDisplayLabelFromModule,
     initUIRenderer
 } from './ui-renderer.js';
+import {
+    initDevMenu,
+    handleDevMenuKeyboard
+} from './dev-menu.js';
 
 // ============================================
 // THEME FUNCTIONS
@@ -602,6 +606,7 @@ function openSettingsModal() {
     document.getElementById('settingWasdEnabled').checked = state.settings.wasdEnabled;
     document.getElementById('settingNumberKeysEnabled').checked = state.settings.numberKeysEnabled;
     document.getElementById('settingHotkeysEnabled').checked = state.settings.hotkeysEnabled;
+    document.getElementById('settingDevMenuEnabled').checked = state.settings.devMenuEnabled;
 
     // Update subsection visibility
     updateKeyboardShortcutsSubsection();
@@ -645,6 +650,7 @@ function saveSettingsFromModal() {
     state.settings.wasdEnabled = document.getElementById('settingWasdEnabled').checked;
     state.settings.numberKeysEnabled = document.getElementById('settingNumberKeysEnabled').checked;
     state.settings.hotkeysEnabled = document.getElementById('settingHotkeysEnabled').checked;
+    state.settings.devMenuEnabled = document.getElementById('settingDevMenuEnabled').checked;
 
     // Save to localStorage
     saveSettings();
@@ -1197,7 +1203,14 @@ function setupEventListeners() {
     }
 
     // Keyboard shortcuts
-    document.addEventListener('keydown', handleKeyboard);
+    document.addEventListener('keydown', (e) => {
+        // Check dev menu keyboard shortcuts first
+        if (handleDevMenuKeyboard(e)) {
+            return; // Dev menu handled it
+        }
+        // Otherwise handle normal keyboard shortcuts
+        handleKeyboard(e);
+    });
 
     // Click to focus - add listeners to all focusable elements
     document.addEventListener('click', handleClickFocus);
@@ -1302,6 +1315,13 @@ function init() {
         updateSelectionDisplay,
         updateSaveButton,
         showToast
+    });
+
+    initDevMenu({
+        showToast,
+        openSettingsModal,
+        openChangelogModal,
+        state
     });
 
     renderMatchTypeButtons();

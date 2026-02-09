@@ -158,6 +158,7 @@ export const DEFAULT_SETTINGS = {
     wasdEnabled: true,
     numberKeysEnabled: true,
     hotkeysEnabled: true,
+    devMenuEnabled: false, // Enable dev menu hotkey (`)
     sessionAutoReset: 'daily', // 'manual', 'daily', 'onlaunch'
     useOwStyleText: false, // false = Win/Loss/Draw, true = Victory/Defeat/Draw
     showMatchSavedNotification: true, // Show toast when match is saved
