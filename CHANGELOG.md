@@ -5,6 +5,28 @@ All notable changes to Overlog will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-02-09
+### Added
+- Hero subrole system with 10 subrole categories:
+  - Tank subroles: Bruiser, Initiator, Stalwart
+  - Damage subroles: Sharpshooter, Flanker, Specialist, Recon
+  - Support subroles: Tactician, Medic, Survivor
+- Subrole definitions stored centrally with names and passive ability descriptions
+- "Show Hero Subroles" setting in Hero Settings to display subrole text under hero names (disabled by default)
+- Four new heroes:
+  - Domina (Tank - Stalwart)
+  - Emre (Damage - Specialist)
+  - Jetpack Cat (Support - Tactician)
+  - Mizuki (Support - Survivor)
+- Placeholder image ("?") for heroes without portrait images
+### Changed
+- Hero count increased from 46 to 50 total heroes (14 tanks, 22 damage, 14 support)
+- Hero button layout updated to support vertical text stacking (name + subrole)
+- All 50 heroes now include subrole attribute
+- Vendetta now available in Stadium mode
+### Fixed
+- Changelog modal now properly displays nested bullet points with appropriate indentation and circle bullets
+
 ## [1.10.0] - 2026-02-05
 ### Added
 - Automatic update detection system with dual detection methods:
@@ -179,6 +201,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Version display in footer with commit hash
 - GitHub Actions deployment workflow
 
+[2.0.0]: https://github.com/NewbGoob/overlog/compare/v1.10.0...v2.0.0
+[1.10.0]: https://github.com/NewbGoob/overlog/compare/v1.9.0...v1.10.0
 [1.9.0]: https://github.com/NewbGoob/overlog/compare/v1.8.1...v1.9.0
 [1.8.1]: https://github.com/NewbGoob/overlog/compare/v1.8.0...v1.8.1
 [1.8.0]: https://github.com/NewbGoob/overlog/compare/v1.7.1...v1.8.0

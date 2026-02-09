@@ -593,6 +593,7 @@ function openSettingsModal() {
     document.getElementById('settingShowDrawButton').checked = state.settings.showDrawButton;
     document.getElementById('settingShowHeroes').checked = state.settings.showHeroes;
     document.getElementById('settingShowHeroPortraits').checked = state.settings.showHeroPortraits;
+    document.getElementById('settingShowHeroSubroles').checked = state.settings.showHeroSubroles;
     document.getElementById('settingAlwaysShowAllHeroes').checked = state.settings.alwaysShowAllHeroes;
     document.getElementById('settingShowMatchSavedNotification').checked = state.settings.showMatchSavedNotification;
     document.getElementById('settingShowSessionNotification').checked = state.settings.showSessionNotification;
@@ -635,6 +636,7 @@ function saveSettingsFromModal() {
     state.settings.showDrawButton = document.getElementById('settingShowDrawButton').checked;
     state.settings.showHeroes = document.getElementById('settingShowHeroes').checked;
     state.settings.showHeroPortraits = document.getElementById('settingShowHeroPortraits').checked;
+    state.settings.showHeroSubroles = document.getElementById('settingShowHeroSubroles').checked;
     state.settings.alwaysShowAllHeroes = document.getElementById('settingAlwaysShowAllHeroes').checked;
     state.settings.showMatchSavedNotification = document.getElementById('settingShowMatchSavedNotification').checked;
     state.settings.showSessionNotification = document.getElementById('settingShowSessionNotification').checked;
@@ -766,6 +768,7 @@ function parseMarkdownToHTML(markdown) {
     let html = '';
     const lines = markdown.split('\n');
     let inList = false;
+    let inNestedList = false;
 
     for (let i = 0; i < lines.length; i++) {
         let line = lines[i];
@@ -777,6 +780,10 @@ function parseMarkdownToHTML(markdown) {
 
         // Handle h2 headers (## Version)
         if (line.startsWith('## ')) {
+            if (inNestedList) {
+                html += '</ul>\n';
+                inNestedList = false;
+            }
             if (inList) {
                 html += '</ul>\n';
                 inList = false;
@@ -788,6 +795,10 @@ function parseMarkdownToHTML(markdown) {
 
         // Handle h3 headers (### Added, Changed, Fixed)
         if (line.startsWith('### ')) {
+            if (inNestedList) {
+                html += '</ul>\n';
+                inNestedList = false;
+            }
             if (inList) {
                 html += '</ul>\n';
                 inList = false;
@@ -797,8 +808,25 @@ function parseMarkdownToHTML(markdown) {
             continue;
         }
 
-        // Handle list items
+        // Handle nested list items (indented with 2+ spaces)
+        if (line.match(/^  - /)) {
+            if (!inNestedList) {
+                html += '<ul class="nested-list">\n';
+                inNestedList = true;
+            }
+            let listItem = line.substring(4); // Remove "  - "
+            // Convert markdown links [text](url) to HTML
+            listItem = listItem.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+            html += `<li>${listItem}</li>\n`;
+            continue;
+        }
+
+        // Handle first-level list items
         if (line.startsWith('- ')) {
+            if (inNestedList) {
+                html += '</ul>\n';
+                inNestedList = false;
+            }
             if (!inList) {
                 html += '<ul>\n';
                 inList = true;
@@ -812,6 +840,10 @@ function parseMarkdownToHTML(markdown) {
 
         // Handle empty lines
         if (line.trim() === '') {
+            if (inNestedList) {
+                html += '</ul>\n';
+                inNestedList = false;
+            }
             if (inList) {
                 html += '</ul>\n';
                 inList = false;
@@ -821,6 +853,10 @@ function parseMarkdownToHTML(markdown) {
 
         // Handle regular text (like the description lines)
         if (line.trim().length > 0 && !line.startsWith('[')) {
+            if (inNestedList) {
+                html += '</ul>\n';
+                inNestedList = false;
+            }
             if (inList) {
                 html += '</ul>\n';
                 inList = false;

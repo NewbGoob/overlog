@@ -688,15 +688,70 @@ h2::after {
     flex-shrink: 0;
 }
 
-.hero-btn.with-portrait .hero-name {
+/* Hero info container for portrait buttons */
+.hero-btn.with-portrait .hero-info {
     flex: 1;
-    text-align: left;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
     padding: 6px 8px;
+    gap: 2px;
+}
+
+.hero-btn.with-portrait .hero-name {
     font-size: 0.8em;
     line-height: 1.2;
+    font-weight: 600;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    width: 100%;
+    text-align: left;
+}
+
+.hero-btn.with-portrait .hero-subrole {
+    font-size: 0.65em;
+    line-height: 1;
+    opacity: 0.7;
+    font-weight: 400;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
+    text-align: left;
+}
+
+/* Placeholder image for heroes without portraits */
+.hero-portrait-placeholder {
+    width: 40px;
+    height: 40px;
+    background: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5em;
+    font-weight: bold;
+    color: var(--bg-primary);
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+/* Text-only hero button subrole */
+.hero-info-text-only {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    align-items: flex-start;
+    width: 100%;
+}
+
+.hero-subrole-text-only {
+    font-size: 0.7em;
+    opacity: 0.7;
+    font-weight: 400;
+    text-align: left;
+    width: 100%;
 }
 
 /* Recent hero button with portrait */
@@ -716,15 +771,44 @@ h2::after {
     flex-shrink: 0;
 }
 
-.recent-hero-btn.with-portrait .hero-name {
+/* Recent hero info container */
+.recent-hero-btn.with-portrait .hero-info {
     flex: 1;
-    text-align: left;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
     padding: 8px 10px;
+    gap: 2px;
+}
+
+.recent-hero-btn.with-portrait .hero-name {
     font-size: 0.9em;
     line-height: 1.2;
+    font-weight: 600;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    width: 100%;
+    text-align: left;
+}
+
+.recent-hero-btn.with-portrait .hero-subrole {
+    font-size: 0.7em;
+    line-height: 1;
+    opacity: 0.7;
+    font-weight: 400;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
+    text-align: left;
+}
+
+/* Placeholder for recent heroes without portraits */
+.recent-hero-btn .hero-portrait-placeholder {
+    width: 48px;
+    height: 48px;
 }
 
 /* ============================================
@@ -1600,6 +1684,12 @@ body.theme-light .theme-icon-moon {
     margin: 0.5em 0 1em 0;
     padding-left: 1.5em;
     list-style-type: disc;
+}
+
+.changelog-text ul.nested-list {
+    margin: 0.3em 0 0.5em 0;
+    padding-left: 1.5em;
+    list-style-type: circle;
 }
 
 .changelog-text li {

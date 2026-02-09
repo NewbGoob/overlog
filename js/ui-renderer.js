@@ -86,13 +86,38 @@ export function renderHeroButtons() {
         const disabledClass = isDisabled ? ' disabled' : '';
         const tooltipAttr = isDisabled ? ' title="Not available in Stadium mode"' : '';
 
+        // Get subrole text if setting is enabled
+        const showSubroles = state.settings.showHeroSubroles;
+        const subroleText = showSubroles && hero.subrole
+            ? CONFIG.subroleDefinitions[hero.subrole]?.name || ''
+            : '';
+
         if (showPortraits && hero.portrait) {
+            // Hero with portrait image
             return `<button class="hero-btn with-portrait${disabledClass}" data-hero="${hero.id}"${tooltipAttr}>
                         <img src="assets/images/heroes/${hero.portrait}" alt="${hero.name}" class="hero-portrait">
-                        <span class="hero-name">${hero.name}</span>
+                        <div class="hero-info">
+                            <span class="hero-name">${hero.name}</span>
+                            ${subroleText ? `<span class="hero-subrole">${subroleText}</span>` : ''}
+                        </div>
+                    </button>`;
+        } else if (showPortraits && !hero.portrait) {
+            // Hero without portrait - show placeholder
+            return `<button class="hero-btn with-portrait${disabledClass}" data-hero="${hero.id}"${tooltipAttr}>
+                        <div class="hero-portrait-placeholder">?</div>
+                        <div class="hero-info">
+                            <span class="hero-name">${hero.name}</span>
+                            ${subroleText ? `<span class="hero-subrole">${subroleText}</span>` : ''}
+                        </div>
                     </button>`;
         } else {
-            return `<button class="hero-btn${disabledClass}" data-hero="${hero.id}"${tooltipAttr}>${hero.name}</button>`;
+            // Text-only mode
+            return `<button class="hero-btn${disabledClass}" data-hero="${hero.id}"${tooltipAttr}>
+                        <div class="hero-info-text-only">
+                            ${hero.name}
+                            ${subroleText ? `<div class="hero-subrole-text-only">${subroleText}</div>` : ''}
+                        </div>
+                    </button>`;
         }
     };
 
@@ -188,13 +213,35 @@ export function renderRecentHeroes() {
         const disabledClass = isDisabled ? ' disabled' : '';
         const tooltipAttr = isDisabled ? ' title="Not available in Stadium mode"' : '';
 
+        // Get subrole text if setting is enabled
+        const showSubroles = state.settings.showHeroSubroles;
+        const subroleText = showSubroles && hero.subrole
+            ? CONFIG.subroleDefinitions[hero.subrole]?.name || ''
+            : '';
+
         if (showPortraits && hero.portrait) {
             return `<button class="hero-btn recent-hero-btn with-portrait${disabledClass} ${isSelected ? 'active' : ''}" data-hero="${hero.id}"${tooltipAttr}>
                         <img src="assets/images/heroes/${hero.portrait}" alt="${hero.name}" class="hero-portrait">
-                        <span class="hero-name">${hero.name}</span>
+                        <div class="hero-info">
+                            <span class="hero-name">${hero.name}</span>
+                            ${subroleText ? `<span class="hero-subrole">${subroleText}</span>` : ''}
+                        </div>
+                    </button>`;
+        } else if (showPortraits && !hero.portrait) {
+            return `<button class="hero-btn recent-hero-btn with-portrait${disabledClass} ${isSelected ? 'active' : ''}" data-hero="${hero.id}"${tooltipAttr}>
+                        <div class="hero-portrait-placeholder">?</div>
+                        <div class="hero-info">
+                            <span class="hero-name">${hero.name}</span>
+                            ${subroleText ? `<span class="hero-subrole">${subroleText}</span>` : ''}
+                        </div>
                     </button>`;
         } else {
-            return `<button class="hero-btn recent-hero-btn${disabledClass} ${isSelected ? 'active' : ''}" data-hero="${hero.id}"${tooltipAttr}>${hero.name}</button>`;
+            return `<button class="hero-btn recent-hero-btn${disabledClass} ${isSelected ? 'active' : ''}" data-hero="${hero.id}"${tooltipAttr}>
+                        <div class="hero-info-text-only">
+                            ${hero.name}
+                            ${subroleText ? `<div class="hero-subrole-text-only">${subroleText}</div>` : ''}
+                        </div>
+                    </button>`;
         }
     }).join('');
 
