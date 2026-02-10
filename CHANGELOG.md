@@ -5,6 +5,10 @@ All notable changes to Overlog will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2026-02-10
+### Added
+- Hero portrait images for 5 new heroes: Anran, Domina, Emre, Jetpack Cat, and Mizuki
+
 ## [2.1.0] - 2026-02-09
 ### Added
 - Dev menu for testing UI components and notifications
@@ -216,6 +220,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Version display in footer with commit hash
 - GitHub Actions deployment workflow
 
+[2.2.0]: https://github.com/NewbGoob/overlog/compare/v2.1.0...v2.2.0
+[2.1.0]: https://github.com/NewbGoob/overlog/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/NewbGoob/overlog/compare/v1.10.0...v2.0.0
 [1.10.0]: https://github.com/NewbGoob/overlog/compare/v1.9.0...v1.10.0
 [1.9.0]: https://github.com/NewbGoob/overlog/compare/v1.8.1...v1.9.0

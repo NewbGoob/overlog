@@ -91,7 +91,7 @@ export const CONFIG = {
     heroes: [
         // Tank
         { id: 'dva', name: 'D.Va', role: 'tank', portrait: 'dva.png', stadiumAvailable: true, subrole: 'initiator' },
-        { id: 'domina', name: 'Domina', role: 'tank', portrait: '', stadiumAvailable: false, subrole: 'stalwart' },
+        { id: 'domina', name: 'Domina', role: 'tank', portrait: 'domina.png', stadiumAvailable: false, subrole: 'stalwart' },
         { id: 'doomfist', name: 'Doomfist', role: 'tank', portrait: 'doomfist.png', stadiumAvailable: true, subrole: 'initiator' },
         { id: 'hazard', name: 'Hazard', role: 'tank', portrait: 'hazard.png', stadiumAvailable: true, subrole: 'stalwart' },
         { id: 'junkerqueen', name: 'Junker Queen', role: 'tank', portrait: 'junkerqueen.png', stadiumAvailable: true, subrole: 'stalwart' },
@@ -106,12 +106,12 @@ export const CONFIG = {
         { id: 'zarya', name: 'Zarya', role: 'tank', portrait: 'zarya.png', stadiumAvailable: true, subrole: 'bruiser' },
 
         // Damage
-        { id: 'anran', name: 'Anran', role: 'damage', portrait: '', stadiumAvailable: false, subrole: 'flanker' },
+        { id: 'anran', name: 'Anran', role: 'damage', portrait: 'anran.png', stadiumAvailable: false, subrole: 'flanker' },
         { id: 'ashe', name: 'Ashe', role: 'damage', portrait: 'ashe.png', stadiumAvailable: true, subrole: 'sharpshooter' },
         { id: 'bastion', name: 'Bastion', role: 'damage', portrait: 'bastion.png', stadiumAvailable: false, subrole: 'specialist' },
         { id: 'cassidy', name: 'Cassidy', role: 'damage', portrait: 'cassidy.png', stadiumAvailable: true, subrole: 'sharpshooter' },
         { id: 'echo', name: 'Echo', role: 'damage', portrait: 'echo.png', stadiumAvailable: false, subrole: 'recon' },
-        { id: 'emre', name: 'Emre', role: 'damage', portrait: '', stadiumAvailable: false, subrole: 'specialist' },
+        { id: 'emre', name: 'Emre', role: 'damage', portrait: 'emre.png', stadiumAvailable: false, subrole: 'specialist' },
         { id: 'freja', name: 'Freja', role: 'damage', portrait: 'freja.png', stadiumAvailable: true, subrole: 'recon' },
         { id: 'genji', name: 'Genji', role: 'damage', portrait: 'genji.png', stadiumAvailable: true, subrole: 'flanker' },
         { id: 'hanzo', name: 'Hanzo', role: 'damage', portrait: 'hanzo.png', stadiumAvailable: false, subrole: 'sharpshooter' },
@@ -134,13 +134,13 @@ export const CONFIG = {
         { id: 'baptiste', name: 'Baptiste', role: 'support', portrait: 'baptiste.png', stadiumAvailable: false, subrole: 'tactician' },
         { id: 'brigitte', name: 'Brigitte', role: 'support', portrait: 'brigitte.png', stadiumAvailable: true, subrole: 'survivor' },
         { id: 'illari', name: 'Illari', role: 'support', portrait: 'illari.png', stadiumAvailable: false, subrole: 'survivor' },
-        { id: 'jetpackcat', name: 'Jetpack Cat', role: 'support', portrait: '', stadiumAvailable: false, subrole: 'tactician' },
+        { id: 'jetpackcat', name: 'Jetpack Cat', role: 'support', portrait: 'jetpack-cat.png', stadiumAvailable: false, subrole: 'tactician' },
         { id: 'juno', name: 'Juno', role: 'support', portrait: 'juno.png', stadiumAvailable: true, subrole: 'survivor' },
         { id: 'kiriko', name: 'Kiriko', role: 'support', portrait: 'kiriko.png', stadiumAvailable: true, subrole: 'medic' },
         { id: 'lifeweaver', name: 'Lifeweaver', role: 'support', portrait: 'lifeweaver.png', stadiumAvailable: false, subrole: 'medic' },
         { id: 'lucio', name: 'Lúcio', role: 'support', portrait: 'lucio.png', stadiumAvailable: true, subrole: 'tactician' },
         { id: 'mercy', name: 'Mercy', role: 'support', portrait: 'mercy.png', stadiumAvailable: true, subrole: 'medic' },
-        { id: 'mizuki', name: 'Mizuki', role: 'support', portrait: '', stadiumAvailable: false, subrole: 'survivor' },
+        { id: 'mizuki', name: 'Mizuki', role: 'support', portrait: 'mizuki.png', stadiumAvailable: false, subrole: 'survivor' },
         { id: 'moira', name: 'Moira', role: 'support', portrait: 'moira.png', stadiumAvailable: true, subrole: 'medic' },
         { id: 'wuyang', name: 'Wuyang', role: 'support', portrait: 'wuyang.png', stadiumAvailable: true, subrole: 'survivor' },
         { id: 'zenyatta', name: 'Zenyatta', role: 'support', portrait: 'zenyatta.png', stadiumAvailable: true, subrole: 'tactician' }
