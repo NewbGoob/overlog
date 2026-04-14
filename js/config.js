@@ -119,7 +119,7 @@ export const CONFIG = {
         { id: 'mei', name: 'Mei', role: 'damage', portrait: 'mei.png', stadiumAvailable: true, subrole: 'specialist' },
         { id: 'pharah', name: 'Pharah', role: 'damage', portrait: 'pharah.png', stadiumAvailable: true, subrole: 'recon' },
         { id: 'reaper', name: 'Reaper', role: 'damage', portrait: 'reaper.png', stadiumAvailable: true, subrole: 'flanker' },
-        { id: 'sierra', name: 'Sierra', role: 'damage', portrait: '', stadiumAvailable: false, subrole: 'recon' },
+        { id: 'sierra', name: 'Sierra', role: 'damage', portrait: 'sierra.png', stadiumAvailable: false, subrole: 'recon' },
         { id: 'sojourn', name: 'Sojourn', role: 'damage', portrait: 'sojourn.png', stadiumAvailable: true, subrole: 'sharpshooter' },
         { id: 'soldier76', name: 'Soldier: 76', role: 'damage', portrait: 'soldier-76.png', stadiumAvailable: true, subrole: 'specialist' },
         { id: 'sombra', name: 'Sombra', role: 'damage', portrait: 'sombra.png', stadiumAvailable: false, subrole: 'recon' },
